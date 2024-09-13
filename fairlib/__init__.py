@@ -1,8 +1,9 @@
 import logging
 import pandas as pd
+import numpy as np
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('fairlib')
 
 
@@ -32,7 +33,7 @@ class DataFrameExtensionProperty:
                 instance.attrs[self.key] = self.default(instance, self.__default)
             value = self.validate_get(instance, instance.attrs[self.key])
             value = self.defensive_copy(instance, value)
-            logger.debug(f"Read property {DataFrame.__name__}#{id(instance)}.{self.__name}: {value}")
+            logger.debug(f"Read property {DataFrame.__name__}#{id(instance)}.{self.__name}: {repr(value)}")
             return value
         raise AttributeError(f"Can't read property {DataFrame.__name__}.{self.__name}")
     
@@ -50,7 +51,7 @@ class DataFrameExtensionProperty:
             value = self.validate_set(instance, value)
             value = self.defensive_copy(instance, value)
             instance.attrs[self.key] = value
-            logger.debug(f"Write property {DataFrame.__name__}#{id(instance)}.{self.__name}: {value}")
+            logger.debug(f"Write property {DataFrame.__name__}#{id(instance)}.{self.__name}: {repr(value)}")
         else:
             raise AttributeError(f"Can't write property {DataFrame.__name__}.{self.__name}")
         
@@ -68,6 +69,8 @@ class DataFrameExtensionProperty:
             raise AttributeError(f"Can't delete property {DataFrame.__name__}.{self.__name}")
 
     def apply(self, name):
+        if hasattr(DataFrame, name):
+            raise AttributeError(f"Attribute {name} already exists")
         setattr(DataFrame, name, self)
         self.__set_name__(DataFrame, name)
 
@@ -91,6 +94,50 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
 
 ColumnsContainerProperty().apply('targets')
 ColumnsContainerProperty().apply('sensitive')
+
+
+class ColumnsDomainInspector:
+    def __init__(self, df: DataFrame):
+        assert isinstance(df, DataFrame)
+        self._df = df
+
+    def __getitem__(self, name):
+        if name in self._df.columns:
+            domain = self._df[name].unique()
+            logger.debug(f"Inspect domain of {DataFrame.__name__}#{id(self._df)}[{name}]: {repr(domain)}")
+            return domain
+        raise KeyError(f"Column {name} not found")
+
+    def __len__(self):
+        return len(self._df.columns)
+    
+    def __iter__(self):
+        columns = list(self._df.columns)
+        return iter(columns)
+    
+    def __contains__(self, name):
+        return name in self._df.columns
+    
+    def items(self):
+        for column in self:
+            yield column, self[column]
+    
+    def __repr__(self):
+        return f"<{type(self).__name__}#{id(self)}>"
+    
+    def __str__(self):
+        return "{" + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items()) + "}"
+    
+
+class ColumnDomainInspectorProperty(DataFrameExtensionProperty):
+    def __init__(self):
+        super().__init__(can_read=True)
+
+    def __get__(self, instance, owner):
+        return ColumnsDomainInspector(instance)
+    
+
+ColumnDomainInspectorProperty().apply('domains')
 
 
 # let this be the last line of this file

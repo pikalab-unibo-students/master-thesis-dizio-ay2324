@@ -7,6 +7,8 @@ df = fl.DataFrame({
     'income': ['<40000', '40000..49999', '50000..59999', '60000..69999', '>=70000']
 })
 
+print(df['name']) # ['Alice', 'Bob', 'Carla', 'Davide', 'Elena']
+
 print(df)
 df.targets = 'income'
 print(df.targets) # {'income'}
@@ -23,7 +25,8 @@ df2 = df.drop(['name'], axis=1) # random operation creating another DataFrame. a
 print(df2.targets) # {'income'}
 print(df2.sensitive) # {'age', 'sex'}
 
-
 df3 = df.drop(['sex'], axis=1) # random operation creating another DataFrame. what if the operation changes the columns?
 print(df3.targets) # {'income'}
 print(df3.sensitive) # {'age'}
+
+print(df.domains) # {name: [Alice, Bob, Carla, Davide, Elena]; age: [25, 29, 32, 34, 45]; sex: [F, M]; income: [40000..49999, 50000..59999, 60000..69999, <40000, >=70000]}
