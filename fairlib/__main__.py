@@ -1,0 +1,3 @@
+import fairlib
+
+fairlib.main()
