@@ -23,3 +23,7 @@ df2 = df.drop(['name'], axis=1) # random operation creating another DataFrame. a
 print(df2.targets) # {'income'}
 print(df2.sensitive) # {'age', 'sex'}
 
+
+df3 = df.drop(['sex'], axis=1) # random operation creating another DataFrame. what if the operation changes the columns?
+print(df3.targets) # {'income'}
+print(df3.sensitive) # {'age'}

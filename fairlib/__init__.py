@@ -30,22 +30,31 @@ class DataFrameExtensionProperty:
         if self.__can_read:
             if self.key not in instance.attrs:
                 instance.attrs[self.key] = self.default(instance, self.__default)
-            value = instance.attrs[self.key]
+            value = self.validate_get(instance, instance.attrs[self.key])
+            value = self.defensive_copy(instance, value)
             logger.debug(f"Read property {DataFrame.__name__}#{id(instance)}.{self.__name}: {value}")
             return value
         raise AttributeError(f"Can't read property {DataFrame.__name__}.{self.__name}")
+    
+    def validate_get(self, instance, value):
+        return value
+    
+    def defensive_copy(self, instance, value):
+        return value
     
     def default(self, instance, default):
         return default
 
     def __set__(self, instance, value):
         if self.__can_write:
-            instance.attrs[self.key] = self.validate(instance, value)
+            value = self.validate_set(instance, value)
+            value = self.defensive_copy(instance, value)
+            instance.attrs[self.key] = value
             logger.debug(f"Write property {DataFrame.__name__}#{id(instance)}.{self.__name}: {value}")
         else:
             raise AttributeError(f"Can't write property {DataFrame.__name__}.{self.__name}")
         
-    def validate(self, instance, value):
+    def validate_set(self, instance, value):
         return value
 
     def __delete__(self, instance):
@@ -54,7 +63,7 @@ class DataFrameExtensionProperty:
                 del instance.attrs[self.key]
                 logger.debug(f"Delete property {DataFrame.__name__}#{id(instance)}.{self.__name}")
             else:
-                raise AttributeError(f"Can't delete property {DataFrame.__name__}.{self.__name}")
+                raise AttributeError(f"No such a key: {DataFrame.__name__}.{self.__name}")
         else:
             raise AttributeError(f"Can't delete property {DataFrame.__name__}.{self.__name}")
 
@@ -67,13 +76,16 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
     def __init__(self):
         super().__init__(can_read=True, can_write=True, default=set())
 
-    def validate(self, instance, value):
+    def validate_get(self, instance, value):
+        return set(column for column in value if column in instance.columns)
+
+    def validate_set(self, instance, value):
         if isinstance(value, str):
             value = {value}
         value = set(value)
-        for target in value:
-            if target not in instance.columns:
-                raise ValueError(f"Column {target} not found")
+        for column in value:
+            if column not in instance.columns:
+                raise ValueError(f"Column {column} not found")
         return value
 
 
