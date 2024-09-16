@@ -1,4 +1,5 @@
 import fairlib as fl
+import fairlib.metrics
 
 df = fl.DataFrame({
     'name': ['Alice', 'Bob', 'Carla', 'Davide', 'Elena'],
@@ -30,3 +31,5 @@ print(df3.targets) # {'income'}
 print(df3.sensitive) # {'age'}
 
 print(df.domains) # {name: [Alice, Bob, Carla, Davide, Elena]; age: [25, 29, 32, 34, 45]; sex: [F, M]; income: [40000..49999, 50000..59999, 60000..69999, <40000, >=70000]}
+
+print(df.stats())

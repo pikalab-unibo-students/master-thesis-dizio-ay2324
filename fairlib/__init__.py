@@ -78,6 +78,21 @@ class DataFrameExtensionProperty:
         self.__set_name__(DataFrame, name)
 
 
+class DataFrameExtensionFunction(DataFrameExtensionProperty):
+    def __init__(self, callable = None):
+        super().__init__(can_read=True)
+        self.__callable = callable
+    
+    def call(self, df, *args, **kwargs):
+        logger.debug("Call function %s#%s.%s", DataFrame.__name__, id(df), self.name)
+        if self.__callable is None:
+            raise NotImplementedError
+        return self.__callable(df, *args, **kwargs)
+    
+    def __get__(self, instance, _):
+        return lambda *args, **kwargs: self.call(instance, *args, **kwargs)
+
+
 class ColumnsContainerProperty(DataFrameExtensionProperty):
     def __init__(self):
         super().__init__(can_read=True, can_write=True, default=set())
