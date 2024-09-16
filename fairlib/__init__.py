@@ -1,9 +1,8 @@
 import logging
 import pandas as pd
-import numpy as np
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fairlib')
 
 
@@ -21,11 +20,15 @@ class DataFrameExtensionProperty:
     def __set_name__(self, owner, name):
         assert owner is DataFrame
         self.__name = name
-        logger.debug(f"Extend {DataFrame.__name__} with property {name}")
+        logger.debug("Extend %s with property %s", DataFrame.__name__, name)
 
     @property
     def key(self):
         return 'fairlib-' + self.__name
+    
+    @property
+    def name(self):
+        return self.__name
 
     def __get__(self, instance, owner):
         if self.__can_read:
@@ -33,9 +36,9 @@ class DataFrameExtensionProperty:
                 instance.attrs[self.key] = self.default(instance, self.__default)
             value = self.validate_get(instance, instance.attrs[self.key])
             value = self.defensive_copy(instance, value)
-            logger.debug(f"Read property {DataFrame.__name__}#{id(instance)}.{self.__name}: {repr(value)}")
+            logger.debug("Read property %s#%s.%s: %s", DataFrame.__name__, id(instance), self.name, value)
             return value
-        raise AttributeError(f"Can't read property {DataFrame.__name__}.{self.__name}")
+        raise AttributeError(name=self.name, instance=instance)
     
     def validate_get(self, instance, value):
         return value
@@ -51,9 +54,9 @@ class DataFrameExtensionProperty:
             value = self.validate_set(instance, value)
             value = self.defensive_copy(instance, value)
             instance.attrs[self.key] = value
-            logger.debug(f"Write property {DataFrame.__name__}#{id(instance)}.{self.__name}: {repr(value)}")
+            logger.debug("Write property %s#%s.%s: %r", DataFrame.__name__, id(instance), self.name, value)
         else:
-            raise AttributeError(f"Can't write property {DataFrame.__name__}.{self.__name}")
+            raise AttributeError(name=self.name, instance=instance)
         
     def validate_set(self, instance, value):
         return value
@@ -62,11 +65,11 @@ class DataFrameExtensionProperty:
         if self.__can_delete:
             if self.key in instance.attrs:
                 del instance.attrs[self.key]
-                logger.debug(f"Delete property {DataFrame.__name__}#{id(instance)}.{self.__name}")
+                logger.debug("Delete property %s#%s.%s", DataFrame.__name__, id(instance), self.name)
             else:
-                raise AttributeError(f"No such a key: {DataFrame.__name__}.{self.__name}")
+                raise AttributeError(f"No such a key: {DataFrame.__name__}.{self.name}")
         else:
-            raise AttributeError(f"Can't delete property {DataFrame.__name__}.{self.__name}")
+            raise AttributeError(name=self.name, instance=instance)
 
     def apply(self, name):
         if hasattr(DataFrame, name):
@@ -88,7 +91,7 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
         value = set(value)
         for column in value:
             if column not in instance.columns:
-                raise ValueError(f"Column {column} not found")
+                raise ValueError(f"Column `{column}` not found")
         return value
 
 
@@ -99,24 +102,24 @@ ColumnsContainerProperty().apply('sensitive')
 class ColumnsDomainInspector:
     def __init__(self, df: DataFrame):
         assert isinstance(df, DataFrame)
-        self._df = df
+        self.__df = df
 
     def __getitem__(self, name):
-        if name in self._df.columns:
-            domain = self._df[name].unique()
-            logger.debug(f"Inspect domain of {DataFrame.__name__}#{id(self._df)}[{name}]: {repr(domain)}")
+        if name in self.__df.columns:
+            domain = self.__df[name].unique()
+            logger.debug("Inspect domain of %s#%s[%s]: %r", DataFrame.__name__, id(self.__df), name, domain)
             return domain
         raise KeyError(f"Column {name} not found")
 
     def __len__(self):
-        return len(self._df.columns)
+        return len(self.__df.columns)
     
     def __iter__(self):
-        columns = list(self._df.columns)
+        columns = list(self.__df.columns)
         return iter(columns)
     
     def __contains__(self, name):
-        return name in self._df.columns
+        return name in self.__df.columns
     
     def items(self):
         for column in self:
