@@ -33,7 +33,7 @@ class DataFrameExtensionProperty:
     def __get__(self, instance, owner):
         if self.__can_read:
             if self.key not in instance.attrs:
-                instance.attrs[self.key] = self.default(instance, self.__default)
+                instance.attrs[self.key] = self.default(sorted(instance), self.__default)
             value = self.validate_get(instance, instance.attrs[self.key])
             value = self.defensive_copy(instance, value)
             logger.debug("Read property %s#%s.%s: %s", DataFrame.__name__, id(instance), self.name, value)
