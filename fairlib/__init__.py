@@ -1,12 +1,10 @@
 import logging
 import pandas as pd
+from pandas import DataFrame
 
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('fairlib')
-
-
-DataFrame = pd.DataFrame
 
 
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
