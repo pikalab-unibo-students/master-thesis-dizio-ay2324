@@ -1,3 +1,25 @@
+## 1.0.0 (2024-09-19)
+
+### Features
+
+* add support for extension functions ([e79072a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e79072a131a1c88aad9fbbe9dbb0c03d4a0f4faa))
+* added implementation of SPD and DI metrics, with associated testing ([da44fb4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/da44fb41c4060d1497085369ab1419ec712a864e))
+* implement domain property ([a445feb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a445feb2acd0893b7bd973481ecd37143b28c468))
+
+### Bug Fixes
+
+* improve safety of ColumnsContainerProperty ([34d9ed4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/34d9ed4beb28fdc8acaa5c359b2ac6faeaee71c2))
+* logging and information hiding ([01613e6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/01613e6f036d6503be092012ac82874cb1003c6e))
+* solved problem with use of DataFrame ([f698303](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f698303162d636729200078f07c9975e06079c61))
+
+### Tests
+
+* testing to verify the operation of extension functions ([f6f3cc0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f6f3cc046dc2a5f9948223fcc48591bd87366167))
+
+### Refactoring
+
+* rename library ([afda47e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/afda47e8ef7e4f370b419f1068989b3e47173b3a))
+
 ## [2.1.8](https://github.com/aequitas-aod/template-python-project-poetry/compare/2.1.7...2.1.8) (2024-09-11)
 
 ### Dependency updates
