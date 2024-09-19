@@ -10,7 +10,7 @@ class TestCustomDataframe(unittest.TestCase):
             'name': ['Alice', 'Bob', 'Carla', 'Davide', 'Elena'],
             'age': [25, 32, 45, 29, 34],
             'sex': ['F', 'M', 'F', 'M', 'F'],
-            'income': ['<40000', '40000..49999', '50000..59999', '60000..69999', '>=70000']
+            'income': ['40000', '50000', '45000', '53000', '43000']
         })
         self.df.targets = 'income'
         self.df.sensitive = {'age', 'sex'}

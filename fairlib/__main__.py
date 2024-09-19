@@ -1,21 +1,25 @@
 import fairlib as fl
 import fairlib.metrics
+from utility import apply_protected
 
 df = fl.DataFrame({
     'name': ['Alice', 'Bob', 'Carla', 'Davide', 'Elena'],
     'age': [25, 32, 45, 29, 34],
     'sex': ['F', 'M', 'F', 'M', 'F'],
-    'income': ['<40000', '40000..49999', '50000..59999', '60000..69999', '>=70000']
+    'income': [40000, 50000, 45000, 53000, 43000]
 })
 
-print(df['name']) # ['Alice', 'Bob', 'Carla', 'Davide', 'Elena']
-
-print(df)
 df.targets = 'income'
 print(df.targets) # {'income'}
 
 df.sensitive = {'age', 'sex'}
 print(df.sensitive) # {'age', 'sex'}
+
+protected = {
+    'age': lambda x: x > 30,
+    'sex': lambda x: x == 'M',
+    'income': lambda x: x > 45000
+}
 
 try:
     df.sensitive = {'age', 'sex', 'missing'}
@@ -30,6 +34,15 @@ df3 = df.drop(['sex'], axis=1) # random operation creating another DataFrame. wh
 print(df3.targets) # {'income'}
 print(df3.sensitive) # {'age'}
 
-print(df.domains) # {name: [Alice, Bob, Carla, Davide, Elena]; age: [25, 29, 32, 34, 45]; sex: [F, M]; income: [40000..49999, 50000..59999, 60000..69999, <40000, >=70000]}
+print(df.domains) # {name: [Alice, Bob, Carla, Davide, Elena]; age: [25, 29, 32, 34, 45]; sex: [F, M]; income: ['40000', '50000', '45000', '53000', '43000']
 
-print(df.stats())
+
+# Pre-processing
+for column, rule in protected.items():
+    df[column] = df[column].apply(rule).astype(int)
+
+
+print(df.domains)
+# Metrics
+spd = df.statistical_parity_difference()
+print(spd)

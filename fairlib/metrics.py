@@ -1,29 +1,69 @@
-from fairlib import DataFrame, DataFrameExtensionFunction
+from fairlib import DataFrameExtensionFunction
 from pandas.api.types import is_numeric_dtype
-from pandas import concat as concat_df
+import pandas as pd
+
 
 class Metric:
     def __call__(self, df):
         raise NotImplementedError
-    
+
     def apply(self, name):
         DataFrameExtensionFunction(callable=self).apply(name=name)
 
 
-class StatsMetric(Metric):
+class StatisticalParityDifference(Metric):
     def __call__(self, df):
-        res = DataFrame(columns = ['column', 'min', 'max', 'mean', 'std'])
-        for column in df.columns:
-            numeric = is_numeric_dtype(df[column])
-            row = {
-                'column': column,
-                'min': df[column].min() if numeric else None,
-                'max': df[column].max() if numeric else None,
-                'mean': df[column].mean() if numeric else None,
-                'std': df[column].std() if numeric else None,
-            }
-            res = concat_df([res, DataFrame([row])], ignore_index=True)
-        return res
-    
 
-StatsMetric().apply('stats')
+        spd = {}
+
+        for target_column in df.targets:
+            for group_column in df.sensitive:
+                if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
+                    df[group_column]
+                ):
+                    raise ValueError(
+                        "Target and group columns must be numeric"
+                    )
+
+                privileged_group = df[df[group_column] == 1]
+                privileged_positive_rate = privileged_group[target_column].mean()
+                
+                unprivileged_group = df[df[group_column] == 0]
+                unprivileged_positive_rate = unprivileged_group[target_column].mean()
+
+                spd_value = privileged_positive_rate - unprivileged_positive_rate
+                spd[target_column + "-" + group_column] = spd_value
+        return spd
+
+
+class DisparateImpact(Metric):
+    def __call__(self, df):
+        di = {}
+
+        for target_column in df.targets:
+            for group_column in df.sensitive:
+                if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
+                    df[group_column]
+                ):
+                    raise ValueError(
+                        "Target and group columns must be numeric"
+                    )
+
+                privileged_group = df[df[group_column] == 1]
+                privileged_positive_rate = privileged_group[target_column].mean()
+
+                unprivileged_group = df[df[group_column] == 0]
+                unprivileged_positive_rate = unprivileged_group[target_column].mean()
+
+                if privileged_positive_rate == 0:
+                    return float("inf")  
+                di_value = unprivileged_positive_rate / privileged_positive_rate
+                di[group_column] = di_value
+        return di
+
+
+
+StatisticalParityDifference().apply("statistical_parity_difference")
+DisparateImpact().apply("disparate_impact")
+
+
