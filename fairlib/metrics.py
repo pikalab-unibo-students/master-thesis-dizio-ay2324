@@ -58,7 +58,7 @@ class DisparateImpact(Metric):
                 if privileged_positive_rate == 0:
                     return float("inf")  
                 di_value = unprivileged_positive_rate / privileged_positive_rate
-                di[group_column] = di_value
+                di[target_column + "-" + group_column] = di_value
         return di
 
 
