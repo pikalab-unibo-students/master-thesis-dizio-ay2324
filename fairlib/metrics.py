@@ -17,6 +17,7 @@ class StatisticalParityDifference(Metric):
         spd = {}
 
         for target_column in df.targets:
+            spd[target_column] = {}
             for group_column in df.sensitive:
                 if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
                     df[group_column]
@@ -32,7 +33,7 @@ class StatisticalParityDifference(Metric):
                 unprivileged_positive_rate = unprivileged_group[target_column].mean()
 
                 spd_value = privileged_positive_rate - unprivileged_positive_rate
-                spd[target_column + "-" + group_column] = spd_value
+                spd[target_column][group_column] = spd_value
         return spd
 
 
@@ -41,6 +42,7 @@ class DisparateImpact(Metric):
         di = {}
 
         for target_column in df.targets:
+            di[target_column] = {}
             for group_column in df.sensitive:
                 if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
                     df[group_column]
@@ -58,7 +60,7 @@ class DisparateImpact(Metric):
                 if privileged_positive_rate == 0:
                     return float("inf")  
                 di_value = unprivileged_positive_rate / privileged_positive_rate
-                di[target_column + "-" + group_column] = di_value
+                di[target_column][group_column] = di_value
         return di
 
 

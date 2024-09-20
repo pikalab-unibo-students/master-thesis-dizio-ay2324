@@ -31,32 +31,37 @@ class TestMetrics(unittest.TestCase):
     def testStatisticalParityDifference(self):
         self.df.targets = ['target1']
         self.df.sensitive = ['sensitive1']
-        expected_spd = {'target1-sensitive1': -0.5}
-        
+        expected_spd = {'target1': {'sensitive1': -0.5}}
+    
         spd_result = self.df.statistical_parity_difference()
         assert spd_result == expected_spd, f"Expected {expected_spd}, but got {spd_result}"
-        
+    
         self.df.targets = ['target1', 'target2']
         self.df.sensitive = ['sensitive1', 'sensitive2', 'sensitive3']
-        
+    
         expected_spd = {
-            'target1-sensitive1': -0.500,  
-            'target1-sensitive2': 0.500,   
-            'target1-sensitive3': 0.267, 
-            'target2-sensitive1': 0.250,  
-            'target2-sensitive2': -0.250, 
-            'target2-sensitive3': -0.067
+            'target1': {
+                'sensitive1': -0.500,  
+                'sensitive2': 0.500,   
+                'sensitive3': 0.267
+            },
+            'target2': {
+                'sensitive1': 0.250,  
+                'sensitive2': -0.250, 
+                'sensitive3': -0.067
+            }
         }   
-        
+    
         spd_result = self.df.statistical_parity_difference()
-        for key in expected_spd:
-            self.assertAlmostEqual(spd_result[key], expected_spd[key], places=3, 
-                                   msg=f"Expected {expected_spd[key]} for {key}, but got {spd_result[key]}")
+        for target in expected_spd:
+            for sensitive in expected_spd[target]:
+                self.assertAlmostEqual(spd_result[target][sensitive], expected_spd[target][sensitive], places=3, 
+                                        msg=f"Expected {expected_spd[target][sensitive]} for {target}-{sensitive}, but got {spd_result[target][sensitive]}")
         
     def testDisparateImpact(self):
         self.df.targets = ['target1']
         self.df.sensitive = ['sensitive1']
-        expected_di = {'target1-sensitive1': 3.0}
+        expected_di = {'target1': {'sensitive1': 3.0}}
         
         di_result = self.df.disparate_impact()
         assert di_result == expected_di, f"Expected {expected_di}, but got {di_result}"
@@ -65,18 +70,23 @@ class TestMetrics(unittest.TestCase):
         self.df.sensitive = ['sensitive1', 'sensitive2', 'sensitive3']
         
         expected_di = {
-            'target1-sensitive1': 3.000, 
-            'target1-sensitive2': 0.333,
-            'target1-sensitive3': 0.556,
-            'target2-sensitive1': 0.667,
-            'target2-sensitive2': 1.500,
-            'target2-sensitive3': 1.111,
+            'target1': {
+                'sensitive1': 3.000, 
+                'sensitive2': 0.333,
+                'sensitive3': 0.556
+            },
+            'target2': {
+                'sensitive1': 0.667,
+                'sensitive2': 1.500,
+                'sensitive3': 1.111
+            }
         }
         
         di_result = self.df.disparate_impact()
-        for key in expected_di:
-            self.assertAlmostEqual(di_result[key], expected_di[key], places=3, 
-                                   msg=f"Expected {expected_di[key]} for {key}, but got {di_result[key]}")
+        for target in expected_di:
+            for sensitive in expected_di[target]:
+                self.assertAlmostEqual(di_result[target][sensitive], expected_di[target][sensitive], places=3, 
+                                       msg=f"Expected {expected_di[target][sensitive]} for {target}-{sensitive}, but got {di_result[target][sensitive]}")
         
         
 
