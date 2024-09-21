@@ -1,3 +1,21 @@
+## [1.1.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.0...1.1.0) (2024-09-21)
+
+### Features
+
+* Added option to define target and sensitive in metrics ([406132e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/406132e04d8e08d8f122c386a9f011359496b995))
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.107 ([ffa4408](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ffa4408319d2466cda5658330b8941a725ea1914))
+
+### Tests
+
+* implemented the test for DI ([38d7178](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/38d717840d3fcf867b6795ff9fb941b285909dc4))
+
+### Refactoring
+
+* changed the logic of the results of a metric ([80bc47a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/80bc47a4f935898573d570fcfddcd1394a8abf50))
+
 ## 1.0.0 (2024-09-19)
 
 ### Features
