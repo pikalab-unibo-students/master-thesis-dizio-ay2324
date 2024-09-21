@@ -1,6 +1,5 @@
 import fairlib as fl
 import fairlib.metrics
-from utility import apply_protected
 
 df = fl.DataFrame({
     'name': ['Alice', 'Bob', 'Carla', 'Davide', 'Elena'],
