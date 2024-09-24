@@ -6,19 +6,6 @@ import pandas as pd
 class TestMetrics(unittest.TestCase):
     
     def setUp(self):
-        '''        
-           'target1': [1, 0, 1, 1, 0, 1, 0, 0],
-        'sensitive1': [1, 1, 0, 0, 1, 0, 0, 1],
-        
-        Example: 
-        Privileged group (sensitive == 1): target = [1, 0, 0, 0]
-	        Average = (1 + 0 + 0) / 4 = 0.25
-	    Unprivileged group (sensitive == 0): target = [1, 1, 1, 0]
-	        Mean = (1 + 1 + 0) / 4 = 0.75
-         
-        SPD = 0.25 - 0.75 = -0.5
-        DI = 0.75/0.25 = 3.0
-        '''
         self.df = fl.DataFrame({
                'target1': [1, 0, 1, 1, 0, 1, 0, 0],
                'target2': [0, 1, 0, 1, 1, 0, 1, 1],
