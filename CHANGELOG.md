@@ -1,3 +1,14 @@
+## [1.2.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.1.0...1.2.0) (2024-09-24)
+
+### Features
+
+* **pre-processing:** added reweighing with testing using single column sensitive ([72e8919](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/72e8919eaf5e07397bf9feb74a6435ddc773a3b6))
+
+### Dependency updates
+
+* **deps:** update dependency poethepoet to ^0.29.0 ([45e808e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/45e808e8580832b932c8a48988c7547cd44d9f3d))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.108 ([64c0fb2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/64c0fb282edabefe69a5e83dba19f58867259089))
+
 ## [1.1.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.0...1.1.0) (2024-09-21)
 
 ### Features
