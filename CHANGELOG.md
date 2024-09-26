@@ -1,3 +1,9 @@
+## [1.3.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.3.0...1.3.1) (2024-09-26)
+
+### Documentation
+
+* **metrics:** added documentation to previously implemented metrics ([e04d782](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e04d7820099a58bca9bad868549bb396a9e92186))
+
 ## [1.3.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.2.0...1.3.0) (2024-09-26)
 
 ### Features
