@@ -7,7 +7,7 @@ class PreProcessing:
     """
     Base class for applying pre-processing techniques on a dataset.
 
-    Methods:
+    Methods
     --------
     __call__(df):
         Should be implemented in subclasses to apply a pre-processing operation on a DataFrame.
@@ -27,26 +27,26 @@ class Reweighing(PreProcessing):
     """
     Implements the Reweighing method to balance privileged and unprivileged groups in a dataset.
 
-    Methods:
+    Methods
     --------
     __call__(df, favorable_label=1):
         Applies reweighing to the DataFrame and returns the DataFrame with a weight column. For multiple sensitive columns,
         it applies reweighing in a cumulative way, calculating the intersection of privileged and unprivileged groups
         across all sensitive attributes.
 
-    Parameters:
+    Parameters
     -----------
     df : fairlearn.DataFrame (pandas.DataFrame)
         The dataset containing both sensitive and target columns.
     favorable_label : int, optional, default=1
         The value labeled as "favorable" in the target column.
 
-    Returns:
+    Returns
     --------
     fairlearn.DataFrame (pandas.DataFrame)
         A DataFrame with an additional 'weights' column containing the calculated weights for each example.
 
-    Raises:
+    Raises
     -------
     ValueError:
         If more than one target column is present in the dataset.
@@ -116,12 +116,12 @@ class ReweighingWithMean(PreProcessing):
     """
     Extends the Reweighing method to support multiple sensitive columns and computes the average of the weights.
 
-    Methods:
+    Methods
     --------
     __call__(df, favorable_label=1, remove_weight_columns=True):
         Applies reweighing to multiple sensitive columns and returns a DataFrame with an average weight column.
 
-    Parameters:
+    Parameters
     -----------
     df : fairlearn.DataFrame (pandas.DataFrame)
         The dataset containing both sensitive and target columns.
@@ -130,12 +130,12 @@ class ReweighingWithMean(PreProcessing):
     remove_weight_columns : bool, optional, default=True
         If set to True, removes the individual weight columns for each sensitive attribute after averaging.
 
-    Returns:
+    Returns
     --------
     fairlearn.DataFrame (pandas.DataFrame)
         A DataFrame with a 'weights' column containing the average weights for each example.
 
-    Raises:
+    Raises
     -------
     ValueError:
         If more than one target column is present in the dataset.

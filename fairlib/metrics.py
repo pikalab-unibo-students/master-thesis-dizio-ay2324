@@ -6,7 +6,7 @@ class Metric:
     """
     Base class for calculating metrics on a dataset.
 
-    Methods:
+    Methods
     --------
     __call__(df):
         Should be implemented in subclasses to apply a metric on a DataFrame.
