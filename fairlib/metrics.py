@@ -3,6 +3,17 @@ from pandas.api.types import is_numeric_dtype
 
 
 class Metric:
+    """
+    Base class for calculating metrics on a dataset.
+
+    Methods:
+    --------
+    __call__(df):
+        Should be implemented in subclasses to apply a metric on a DataFrame.
+
+    apply(name):
+        Applies the extension function on a DataFrame using a function name.
+    """
     def __call__(self, df, target_column, group_column):
         raise NotImplementedError
 
@@ -11,6 +22,21 @@ class Metric:
 
 
 class StatisticalParityDifference(Metric):
+    """
+    Calculates the Statistical Parity Difference for given target and group columns.
+
+    Args:
+        df: The DataFrame containing the data.
+        target_columns: List of columns representing the target variable (default is df.targets).
+        group_columns: List of columns representing the sensitive attribute (default is df.sensitive).
+
+    Returns:
+        dict: A dictionary where keys are target columns and values are dictionaries 
+                with group columns as keys and their respective Statistical Parity Difference values.
+
+    Raises:
+        ValueError: If target and group columns are not numeric.
+    """
     def __call__(self, df, target_columns=None, group_columns=None):
 
         if target_columns is None:
@@ -40,6 +66,21 @@ class StatisticalParityDifference(Metric):
 
 
 class DisparateImpact(Metric):
+    """
+    Calculates the Disparate Impact for given target and group columns.
+
+    Args:
+        df: The DataFrame containing the data.
+        target_columns: List of columns representing the target variable (default is df.targets).
+        group_columns: List of columns representing the sensitive attribute (default is df.sensitive).
+
+    Returns:
+        dict: A dictionary where keys are target columns and values are dictionaries 
+                with group columns as keys and their respective Disparate Impact values.
+
+    Raises:
+        ValueError: If target and group columns are not numeric.
+    """
     def __call__(self, df, target_columns=None, group_columns=None):
 
         if target_columns is None:
