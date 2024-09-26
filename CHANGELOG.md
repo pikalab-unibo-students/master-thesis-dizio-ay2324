@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.2.0...1.3.0) (2024-09-26)
+
+### Features
+
+* **pre-processing:** implemented support for multiple sensitive fields for reweighing, with related testing ([621a9c8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/621a9c8f3ed473f1abb0bca8ab6f54e14fcb85e0))
+
 ## [1.2.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.1.0...1.2.0) (2024-09-24)
 
 ### Features
