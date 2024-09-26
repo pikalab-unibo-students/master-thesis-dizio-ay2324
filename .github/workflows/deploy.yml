@@ -48,5 +48,5 @@ jobs:
           PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
           PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          RELEASE_TEST_PYPI: ${{ contains(github.repository, 'template') }}
+          RELEASE_TEST_PYPI: true
           RELEASE_DRY_RUN: ${{ github.ref_name != 'master' && github.ref_name != 'main' }}
