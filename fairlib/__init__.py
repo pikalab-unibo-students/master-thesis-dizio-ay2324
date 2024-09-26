@@ -9,12 +9,22 @@ logger = logging.getLogger("fairlib")
 
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
 class DataFrameExtensionProperty:
+    """
+    A descriptor class to extend the pandas DataFrame with additional properties.
+
+    Attributes:
+        default: The default value for the property.
+        can_read: Boolean indicating if the property can be read.
+        can_write: Boolean indicating if the property can be written.
+        can_delete: Boolean indicating if the property can be deleted.
+    """
+
     def __init__(self, default=None, can_read=False, can_write=False, can_delete=False):
         self.__can_read = can_read
         self.__can_write = can_write
         self.__can_delete = can_delete
         self.__default = default
-
+        
     def __set_name__(self, owner, name):
         assert owner is DataFrame
         self.__name = name
@@ -96,6 +106,12 @@ class DataFrameExtensionProperty:
 
 
 class DataFrameExtensionFunction(DataFrameExtensionProperty):
+    """
+    A descriptor class for extending the DataFrame with callable functions.
+
+    Args:
+        callable: The function to be called with the DataFrame.
+    """
     def __init__(self, callable=None):
         super().__init__(can_read=True)
         self.__callable = callable
@@ -111,6 +127,11 @@ class DataFrameExtensionFunction(DataFrameExtensionProperty):
 
 
 class ColumnsContainerProperty(DataFrameExtensionProperty):
+    """
+    A property class to manage a collection of DataFrame columns.
+
+    Inherits from DataFrameExtensionProperty.
+    """
     def __init__(self):
         super().__init__(can_read=True, can_write=True, default=set())
 
@@ -132,6 +153,13 @@ ColumnsContainerProperty().apply("sensitive")
 
 
 class ColumnsDomainInspector:
+    """
+    A class to inspect the domain of columns in a DataFrame.
+
+    Args:
+        df (DataFrame): The DataFrame to inspect.
+    """
+
     def __init__(self, df: DataFrame):
         assert isinstance(df, DataFrame)
         self.__df = df
