@@ -8,6 +8,25 @@
 
 * **metrics:** added documentation to previously implemented metrics ([e04d782](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e04d7820099a58bca9bad868549bb396a9e92186))
 
+### Build and continuous integration
+
+* update for deployment on test-pypi ([ebe1891](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ebe189184514067b8a66f174a3191ad94a69201e))
+
+### General maintenance
+
+* **release:** 1.3.1 [skip ci] ([ece70bc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ece70bce334a5a83b10f73915b9c77ce3d04a64d))
+* **release:** 1.3.1 [skip ci] ([4fe289e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4fe289e6a473ee8e3a0812163d04fbd28374d2b9))
+
+## [1.3.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.3.0...1.3.1) (2024-09-26)
+
+### Bug Fixes
+
+* removed an error that did not allow the correct display of the doc ([dde8a29](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/dde8a2930bfeaa60ea0f77144a97b26a012d6545))
+
+### Documentation
+
+* **metrics:** added documentation to previously implemented metrics ([e04d782](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e04d7820099a58bca9bad868549bb396a9e92186))
+
 ### General maintenance
 
 * **release:** 1.3.1 [skip ci] ([4fe289e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4fe289e6a473ee8e3a0812163d04fbd28374d2b9))
