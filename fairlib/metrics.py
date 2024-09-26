@@ -12,7 +12,7 @@ class Metric:
 
 class StatisticalParityDifference(Metric):
     def __call__(self, df, target_columns=None, group_columns=None):
-        
+
         if target_columns is None:
             target_columns = df.targets
         if group_columns is None:
@@ -26,13 +26,11 @@ class StatisticalParityDifference(Metric):
                 if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
                     df[group_column]
                 ):
-                    raise ValueError(
-                        "Target and group columns must be numeric"
-                    )
+                    raise ValueError("Target and group columns must be numeric")
 
                 privileged_group = df[df[group_column] == 1]
                 privileged_positive_rate = privileged_group[target_column].mean()
-                
+
                 unprivileged_group = df[df[group_column] == 0]
                 unprivileged_positive_rate = unprivileged_group[target_column].mean()
 
@@ -42,13 +40,13 @@ class StatisticalParityDifference(Metric):
 
 
 class DisparateImpact(Metric):
-       def __call__(self, df, target_columns=None, group_columns=None):
-        
+    def __call__(self, df, target_columns=None, group_columns=None):
+
         if target_columns is None:
             target_columns = df.targets
         if group_columns is None:
             group_columns = df.sensitive
-            
+
         di = {}
 
         for target_column in target_columns:
@@ -57,9 +55,7 @@ class DisparateImpact(Metric):
                 if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
                     df[group_column]
                 ):
-                    raise ValueError(
-                        "Target and group columns must be numeric"
-                    )
+                    raise ValueError("Target and group columns must be numeric")
 
                 privileged_group = df[df[group_column] == 1]
                 privileged_positive_rate = privileged_group[target_column].mean()
@@ -68,7 +64,7 @@ class DisparateImpact(Metric):
                 unprivileged_positive_rate = unprivileged_group[target_column].mean()
 
                 if privileged_positive_rate == 0:
-                    return float("inf")  
+                    return float("inf")
                 di_value = unprivileged_positive_rate / privileged_positive_rate
                 di[target_column][group_column] = di_value
         return di
@@ -84,9 +80,7 @@ class EqualOpportunityDifference(Metric):
                 if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
                     df[group_column]
                 ):
-                    raise ValueError(
-                        "Target and group columns must be numeric"
-                    )
+                    raise ValueError("Target and group columns must be numeric")
 
                 privileged_group = df[df[group_column] == 1]
 
@@ -99,5 +93,3 @@ class EqualOpportunityDifference(Metric):
 
 StatisticalParityDifference().apply("statistical_parity_difference")
 DisparateImpact().apply("disparate_impact")
-
-

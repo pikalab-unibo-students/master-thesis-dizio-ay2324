@@ -4,7 +4,7 @@ from pandas import DataFrame
 
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('fairlib')
+logger = logging.getLogger("fairlib")
 
 
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
@@ -22,8 +22,8 @@ class DataFrameExtensionProperty:
 
     @property
     def key(self):
-        return 'fairlib-' + self.__name
-    
+        return "fairlib-" + self.__name
+
     @property
     def name(self):
         return self.__name
@@ -31,19 +31,27 @@ class DataFrameExtensionProperty:
     def __get__(self, instance, owner):
         if self.__can_read:
             if self.key not in instance.attrs:
-                instance.attrs[self.key] = self.default(sorted(instance), self.__default)
+                instance.attrs[self.key] = self.default(
+                    sorted(instance), self.__default
+                )
             value = self.validate_get(instance, instance.attrs[self.key])
             value = self.defensive_copy(instance, value)
-            logger.debug("Read property %s#%s.%s: %s", DataFrame.__name__, id(instance), self.name, value)
+            logger.debug(
+                "Read property %s#%s.%s: %s",
+                DataFrame.__name__,
+                id(instance),
+                self.name,
+                value,
+            )
             return value
         raise AttributeError(name=self.name, instance=instance)
-    
+
     def validate_get(self, instance, value):
         return value
-    
+
     def defensive_copy(self, instance, value):
         return value
-    
+
     def default(self, instance, default):
         return default
 
@@ -52,10 +60,16 @@ class DataFrameExtensionProperty:
             value = self.validate_set(instance, value)
             value = self.defensive_copy(instance, value)
             instance.attrs[self.key] = value
-            logger.debug("Write property %s#%s.%s: %r", DataFrame.__name__, id(instance), self.name, value)
+            logger.debug(
+                "Write property %s#%s.%s: %r",
+                DataFrame.__name__,
+                id(instance),
+                self.name,
+                value,
+            )
         else:
             raise AttributeError(name=self.name, instance=instance)
-        
+
     def validate_set(self, instance, value):
         return value
 
@@ -63,7 +77,12 @@ class DataFrameExtensionProperty:
         if self.__can_delete:
             if self.key in instance.attrs:
                 del instance.attrs[self.key]
-                logger.debug("Delete property %s#%s.%s", DataFrame.__name__, id(instance), self.name)
+                logger.debug(
+                    "Delete property %s#%s.%s",
+                    DataFrame.__name__,
+                    id(instance),
+                    self.name,
+                )
             else:
                 raise AttributeError(f"No such a key: {DataFrame.__name__}.{self.name}")
         else:
@@ -77,16 +96,16 @@ class DataFrameExtensionProperty:
 
 
 class DataFrameExtensionFunction(DataFrameExtensionProperty):
-    def __init__(self, callable = None):
+    def __init__(self, callable=None):
         super().__init__(can_read=True)
         self.__callable = callable
-    
+
     def call(self, df, *args, **kwargs):
         logger.debug("Call function %s#%s.%s", DataFrame.__name__, id(df), self.name)
         if self.__callable is None:
             raise NotImplementedError
         return self.__callable(df, *args, **kwargs)
-    
+
     def __get__(self, instance, _):
         return lambda *args, **kwargs: self.call(instance, *args, **kwargs)
 
@@ -108,8 +127,8 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
         return value
 
 
-ColumnsContainerProperty().apply('targets')
-ColumnsContainerProperty().apply('sensitive')
+ColumnsContainerProperty().apply("targets")
+ColumnsContainerProperty().apply("sensitive")
 
 
 class ColumnsDomainInspector:
@@ -120,30 +139,40 @@ class ColumnsDomainInspector:
     def __getitem__(self, name):
         if name in self.__df.columns:
             domain = self.__df[name].unique()
-            logger.debug("Inspect domain of %s#%s[%s]: %r", DataFrame.__name__, id(self.__df), name, domain)
+            logger.debug(
+                "Inspect domain of %s#%s[%s]: %r",
+                DataFrame.__name__,
+                id(self.__df),
+                name,
+                domain,
+            )
             return domain
         raise KeyError(f"Column {name} not found")
 
     def __len__(self):
         return len(self.__df.columns)
-    
+
     def __iter__(self):
         columns = list(self.__df.columns)
         return iter(columns)
-    
+
     def __contains__(self, name):
         return name in self.__df.columns
-    
+
     def items(self):
         for column in self:
             yield column, self[column]
-    
+
     def __repr__(self):
         return f"<{type(self).__name__}#{id(self)}>"
-    
+
     def __str__(self):
-        return "{" + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items()) + "}"
-    
+        return (
+            "{"
+            + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items())
+            + "}"
+        )
+
 
 class ColumnDomainInspectorProperty(DataFrameExtensionProperty):
     def __init__(self):
@@ -151,9 +180,9 @@ class ColumnDomainInspectorProperty(DataFrameExtensionProperty):
 
     def __get__(self, instance, owner):
         return ColumnsDomainInspector(instance)
-    
 
-ColumnDomainInspectorProperty().apply('domains')
+
+ColumnDomainInspectorProperty().apply("domains")
 
 
 # let this be the last line of this file
