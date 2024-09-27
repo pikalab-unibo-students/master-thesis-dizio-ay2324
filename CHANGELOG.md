@@ -1,3 +1,60 @@
+## 1.0.0 (2024-09-27)
+
+### Features
+
+* add support for extension functions ([e79072a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e79072a131a1c88aad9fbbe9dbb0c03d4a0f4faa))
+* added implementation of SPD and DI metrics, with associated testing ([da44fb4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/da44fb41c4060d1497085369ab1419ec712a864e))
+* Added option to define target and sensitive in metrics ([406132e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/406132e04d8e08d8f122c386a9f011359496b995))
+* implement domain property ([a445feb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a445feb2acd0893b7bd973481ecd37143b28c468))
+* **pre-processing:** added reweighing with testing using single column sensitive ([72e8919](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/72e8919eaf5e07397bf9feb74a6435ddc773a3b6))
+* **pre-processing:** implemented support for multiple sensitive fields for reweighing, with related testing ([621a9c8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/621a9c8f3ed473f1abb0bca8ab6f54e14fcb85e0))
+
+### Dependency updates
+
+* **deps:** update dependency poethepoet to ^0.29.0 ([45e808e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/45e808e8580832b932c8a48988c7547cd44d9f3d))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.107 ([ffa4408](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ffa4408319d2466cda5658330b8941a725ea1914))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.108 ([64c0fb2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/64c0fb282edabefe69a5e83dba19f58867259089))
+
+### Bug Fixes
+
+* improve safety of ColumnsContainerProperty ([34d9ed4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/34d9ed4beb28fdc8acaa5c359b2ac6faeaee71c2))
+* logging and information hiding ([01613e6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/01613e6f036d6503be092012ac82874cb1003c6e))
+* removed an error that did not allow the correct display of the doc ([dde8a29](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/dde8a2930bfeaa60ea0f77144a97b26a012d6545))
+* solved problem with use of DataFrame ([f698303](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f698303162d636729200078f07c9975e06079c61))
+
+### Documentation
+
+* added basic documentation for DataFrame extension ([9c4f2b9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9c4f2b923443af29c2dfaa637b2911e2509abd96))
+* **metrics:** added documentation to previously implemented metrics ([e04d782](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e04d7820099a58bca9bad868549bb396a9e92186))
+
+### Tests
+
+* implemented the test for DI ([38d7178](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/38d717840d3fcf867b6795ff9fb941b285909dc4))
+* testing to verify the operation of extension functions ([f6f3cc0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f6f3cc046dc2a5f9948223fcc48591bd87366167))
+
+### Build and continuous integration
+
+* fix of the double release problem ([56f9f6c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/56f9f6c2da282f713c299e305654595b028efb8e))
+* update for deployment on test-pypi ([ebe1891](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ebe189184514067b8a66f174a3191ad94a69201e))
+
+### General maintenance
+
+* **release:** 1.0.0 [skip ci] ([1131e3b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/1131e3bba0fc22f8cf564dc5dbd00e9748ef60ba))
+* **release:** 1.1.0 [skip ci] ([ab64868](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ab648680dfb3df3b630bfff644c642846b26887b))
+* **release:** 1.2.0 [skip ci] ([a5166c3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a5166c39659b02616b8ae88584590033695fe8f0))
+* **release:** 1.3.0 [skip ci] ([2686021](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/26860211dcf8951165ff3cb2176f901b7f6c13a7))
+* **release:** 1.3.1 [skip ci] ([b26e9cf](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b26e9cff0127c6c13fdb7a1fde3ae92ef4961b67))
+* **release:** 1.3.1 [skip ci] ([7fcc9fb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/7fcc9fb4a3d24105eb461771406526bef81e5057))
+* **release:** 1.3.1 [skip ci] ([556cf8f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/556cf8f58313f3f8d64375d88e9f50cee5fa8b94))
+* **release:** 1.3.1 [skip ci] ([ece70bc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ece70bce334a5a83b10f73915b9c77ce3d04a64d))
+* **release:** 1.3.1 [skip ci] ([4fe289e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4fe289e6a473ee8e3a0812163d04fbd28374d2b9))
+* updated readme.md ([c4c7e3f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c4c7e3f0c51f8c65cc760302d2ed3da0355c42ca))
+
+### Refactoring
+
+* changed the logic of the results of a metric ([80bc47a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/80bc47a4f935898573d570fcfddcd1394a8abf50))
+* rename library ([afda47e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/afda47e8ef7e4f370b419f1068989b3e47173b3a))
+
 ## [1.3.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.3.0...1.3.1) (2024-09-26)
 
 ### Bug Fixes
