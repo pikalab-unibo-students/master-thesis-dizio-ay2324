@@ -3,7 +3,7 @@ import pandas as pd
 from pandas import DataFrame
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("fairlib")
 
 

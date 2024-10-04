@@ -53,7 +53,7 @@ for column, rule in protected.items():
 print(df.domains)
 # Metrics
 spd = df.statistical_parity_difference()
-print(spd)
+print(spd[{'income': 1, 'age': 1}])  
 
 df.sensitive = {"sex"}
 
