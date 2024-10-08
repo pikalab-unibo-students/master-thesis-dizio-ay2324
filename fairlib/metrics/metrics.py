@@ -1,11 +1,12 @@
 from fairlib import DataFrameExtensionFunction
-from pandas.api.types import is_numeric_dtype
 import numpy as np
-import warnings
+
+from fairlib.metrics.metrics_utils import check_and_setup
 from fairlib.utils.utils import *
 
-
 __all__ = ["Metric", "statistical_parity_difference", "disparate_impact"]
+
+from fairlib.utils.utils import DomainDict
 
 
 class Metric:
@@ -33,38 +34,10 @@ class Metric:
         DataFrameExtensionFunction(callable=self).apply(name=name)
 
 
-def __get_values(values: np.ndarray) -> tuple[np.ndarray, int]:
-    values = np.unique(values)
-    values.sort()
-    length = len(values)
-    if len(values) == 2:
-        length -= 1
-        if values[0] == 0:
-            values = values[::-1]
-    return values, length
-
-
-def statistical_parity_difference(
-    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
-) -> np.ndarray | dict:
-
-    if any(not is_numeric_dtype(c) for c in [target_column, sensitive_column]):
-        raise ValueError("Target and sensitive columns must be numeric")
-
-    if len(target_column) != len(sensitive_column):
-        raise ValueError("Target and sensitive columns must have the same length")
-
-    target_values, target_len = __get_values(target_column)
-    sensitive_values, sensitive_len = __get_values(sensitive_column)
-
-    if target_len < 2:
-        warnings.warn(f"Target column has less than 2 unique values: {target_values}")
-    if sensitive_len < 2:
-        warnings.warn(
-            f"Sensitive column has less than 2 unique values: {sensitive_len}"
-        )
-
-    result = np.zeros((target_len, sensitive_len)) if not as_dict else {}
+def statistical_parity_difference(target_column: np.ndarray, sensitive_column: np.ndarray,
+                                  as_dict: bool = False) -> np.ndarray | dict:
+    result, sensitive_len, sensitive_values, target_len, target_values = check_and_setup(as_dict, sensitive_column,
+                                                                                         target_column)
 
     for i in range(target_len):
         target = target_values[i]
@@ -72,11 +45,11 @@ def statistical_parity_difference(
             sensitive = sensitive_values[j]
 
             privileged_sensitive = target_column[sensitive_column == sensitive]
-            priveleged_sensitive_with_target = privileged_sensitive[
+            privileged_sensitive_with_target = privileged_sensitive[
                 privileged_sensitive == target
-            ]
+                ]
             privileged_rate = (
-                priveleged_sensitive_with_target.sum() / len(privileged_sensitive)
+                privileged_sensitive_with_target.sum() / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
                 else np.inf
             )
@@ -84,7 +57,7 @@ def statistical_parity_difference(
             unprivileged_sensitive = target_column[sensitive_column != sensitive]
             unprivileged_sensitive_with_target = unprivileged_sensitive[
                 unprivileged_sensitive == target
-            ]
+                ]
             unprivileged_rate = (
                 unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0
@@ -100,27 +73,11 @@ def statistical_parity_difference(
 
     return result
 
-def disparate_impact(
-    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
-) -> np.ndarray | dict:
 
-    if any(not is_numeric_dtype(c) for c in [target_column, sensitive_column]):
-        raise ValueError("Target and sensitive columns must be numeric")
-
-    if len(target_column) != len(sensitive_column):
-        raise ValueError("Target and sensitive columns must have the same length")
-
-    target_values, target_len = __get_values(target_column)
-    sensitive_values, sensitive_len = __get_values(sensitive_column)
-
-    if target_len < 2:
-        warnings.warn(f"Target column has less than 2 unique values: {target_values}")
-    if sensitive_len < 2:
-        warnings.warn(
-            f"Sensitive column has less than 2 unique values: {sensitive_len}"
-        )
-
-    result = np.zeros((target_len, sensitive_len)) if not as_dict else {}
+def disparate_impact(target_column: np.ndarray, sensitive_column: np.ndarray,
+                     as_dict: bool = False) -> np.ndarray | dict:
+    result, sensitive_len, sensitive_values, target_len, target_values = check_and_setup(as_dict, sensitive_column,
+                                                                                         target_column)
 
     for i in range(target_len):
         target = target_values[i]
@@ -128,11 +85,11 @@ def disparate_impact(
             sensitive = sensitive_values[j]
 
             privileged_sensitive = target_column[sensitive_column == sensitive]
-            priveleged_sensitive_with_target = privileged_sensitive[
+            privileged_sensitive_with_target = privileged_sensitive[
                 privileged_sensitive == target
-            ]
+                ]
             privileged_rate = (
-                priveleged_sensitive_with_target.sum() / len(privileged_sensitive)
+                privileged_sensitive_with_target.sum() / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
                 else np.inf
             )
@@ -140,7 +97,7 @@ def disparate_impact(
             unprivileged_sensitive = target_column[sensitive_column != sensitive]
             unprivileged_sensitive_with_target = unprivileged_sensitive[
                 unprivileged_sensitive == target
-            ]
+                ]
             unprivileged_rate = (
                 unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0
@@ -173,7 +130,8 @@ class StatisticalParityDifference(Metric):
     Raises:
         ValueError: If target and group columns are not numeric.
     """
-    def __call__(self, df, target_columns=None, group_columns=None) -> dict:
+
+    def __call__(self, df, target_columns=None, group_columns=None) -> DomainDict:
 
         if target_columns is None:
             target_columns = df.targets
@@ -236,27 +194,6 @@ class DisparateImpact(Metric):
                         )
                     ] = value
         return DomainDict(result)
-
-
-class EqualOpportunityDifference(Metric):
-    def __call__(self, df):
-        eod = {}
-
-        for target_column in df.targets:
-            eod[target_column] = {}
-            for group_column in df.sensitive:
-                if not is_numeric_dtype(df[target_column]) or not is_numeric_dtype(
-                    df[group_column]
-                ):
-                    raise ValueError("Target and group columns must be numeric")
-
-                privileged_group = df[df[group_column] == 1]
-
-                unprivileged_group = df[df[group_column] == 0]
-
-                eod_value = ...
-                eod[target_column][group_column] = eod_value
-        raise NotImplementedError
 
 
 StatisticalParityDifference().apply("statistical_parity_difference")
