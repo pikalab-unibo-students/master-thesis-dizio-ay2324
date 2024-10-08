@@ -1,6 +1,4 @@
 import fairlib as fl
-import fairlib.metrics
-import fairlib.pre_processing
 
 df = fl.DataFrame(
     {
@@ -53,7 +51,7 @@ for column, rule in protected.items():
 print(df.domains)
 # Metrics
 spd = df.statistical_parity_difference()
-print(spd[{'income': 1, 'age': 1}])  
+print(type(spd))  
 
 df.sensitive = {"sex"}
 

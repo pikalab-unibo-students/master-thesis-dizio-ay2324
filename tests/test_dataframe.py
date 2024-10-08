@@ -1,6 +1,5 @@
 import unittest
 import fairlib as fl
-import fairlib.metrics
 import pandas as pd
 
 

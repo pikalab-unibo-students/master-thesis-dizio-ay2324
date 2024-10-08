@@ -1,7 +1,5 @@
 import unittest
 import fairlib as fl
-import fairlib.metrics
-import pandas as pd
 
 
 class TestMetrics(unittest.TestCase):
@@ -20,7 +18,7 @@ class TestMetrics(unittest.TestCase):
     def testStatisticalParityDifference(self):
         self.df.targets = ["target1"]
         self.df.sensitive = ["sensitive1"]
-        expected_spd = {"target1": {"sensitive1": -0.5}}
+        expected_spd = DomainDict({("target1", "sensitive1"): -0.500})
 
         spd_result = self.df.statistical_parity_difference()
         assert (

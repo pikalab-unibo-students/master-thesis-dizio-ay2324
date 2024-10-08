@@ -1,5 +1,5 @@
 from numpy import array, inf
-from fairlib.metrics import *
+from fairlib.metrics.metrics import *
 import unittest
 
 
@@ -23,7 +23,7 @@ class TestMetricsOnBinaryData(unittest.TestCase):
 
 class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
 
-    def test_statistical_parity_difference_0(self):
+    def test_statistical_parity_difference_with_all_zero(self):
         col1 = str_to_int_list("00000000")
         col2 = str_to_int_list("01011010")
         self.data = array([col1, col2]).transpose()
@@ -33,7 +33,7 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
         )
         self.assertEqual(spd, inf)
 
-    def test_statistical_parity_difference_1(self):
+    def test_statistical_parity_difference_with_all_one(self):
         col1 = str_to_int_list("11111111")
         col2 = str_to_int_list("01011010")
         self.data = array([col1, col2]).transpose()

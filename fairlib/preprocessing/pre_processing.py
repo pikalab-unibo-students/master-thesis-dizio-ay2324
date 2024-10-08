@@ -1,6 +1,5 @@
-from fairlib import DataFrameExtensionFunction
-from pandas.api.types import is_numeric_dtype
 import pandas as pd
+from fairlib import DataFrameExtensionFunction
 
 
 class PreProcessing:
