@@ -144,13 +144,14 @@ class StatisticalParityDifference(Metric):
                 spd = statistical_parity_difference(
                     df[target_column], df[group_column], as_dict=True
                 )
-                for (target, group), value in spd.items():
-                    result[
-                        (
-                            Assignment(target_column, target),
-                            Assignment(group_column, group),
-                        )
-                    ] = value
+                if isinstance(spd, dict):
+                    for (target, group), value in spd.items():
+                        result[
+                            (
+                                Assignment(target_column, target),
+                                Assignment(group_column, group),
+                            )
+                        ] = value
         return DomainDict(result)
 
 
@@ -185,13 +186,14 @@ class DisparateImpact(Metric):
                 di = disparate_impact(
                     df[target_column], df[group_column], as_dict=True
                 )
-                for (target, group), value in di.items():
-                    result[
-                        (
-                            Assignment(target_column, target),
-                            Assignment(group_column, group),
-                        )
-                    ] = value
+                if isinstance(spd, dict):
+                    for (target, group), value in di.items():
+                        result[
+                            (
+                                Assignment(target_column, target),
+                                Assignment(group_column, group),
+                            )
+                        ] = value
         return DomainDict(result)
 
 
