@@ -1,3 +1,32 @@
+## [1.0.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.0...1.0.1) (2024-10-09)
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.109 ([6e92c5d](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6e92c5db54404283a163dd445573e1bf723bf649))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.110 ([7b4863c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/7b4863c1f0b706b0f1cfdceccf552f9a9bb15392))
+* **deps:** update node.js to 20.18 ([9c8d1b2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9c8d1b23338fc12d7493d8f7327a76a7ccfebd9a))
+* **deps:** update npm to v10.9.0 ([552f194](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/552f194299f981004db59d72c77deb8ab2cfe371))
+
+### Bug Fixes
+
+* removed incorrect requirement ([bc2e179](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bc2e1792b67dd231a39813b4d6c062b37f25afd2))
+* some problems on tests that were not working due to safety issues ([ca45648](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ca45648b878aa7787081d8c9a4af1993790a6b7b))
+
+### Tests
+
+* adaptation of tests to the new implementation of metrics ([dd5343b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/dd5343b5aaa96b3f2cac31ff9495014697bc4018))
+
+### General maintenance
+
+* **examples:** added statistical parity difference example ([6ad29e9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6ad29e97cf290a1dcd154751cfe892964e88db58))
+* several improvements suggestion (please rebase this commit) ([082cf2e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/082cf2e9f7553af94268ca505612630a9b999f12))
+
+### Refactoring
+
+* changed the structure of the project following the one in the readme ([100a1ff](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/100a1fff93ff4164a0def486083cf31c1dcbd38f))
+* fix imports ([c41d4fb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c41d4fb3572b7a16b4c5b76d84b1c86085005f10))
+* some refactor in the metrics ([6187894](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/618789440059dc942d1a96ecd22445e123a6819c))
+
 ## 1.0.0 (2024-09-27)
 
 ### Features
