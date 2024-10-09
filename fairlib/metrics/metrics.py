@@ -103,12 +103,12 @@ def disparate_impact(target_column: np.ndarray, sensitive_column: np.ndarray,
                 else -np.inf
             )
 
-            spd = privileged_rate / unprivileged_rate
+            di = unprivileged_rate / privileged_rate
 
             if as_dict:
-                result[(target, sensitive)] = spd
+                result[(target, sensitive)] = di
             else:
-                result[i, j] = spd
+                result[i, j] = di
 
     return result
 

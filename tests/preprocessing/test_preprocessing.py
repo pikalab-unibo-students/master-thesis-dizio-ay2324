@@ -1,5 +1,6 @@
 import unittest
 import fairlib as fl
+import fairlib.preprocessing.pre_processing
 import pandas.testing as pd_testing
 
 
@@ -15,7 +16,7 @@ class TestPreProcessing(unittest.TestCase):
             }
         )
 
-    def testSingleReweighin(self):
+    def testSingleReweighing(self):
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1"}
         transformed_df = self.df.reweighing()

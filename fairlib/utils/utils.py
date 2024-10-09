@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, Tuple
 from typing import Mapping
 
 
@@ -15,9 +15,10 @@ class Assignment(Domain):
 
     def __str__(self) -> str:
         return f"{self.feature}={self.value}"
-    
+
     def __repr__(self) -> str:
         return str(self)
+
 
 @dataclass(frozen=True)
 class Range(Domain):
@@ -27,7 +28,7 @@ class Range(Domain):
 
     def __str__(self) -> str:
         return f"{self.feature} in [{self.lower_bound}, {self.upper_bound}]"
-    
+
     def __repr__(self) -> str:
         return str(self)
 
@@ -36,7 +37,7 @@ def dict_intersection(dict1, dict2):
     return {k: v for k, v in dict1.items() if k in dict2 and v == dict2[k]}
 
 
-def dict_to_domain(assignments: dict) -> tuple[Assignment]:
+def dict_to_domain(assignments: dict) -> tuple[Assignment, ...]:
     return tuple(Assignment(k, v) for k, v in assignments.items())
 
 
