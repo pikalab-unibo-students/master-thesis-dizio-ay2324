@@ -4,7 +4,6 @@ import numpy as np
 from fairlib.metrics.metrics_utils import check_and_setup
 from fairlib.utils.utils import *
 
-__all__ = ["Metric", "statistical_parity_difference", "disparate_impact"]
 
 from fairlib.utils.utils import DomainDict
 
