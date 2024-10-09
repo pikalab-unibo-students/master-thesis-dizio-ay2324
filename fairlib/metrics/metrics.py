@@ -186,7 +186,7 @@ class DisparateImpact(Metric):
                 di = disparate_impact(
                     df[target_column], df[group_column], as_dict=True
                 )
-                if isinstance(spd, dict):
+                if isinstance(di, dict):
                     for (target, group), value in di.items():
                         result[
                             (
