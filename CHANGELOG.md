@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.1...1.0.2) (2024-10-09)
+
+### Bug Fixes
+
+* some problems in the algorithms ([987e0eb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/987e0ebee856c8c24dc0705a2fb3001361edfdbc))
+
 ## [1.0.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.0...1.0.1) (2024-10-09)
 
 ### Dependency updates
