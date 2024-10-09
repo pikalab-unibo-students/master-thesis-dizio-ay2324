@@ -13,6 +13,10 @@ readme = "README.md"
 python = ">= 3.9.0 < 4.0.0"
 scikit-learn = "^1.5.0"
 pandas = "^2.2.2"
+tensorflow = { version = "^2.17.0", optional = true }
+
+[tool.poetry.extras]
+tf = ["tensorflow"]
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.4.0"
@@ -21,8 +25,10 @@ poethepoet = "^0.29.0"
 poetry = "^1.8.3"
 pytest = "^8.2.2"
 nbformat = "^5.10.4"
-
 ipykernel = "^6.29.5"
+notebook = "^7.2.2"
+matplotlib = "^3.9.2"
+
 [tool.poe.tasks]
 test = "python -m unittest discover -v -s tests -p '*.py'"
 coverage = "coverage run -m unittest discover -v -s tests -p '*.py'"
