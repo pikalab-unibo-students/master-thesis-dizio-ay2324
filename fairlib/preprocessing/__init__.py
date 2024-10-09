@@ -1,5 +1,5 @@
 import pandas as pd
-from fairlib import DataFrameExtensionFunction
+from fairlib.dataframe import DataFrameExtensionFunction
 
 
 class PreProcessing:

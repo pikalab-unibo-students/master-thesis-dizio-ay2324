@@ -1,6 +1,6 @@
 import unittest
 import fairlib as fl
-import fairlib.preprocessing.pre_processing
+import fairlib.preprocessing
 import pandas.testing as pd_testing
 
 

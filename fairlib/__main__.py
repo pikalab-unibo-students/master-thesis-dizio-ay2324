@@ -1,6 +1,6 @@
 import fairlib as fl
-import fairlib.metrics.metrics
-import fairlib.preprocessing.pre_processing
+import fairlib.metrics
+import fairlib.preprocessing
 
 df = fl.DataFrame(
     {

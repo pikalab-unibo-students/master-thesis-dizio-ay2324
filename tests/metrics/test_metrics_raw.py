@@ -1,5 +1,5 @@
 from numpy import array, inf
-from fairlib.metrics.metrics import *
+from fairlib.metrics import *
 import unittest
 
 

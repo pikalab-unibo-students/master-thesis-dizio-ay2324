@@ -1,11 +1,8 @@
-from fairlib import DataFrameExtensionFunction
+from fairlib.dataframe import DataFrameExtensionFunction
 import numpy as np
 
-from fairlib.metrics.metrics_utils import check_and_setup
-from fairlib.utils.utils import *
-
-
-from fairlib.utils.utils import DomainDict
+from fairlib.metrics._utils import check_and_setup
+from fairlib.utils import *
 
 
 class Metric:

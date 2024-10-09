@@ -1,6 +1,6 @@
 import unittest
 import fairlib as fl
-from fairlib.utils.utils import DomainDict, Assignment
+from fairlib.utils import DomainDict, Assignment
 
 
 class TestMetrics(unittest.TestCase):
