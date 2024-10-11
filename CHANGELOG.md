@@ -1,3 +1,18 @@
+## [2.0.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.2...2.0.0) (2024-10-11)
+
+### ⚠ BREAKING CHANGES
+
+* project structure now loads all submodules when fairlib is loaded
+
+### Bug Fixes
+
+* **deps:** dev dependencies for notebook and matplotlib + tensorflow as optional dep ([266cae6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/266cae6d3f03a5d6ee41e22f84864cc9a630dbcf))
+* explicit union types to avoid errors in python<3.10 ([f8547b3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f8547b32153f1681c77d9added84b1e80bba84dc))
+
+### Refactoring
+
+* project structure now loads all submodules when fairlib is loaded ([91c00ca](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/91c00caca5d17e97241fa095a93250b482295a1d))
+
 ## [1.0.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.1...1.0.2) (2024-10-09)
 
 ### Bug Fixes
