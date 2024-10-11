@@ -4,6 +4,8 @@ import numpy as np
 from fairlib.metrics._utils import check_and_setup
 from fairlib.utils import *
 
+from typing import Union, Optional
+
 
 class Metric:
     """
@@ -30,10 +32,13 @@ class Metric:
         DataFrameExtensionFunction(callable=self).apply(name=name)
 
 
-def statistical_parity_difference(target_column: np.ndarray, sensitive_column: np.ndarray,
-                                  as_dict: bool = False) -> np.ndarray | dict:
-    result, sensitive_len, sensitive_values, target_len, target_values = check_and_setup(as_dict, sensitive_column,
-                                                                                         target_column)
+def statistical_parity_difference(
+        target_column: np.ndarray, 
+        sensitive_column: np.ndarray,
+        as_dict: bool = False) -> Union[np.ndarray, dict]:
+    
+    result, sensitive_len, sensitive_values, target_len, target_values = \
+        check_and_setup(as_dict, sensitive_column, target_column)
 
     for i in range(target_len):
         target = target_values[i]
@@ -43,7 +48,7 @@ def statistical_parity_difference(target_column: np.ndarray, sensitive_column: n
             privileged_sensitive = target_column[sensitive_column == sensitive]
             privileged_sensitive_with_target = privileged_sensitive[
                 privileged_sensitive == target
-                ]
+            ]
             privileged_rate = (
                 privileged_sensitive_with_target.sum() / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
@@ -53,7 +58,7 @@ def statistical_parity_difference(target_column: np.ndarray, sensitive_column: n
             unprivileged_sensitive = target_column[sensitive_column != sensitive]
             unprivileged_sensitive_with_target = unprivileged_sensitive[
                 unprivileged_sensitive == target
-                ]
+            ]
             unprivileged_rate = (
                 unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0
@@ -70,10 +75,13 @@ def statistical_parity_difference(target_column: np.ndarray, sensitive_column: n
     return result
 
 
-def disparate_impact(target_column: np.ndarray, sensitive_column: np.ndarray,
-                     as_dict: bool = False) -> np.ndarray | dict:
-    result, sensitive_len, sensitive_values, target_len, target_values = check_and_setup(as_dict, sensitive_column,
-                                                                                         target_column)
+def disparate_impact(
+        target_column: np.ndarray, 
+        sensitive_column: np.ndarray,
+        as_dict: bool = False) -> Union[np.ndarray, dict]:
+    
+    result, sensitive_len, sensitive_values, target_len, target_values = \
+        check_and_setup(as_dict, sensitive_column, target_column)
 
     for i in range(target_len):
         target = target_values[i]
@@ -83,7 +91,7 @@ def disparate_impact(target_column: np.ndarray, sensitive_column: np.ndarray,
             privileged_sensitive = target_column[sensitive_column == sensitive]
             privileged_sensitive_with_target = privileged_sensitive[
                 privileged_sensitive == target
-                ]
+            ]
             privileged_rate = (
                 privileged_sensitive_with_target.sum() / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
@@ -93,7 +101,7 @@ def disparate_impact(target_column: np.ndarray, sensitive_column: np.ndarray,
             unprivileged_sensitive = target_column[sensitive_column != sensitive]
             unprivileged_sensitive_with_target = unprivileged_sensitive[
                 unprivileged_sensitive == target
-                ]
+            ]
             unprivileged_rate = (
                 unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0

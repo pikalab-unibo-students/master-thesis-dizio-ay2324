@@ -1,14 +1,15 @@
 from sklearn.base import BaseEstimator
 from numpy import ndarray
 from pandas import DataFrame
+from typing import Union, Optional
 
 
 class InProcessing(BaseEstimator):
 
     def __unpack_dataframe( 
             self, 
-            x: ndarray | DataFrame,
-            y: ndarray | None = None) -> tuple[ndarray, ndarray | None]:
+            x: Union[ndarray, DataFrame],
+            y: Optional[ndarray] = None) -> tuple[ndarray, Optional[ndarray]]:
         if isinstance(x, ndarray):
             if y is None:
                 raise ValueError("y must be provided if x is a numpy array")
