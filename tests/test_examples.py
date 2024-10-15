@@ -2,6 +2,7 @@ import nbformat
 from pathlib import Path
 from nbconvert.preprocessors import ExecutePreprocessor
 import unittest
+from typing import Callable
 
 
 DIR_ROOT = Path(__file__).parent.parent
@@ -17,8 +18,8 @@ class NotebookRunner:
         self.path = path
         self.__notebook = None
 
-    def __get_outputs(self, notebook, filter: callable):
-        outputs  = dict()
+    def __get_outputs(self, notebook, filter: Callable) -> dict[int, dict[int, list]]:
+        outputs: dict[int, dict[int, list]]  = dict()
         for i, cell in enumerate(notebook.cells):
             if i not in outputs:
                 outputs[i] = dict()
@@ -74,7 +75,7 @@ def fancy_name(path: Path) -> str:
 
 class BaseNotebookTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.nbr = NotebookRunner(self.notebook_path)
+        self.nbr = NotebookRunner(self.notebook_path) # type: ignore
         self.assertIsNotNone(self.nbr.notebook)
 
     def test_notebook_has_no_errors(self):
