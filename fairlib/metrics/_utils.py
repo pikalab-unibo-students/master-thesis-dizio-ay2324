@@ -21,8 +21,6 @@ def check_and_setup(as_dict, sensitive_column, target_column):
         raise ValueError("Target and sensitive columns must have the same length")
     target_values, target_len = _get_values(target_column)
     sensitive_values, sensitive_len = _get_values(sensitive_column)
-    if target_len < 2:
-        warnings.warn(f"Target column has less than 2 unique values: {target_values}")
     if sensitive_len < 2:
         warnings.warn(
             f"Sensitive column has less than 2 unique values: {sensitive_len}"
