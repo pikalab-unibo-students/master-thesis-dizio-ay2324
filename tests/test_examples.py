@@ -38,7 +38,7 @@ class NotebookRunner:
             timeout: int = DEFAULT_TIMEOUT):
         if self.__notebook is not None:
             return
-        with open(self.path) as f:
+        with open(self.path, 'r', encoding='utf-8') as f:
             nb = nbformat.read(f, as_version=version)
             ep = ExecutePreprocessor(timeout=timeout, kernel_name=kernel)
             ep.preprocess(nb, {'metadata': {'path': DIR_EXAMPLES}})
