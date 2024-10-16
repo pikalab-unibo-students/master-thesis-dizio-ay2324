@@ -4,16 +4,17 @@ packages = [
     { include = "fairlib" },
 ]
 version = "2.0.0"
-description = "A template for Python projects, using Poetry"
-authors = ["Giovanni Ciatto <giovanni.ciatto@unibo.it>"]
+description = "A library that enables the use of tools suitable for improving equity in machine learning processes"
+authors = ["Giovanni Ciatto <giovanni.ciatto@unibo.it>", "Valerio Di Zio <valerio.dizio@studio.unibo.it"]
 license = "Apache 2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">= 3.9.0 < 4.0.0"
+python =  ">=3.9.0,<3.13"
 scikit-learn = "^1.5.0"
 pandas = "^2.2.2"
-tensorflow = { version = "2.16.1", optional = true }
+tensorflow = { version = "2.17.*", optional = true }
+tensorflow-io-gcs-filesystem = { version = "0.37.1", platform = "linux", optional = true }
 
 
 [tool.poetry.extras]
