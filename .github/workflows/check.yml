@@ -67,8 +67,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Test on Python ${{ matrix.python-version }}, on ${{ matrix.os }}
     timeout-minutes: 45
-
-    if: "!(matrix.os == 'windows-latest' && (matrix.python-version == '3.9' || matrix.python-version == '3.10' || matrix.python-version == '3.11'))"
+    if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
     steps:
       - name: Setup Python
         uses: actions/setup-python@v5
