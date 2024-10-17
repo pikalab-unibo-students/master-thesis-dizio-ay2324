@@ -80,6 +80,8 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
+        # Skip if Python 3.9, 3.10, or 3.11 on Windows
+        if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
         run: poetry install --all-extras
 
       - name: Test
