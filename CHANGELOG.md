@@ -1,3 +1,56 @@
+## [2.0.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.0.0...2.0.1) (2024-10-17)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.6.2 ([ad5dff3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ad5dff3eb4820f0652016f47f7b389d81871e5dd))
+* **deps:** update dependency coverage to v7.6.3 ([cef1ff2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/cef1ff2a3feddd6caab0957be535214490941056))
+* **deps:** update dependency mypy to v1.12.0 ([185cef7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/185cef7ccbcdae8897ce21d399dbfe195ad7e7bd))
+* **deps:** update dependency poetry to v1.8.4 ([f1eed71](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f1eed71b20d74da15ef032ce8e114bcfa92e8061))
+* **deps:** update dependency poetry to v1.8.4 ([ab046e2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ab046e2a5358075eb5938adf9302bd824a3fa8af))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.111 ([e243195](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e24319586cb377a93cb110cd39fef7f96f5e78d0))
+
+### Bug Fixes
+
+* ci condition ([5d763ae](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/5d763aefded69efd37b179430e09844422a19e3e))
+* ci problems with windows dependencies ([49a170b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/49a170b9bc34ede9105b2429978187581a9009d0))
+* **ci:** install extra deps in ci ([d6b3619](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d6b36191a2c7fae23a11f34a11de8d5f593de840))
+* **deps:** regenerate poetry.lock ([8b91359](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8b91359dc68494131db5f9defc432c97a224238f))
+* error in CI by downgrading tensorflow ([d369427](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d369427359561ac3edb2093e754e2c1b4138c724))
+* exclusion of all ci steps for some versions of python on windows ([d11aee7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d11aee7b840e59d49b65836dcc538df4edff07d4))
+* moved condition inside steps ([dba7960](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/dba7960fac945d71687247c851c0451101b63204))
+* poetry lock ([fc45a34](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/fc45a344e0b31bd799767916f49ead1feecce1b4))
+* problem with notebook file opening encoding on windows ([c8aeebc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c8aeebcdbf89431cbe7d456e21bec9af466da815))
+* tensorflow on windows ([b01ec5f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b01ec5ffb701f54148f2bcb68c97fb5ba6bc1f1b))
+
+### Tests
+
+* fix testing of demos and test packages ([d35f323](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d35f323682b99bd408859980d9473e59e51ee947))
+
+### Build and continuous integration
+
+* removed some versions of python on windows ([60e7f70](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/60e7f70d39e4b6d9f9529b0eb7a18d2f05e4435e))
+
+### General maintenance
+
+* added part of core_lib demo ([2cb70d7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2cb70d7848895146de9a6a45c538a5035ded4b02))
+* Basic structure of the generic example ([814a7a9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/814a7a98e0917b0d296ce3da93cee113f9336df4))
+* **examples:** re-run jupyter notebooks ([2ca2598](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2ca2598ba438ec7d53620f3e8cb41561200758ea))
+
+## [2.0.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.2...2.0.0) (2024-10-11)
+
+### ⚠ BREAKING CHANGES
+
+* project structure now loads all submodules when fairlib is loaded
+
+### Bug Fixes
+
+* **deps:** dev dependencies for notebook and matplotlib + tensorflow as optional dep ([266cae6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/266cae6d3f03a5d6ee41e22f84864cc9a630dbcf))
+* explicit union types to avoid errors in python<3.10 ([f8547b3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f8547b32153f1681c77d9added84b1e80bba84dc))
+
+### Refactoring
+
+* project structure now loads all submodules when fairlib is loaded ([91c00ca](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/91c00caca5d17e97241fa095a93250b482295a1d))
+
 ## [1.0.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/1.0.1...1.0.2) (2024-10-09)
 
 ### Bug Fixes
