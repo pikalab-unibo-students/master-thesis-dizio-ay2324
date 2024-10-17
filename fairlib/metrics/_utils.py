@@ -15,8 +15,6 @@ def _get_values(values: np.ndarray) -> tuple[np.ndarray, int]:
 
 
 def check_and_setup(as_dict, sensitive_column, target_column):
-    if any(not is_numeric_dtype(c) for c in [target_column, sensitive_column]):
-        raise ValueError("Target and sensitive columns must be numeric")
     if len(target_column) != len(sensitive_column):
         raise ValueError("Target and sensitive columns must have the same length")
     target_values, target_len = _get_values(target_column)
