@@ -1,3 +1,4 @@
+import numpy as np
 from numpy import array, inf
 from fairlib.metrics import *
 import unittest
@@ -18,7 +19,8 @@ class TestMetricsOnBinaryData(unittest.TestCase):
             target_column=self.data[:, 1],
             sensitive_column=self.data[:, 0]
         )
-        self.assertEqual(spd, -0.5)
+        print(spd)
+        self.assertTrue(np.array_equal(spd.squeeze(), np.array([-0.5, 0.5])))
 
 
 class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
