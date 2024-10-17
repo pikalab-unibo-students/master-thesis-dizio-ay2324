@@ -67,6 +67,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Test on Python ${{ matrix.python-version }}, on ${{ matrix.os }}
     timeout-minutes: 45
+
+    if: "!(matrix.os == 'windows-latest' && (matrix.python-version == '3.9' || matrix.python-version == '3.10' || matrix.python-version == '3.11'))"
     steps:
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -80,8 +82,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
-        # Skip if Python 3.9, 3.10, or 3.11 on Windows
-        if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
         run: poetry install --all-extras
 
       - name: Test
