@@ -1,47 +1,59 @@
-from fairlib.dataframe import DataFrame
+from keras.src.optimizers import Adam
+from fairlib.inprocessing._fauci_metrics import discrete_disparate_impact
 from fairlib.processing import *
 import fairlib.keras as keras
+from fairlib.keras import losses
+from fairlib.keras import ops as kops
+import fairlib as fl
 
+epsilon = 1e-5
 
-class Fauci(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareModel):
-    def __init__(self, model: keras.Model, regularizer: Union[str, keras.losses.Loss], **kwargs):
+class Fauci:
+    # TODO regularizer: Union[str, keras.losses.Loss] ADD THIS TO PARAMETERS
+    def __init__(self, model: keras.Model, protected_attribute: int, lambda_value: float, **kwargs):
         if not isinstance(model, keras.Model):
             raise TypeError(f"Expected a Keras model, got {type(model)}")
-        super().__init__(model)
-        self.__compilation_parameters = kwargs
-        if regularizer is None:
-            raise ValueError("Regularizer must be provided")
-        self.__regularizer = regularizer
+        self.model = model
+        input_layer = model.layers[0].input
 
-    def fit(self, x: DataFrame):
-        if not isinstance(x, DataFrame):
-            raise TypeError(f"Expected a DataFrame, got {type(x)}")
-        sensitive_names = list(x.sensitive)
+        # this is an example
+        def tf_disparate_impact(y_true, y_pred):
+            return discrete_disparate_impact(input_layer[:, protected_attribute], y_pred)
+
+        # TODO do other implementation for categorical and continuous function
+
+        fairness_metric_function = tf_disparate_impact
+
+        def custom_loss(y_true, y_pred):
+            fair_cost_factor = fairness_metric_function(y_true, y_pred)
+            # convert the return implemented in tensorflow with keras
+            return kops.cast(losses.binary_crossentropy(y_true, y_pred) + epsilon, "float64") + kops.cast(
+                lambda_value * fair_cost_factor, "float64")
+
+        self.model.compile(loss=custom_loss, optimizer=Adam(), metrics=["accuracy"])
+
+    def fit(self, train: fl.DataFrame, valid: fl.DataFrame, epochs: int, batch_size: int):
+        if not isinstance(train, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(train)}")
+        if not isinstance(valid, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(valid)}")
+
+        sensitive_names = list(train.sensitive)
         if len(sensitive_names) != 1:
-            raise ValueError(f"FaUCI expects exactly one sensitive column, got {len(sensitive_names)}: {sensitive_names}")
-        sensitive_index: int = x.columns.get_loc(sensitive_names[0])
-        x, y = unpack_dataframe(x)
-        if y.shape[1] != 1:
-            raise ValueError(f"FaUCI expects exactly one target column, got {y.shape[1]}")
-        model: keras.Model = self.processor
-        compilation_params = self.__compilation_parameters.copy()
-        loss = ... # combine self._baseloss with self._regularizer(sensitive_index)
-        compilation_params["loss"] = loss
-        model.compile(**compilation_params)
-        return self._fit(x, y)
-    
-    @property
-    def _baseloss(self):
-        loss = self.__compilation_parameters.get("loss")
-        if isinstance(loss, str):
-            return getattr(keras.losses, loss)
-        return loss
-    
-    def _loss_function(self, sensitive_column_index: int) -> keras.losses.Loss:
-        if isinstance(self.__regularizer, keras.losses.Loss):
-            return self.__regularizer
-        # TODO assume string, convert to loss accordingly
+            raise ValueError(
+                f"FaUCI expects exactly one sensitive column, got {len(sensitive_names)}: {sensitive_names}")
+
+        train_x, train_y = train.iloc[:, :-1], train.iloc[:, -1]
+        valid_x, valid_y = valid.iloc[:, :-1], valid.iloc[:, -1]
+        return self.model.fit(train_x, train_y, epochs=epochs, batch_size=batch_size,
+                              validation_data=(valid_x, valid_y), verbose=0)
+
+    def predict(self, data: fl.DataFrame):
+        if not isinstance(data, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(data)}")
+        return self.model.predict(data)
 
 
 if __name__ == "__main__":
-    algo = Fauci(model=keras.Sequential(...), regularizer="weighted_statistical_parity", optimizer="adam", loss="binary_crossentropy")
+    algo = Fauci(model=keras.Sequential(...), regularizer="weighted_statistical_parity", optimizer="adam",
+                 loss="binary_crossentropy")

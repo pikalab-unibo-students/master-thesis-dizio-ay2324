@@ -1,6 +1,7 @@
 from .logging import logger
 from .dataframe import DataFrame
 from .metrics import *
+from .preprocessing import *
 # TODO import all from preprocessing, inprocessing, and postprocessing
 
 
