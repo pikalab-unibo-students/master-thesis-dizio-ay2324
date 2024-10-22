@@ -65,6 +65,65 @@ keras_backend_specific(
     jax=load_backend
 )
 
+
+class TensorFlowMixin:
+    def __init__(self):
+        self.__tensorflow = None
+
+    @property
+    def tensorflow(self):
+        if self.__tensorflow is None:
+            self.__tensorflow = load_backend(KerasBackend.TENSORFLOW)
+        return self.__tensorflow
+
+    @property
+    def tf(self):
+        return self.tensorflow
+
+
+class PyTorchMixin:
+    def __init__(self):
+        self.__pytorch = None
+
+    @property
+    def pytorch(self):
+        if self.__pytorch is None:
+            self.__pytorch = load_backend(KerasBackend.PYTORCH)
+        return self.__pytorch
+
+    @property
+    def torch(self):
+        return self.pytorch
+
+
+class NumpyMixin:
+    def __init__(self):
+        self.__numpy = None
+
+    @property
+    def numpy(self):
+        if self.__numpy is None:
+            self.__numpy = load_backend(KerasBackend.NUMPY)
+        return self.__numpy
+
+    @property
+    def np(self):
+        return self.numpy
+
+
+class JaxMixin:
+    def __init__(self):
+        self.__jax = None
+
+    @property
+    def jax(self):
+        if self.__jax is None:
+            self.__jax = load_backend(KerasBackend.JAX)
+        return self.__jax
+
+
 logger.info(f"Using Keras backend: {KerasBackend.from_env()}")
 
+
 from keras import *
+KerasBackend.current = KerasBackend.parse(backend.backend())

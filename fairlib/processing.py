@@ -11,12 +11,12 @@ class Estimator(Protocol):
 @runtime_checkable
 class Predictor(Protocol):
     def predict(self, *args, **kwargs): ...
-    
+
 
 @runtime_checkable
 class Transformer(Protocol):
     def transform(self, *args, **kwargs): ...
-    
+
 
 @runtime_checkable
 class FittableTransformer(Protocol):
@@ -39,7 +39,7 @@ def ensure_is_processor(obj):
         raise TypeError("Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, or Model.")
 
 
-def unpack_dataframe( 
+def unpack_dataframe(
         x: Union[ndarray, DataFrame],
         y: Optional[ndarray] = None) -> tuple[ndarray, Optional[ndarray]]:
     if isinstance(x, ndarray):
@@ -57,59 +57,59 @@ class DataFrameAwareEstimator(Estimator):
     def fit(self, x, y=None):
         x, y = unpack_dataframe(x, y)
         return self._fit(x, y)
-    
+
 
 class DataFrameAwarePredictor(Predictor):
     def predict(self, x):
         x, _ = unpack_dataframe(x)
         return self._predict(x)
-    
+
 
 class DataFrameAwareTransformer(Transformer):
     def transform(self, x, y=None):
         x, y = unpack_dataframe(x, y)
         return self._transform(x, y)
-    
+
 
 class DataFrameAwareFittableTransformer(FittableTransformer, DataFrameAwareEstimator, DataFrameAwareTransformer):
     def fit_transform(self, x, y=None):
         x, y = unpack_dataframe(x, y)
         return self._fit_transform(x, y)
-    
+
 
 class DataFrameAwareModel(Model):
     def score(self, x, y=None):
         x, y = unpack_dataframe(x, y)
         return self._score(x, y)
-    
+
 
 class DataFrameAwareProcessorWrapper:
     def __init__(self, processor):
-        ensure_is_processor(processor)
         self.__processor = self._initialize_processor(processor)
 
     def _initialize_processor(self, processor):
+        ensure_is_processor(processor)
         return processor
 
     @property
     def processor(self):
-        return self._processor
+        return self.__processor
 
-    def _fit(self, x, y):
-        return self.__processor.fit(x, y)       
-     
-    def _predict(self, x):
-        return self.__processor.predict(x)  
-              
-    def _transform(self, x, y):
-        return self.__processor.transform(x, y) 
-               
-    def _fit_transform(self, x, y):
-        return self.__processor.fit_transform(x, y)   
-             
-    def _score(self, x, y):
-        return self.__processor.score(x, y)            
-    
+    def _fit(self, *args, **kwargs):
+        return self.__processor.fit(*args, **kwargs)
+
+    def _predict(self, *args, **kwargs):
+        return self.__processor.predict(*args, **kwargs)
+
+    def _transform(self, *args, **kwargs):
+        return self.__processor.transform(*args, **kwargs)
+
+    def _fit_transform(self, *args, **kwargs):
+        return self.__processor.fit_transform(*args, **kwargs)
+
+    def _score(self, *args, **kwargs):
+        return self.__processor.score(*args, **kwargs)
+
 
 # TODO turn this into unit tests and remove
 if __name__ == "__main__":
@@ -134,11 +134,11 @@ if __name__ == "__main__":
         processor2.fit(iris)
     except TypeError as e:
         print(e)
-    
+
     class DataFrameAwareMLPClassifier(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareModel):
         def __init__(self, mlp):
             assert isinstance(mlp, MLPClassifier)
             super().__init__(mlp)
-    
+
     processor2 = DataFrameAwareMLPClassifier(processor2)
     processor2.fit(iris)

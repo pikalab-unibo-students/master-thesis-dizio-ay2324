@@ -33,10 +33,10 @@ class Metric:
 
 
 def statistical_parity_difference(
-        target_column: np.ndarray, 
+        target_column: np.ndarray,
         sensitive_column: np.ndarray,
         as_dict: bool = False) -> Union[np.ndarray, dict]:
-    
+
     result, sensitive_len, sensitive_values, target_len, target_values = \
         check_and_setup(as_dict, sensitive_column, target_column)
 
@@ -76,10 +76,10 @@ def statistical_parity_difference(
 
 
 def disparate_impact(
-        target_column: np.ndarray, 
+        target_column: np.ndarray,
         sensitive_column: np.ndarray,
         as_dict: bool = False) -> Union[np.ndarray, dict]:
-    
+
     result, sensitive_len, sensitive_values, target_len, target_values = \
         check_and_setup(as_dict, sensitive_column, target_column)
 
@@ -204,3 +204,20 @@ class DisparateImpact(Metric):
 
 StatisticalParityDifference().apply("statistical_parity_difference")
 DisparateImpact().apply("disparate_impact")
+
+
+def get(name: str) -> Optional[Metric]:
+    """
+    Returns a metric by name.
+
+    Args:
+        name: The name of the metric.
+
+    Returns:
+        Metric: The metric instance or None if the metric is not found.
+    """
+    if name.lower() in {"statistical_parity_difference", "statistical_parity", "sp"}:
+        return statistical_parity_difference
+    elif name.lower() in {"disparate_impact", "di"}:
+        return disparate_impact
+    return None
