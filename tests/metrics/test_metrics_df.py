@@ -19,7 +19,8 @@ class TestMetrics(unittest.TestCase):
     def testStatisticalParityDifference(self):
         self.df.targets = ["target1"]
         self.df.sensitive = ["sensitive1"]
-        res = {(Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5}
+        res = {(Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5,
+               (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.5}
         expected_spd = DomainDict(res)
 
         spd_result = self.df.statistical_parity_difference()
@@ -32,11 +33,17 @@ class TestMetrics(unittest.TestCase):
 
         res = {
             (Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5,
+            (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.5,
             (Assignment("target1", 1), Assignment("sensitive2", 1)): 0.5,
+            (Assignment("target1", 1), Assignment("sensitive2", 0)): -0.5,
             (Assignment("target1", 1), Assignment("sensitive3", 1)): 0.26666666666666666,
+            (Assignment("target1", 1), Assignment("sensitive3", 0)): -0.26666666666666666,
             (Assignment("target2", 1), Assignment("sensitive1", 1)): 0.25,
+            (Assignment("target2", 1), Assignment("sensitive1", 0)): -0.25,
             (Assignment("target2", 1), Assignment("sensitive2", 1)): -0.25,
+            (Assignment("target2", 1), Assignment("sensitive2", 0)): 0.25,
             (Assignment("target2", 1), Assignment("sensitive3", 1)): -0.06666666666666665,
+            (Assignment("target2", 1), Assignment("sensitive3", 0)): 0.06666666666666665,
         }
         expected_spd = DomainDict(res)
 
@@ -48,7 +55,8 @@ class TestMetrics(unittest.TestCase):
     def testDisparateImpact(self):
         self.df.targets = ["target1"]
         self.df.sensitive = ["sensitive1"]
-        res = {(Assignment("target1", 1), Assignment("sensitive1", 1)): 3.0}
+        res = {(Assignment("target1", 1), Assignment("sensitive1", 1)): 3.0,
+               (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.3333333333333333}
         expected_di = DomainDict(res)
 
         di_result = self.df.disparate_impact()
@@ -57,14 +65,19 @@ class TestMetrics(unittest.TestCase):
         self.df.targets = ["target1", "target2"]
         self.df.sensitive = ["sensitive1", "sensitive2", "sensitive3"]
 
-
         res = {
             (Assignment("target1", 1), Assignment("sensitive1", 1)): 3.0,
+            (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.3333333333333333,
             (Assignment("target1", 1), Assignment("sensitive2", 1)): 0.3333333333333333,
+            (Assignment("target1", 1), Assignment("sensitive2", 0)): 3.0,
             (Assignment("target1", 1), Assignment("sensitive3", 1)): 0.5555555555555556,
+            (Assignment("target1", 1), Assignment("sensitive3", 0)): 1.8,
             (Assignment("target2", 1), Assignment("sensitive1", 1)): 0.6666666666666666,
+            (Assignment("target2", 1), Assignment("sensitive1", 0)): 1.5,
             (Assignment("target2", 1), Assignment("sensitive2", 1)): 1.5,
+            (Assignment("target2", 1), Assignment("sensitive2", 0)): 0.6666666666666666,
             (Assignment("target2", 1), Assignment("sensitive3", 1)): 1.1111111111111112,
+            (Assignment("target2", 1), Assignment("sensitive3", 0)): 0.9,
         }
 
         expected_di = DomainDict(res)

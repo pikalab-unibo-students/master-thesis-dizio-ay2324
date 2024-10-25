@@ -72,7 +72,10 @@ class DomainDict(Mapping):
         return len(self.__dict)
 
     def __repr__(self):
-        return str(self.__dict)
+        output = ""
+        for k, v in self.__dict.items():
+            output = output + str(k) + " -> " + str(v) + "\n"
+        return str(output)
 
     def __str__(self):
         return str(self.__dict)
