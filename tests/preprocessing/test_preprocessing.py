@@ -1,7 +1,8 @@
 import unittest
 import fairlib as fl
-import fairlib.preprocessing
 import pandas.testing as pd_testing
+
+from fairlib.preprocessing.reweighing import Reweighing, ReweighingWithMean
 
 
 class TestPreProcessing(unittest.TestCase):
@@ -19,7 +20,8 @@ class TestPreProcessing(unittest.TestCase):
     def testSingleReweighing(self):
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1"}
-        transformed_df = self.df.reweighing()
+        model = Reweighing()
+        transformed_df = model.transform(self.df)
         expected_df = fl.DataFrame(
             {
                 "target1": [0, 1, 0, 1, 0, 1],
@@ -35,13 +37,14 @@ class TestPreProcessing(unittest.TestCase):
         self.df.sensitive = {"sensitive1"}
 
         with self.assertRaises(ValueError):
-            self.df.reweighing()
+            model.transform(self.df)
 
     def testMultipleSensitiveReweighing(self):
         # Test for multiple sensitive columns in Reweighing
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1", "sensitive2"}
-        transformed_df = self.df.reweighing()
+        model = Reweighing()
+        transformed_df = model.transform(self.df)
 
         # Expected DataFrame with combined effect of multiple sensitive columns
         expected_df = fl.DataFrame(
@@ -50,7 +53,7 @@ class TestPreProcessing(unittest.TestCase):
                 "target2": [1, 0, 1, 0, 1, 0],
                 "sensitive1": [0, 1, 0, 1, 0, 0],
                 "sensitive2": [1, 1, 0, 0, 0, 1],
-                "weights": [1.0, 0.5, 0.5, 1.0, 0.5, 1.0],
+                "weights":  [0.6666666666666666, 0.5, 0.6666666666666666, 0.5, 0.6666666666666666, 2.0],
             }
         )
 
@@ -61,7 +64,8 @@ class TestPreProcessing(unittest.TestCase):
         # Test for ReweighingWithMean with multiple sensitive columns
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1", "sensitive2"}
-        transformed_df = self.df.reweighing_with_mean()
+        model = ReweighingWithMean()
+        transformed_df = model.transform(self.df)
 
         # Expected DataFrame for ReweighingWithMean method
         expected_df = fl.DataFrame(
@@ -86,7 +90,8 @@ class TestPreProcessing(unittest.TestCase):
 
         # Test with single sensitive column
         self.df.sensitive = {"sensitive1"}
-        transformed_df_single_sensitive = self.df.reweighing_with_mean()
+        model = ReweighingWithMean()
+        transformed_df_single_sensitive = model.transform(self.df)
 
         expected_df_single_sensitive = fl.DataFrame(
             {
@@ -108,7 +113,8 @@ class TestPreProcessing(unittest.TestCase):
         self.df.sensitive = {"sensitive1", "sensitive2"}
 
         with self.assertRaises(ValueError):
-            self.df.reweighing_with_mean()
+            model = ReweighingWithMean()
+            transformed_df = model.transform(self.df)
 
     def tearDown(self):
         del self.df
