@@ -1,3 +1,16 @@
+## [2.1.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.0.3...2.1.0) (2024-10-25)
+
+### Features
+
+* **pre-processing:** modified preprocessing structure and reweighing ([#30](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/30)) ([346d4d7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/346d4d73b6027b787056f0c236d0fb8d68efe422))
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.6.4 ([6595631](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6595631658b506dd62cfb30b7bc6a4f2e3947507))
+* **deps:** update dependency mypy to v1.12.1 ([bc23de5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bc23de5da1a909535f87986d1092cd73938d6ddf))
+* **deps:** update dependency mypy to v1.13.0 ([cb3d7eb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/cb3d7eb908fb6de6771e037ccfc3fcb4afaffb24))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.112 ([6b19dd2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6b19dd2eccb12638a4f6cc71031f12f434ac5b7a))
+
 ## [2.0.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.0.0...2.0.1) (2024-10-17)
 
 ### Dependency updates
