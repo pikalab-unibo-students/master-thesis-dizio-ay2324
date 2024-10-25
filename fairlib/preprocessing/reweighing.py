@@ -2,7 +2,8 @@ from fairlib.processing import DataFrameAwareTransformer
 
 __all__ = ["Reweighing", "ReweighingWithMean"]
 
-def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
+
+def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total, precision=8):
     n_favorable = favorable.sum()
     n_unfavorable = unfavorable.sum()
 
@@ -15,22 +16,22 @@ def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
     n_unprivileged_unfavorable = (unprivileged & unfavorable).sum()
 
     weight_privileged_favorable = (
-        (n_favorable * n_privileged) / (n_total * n_privileged_favorable)
+        round((n_favorable * n_privileged) / (n_total * n_privileged_favorable), precision)
         if n_privileged_favorable > 0
         else 0
     )
     weight_privileged_unfavorable = (
-        (n_unfavorable * n_privileged) / (n_total * n_privileged_unfavorable)
+        round((n_unfavorable * n_privileged) / (n_total * n_privileged_unfavorable), precision)
         if n_privileged_unfavorable > 0
         else 0
     )
     weight_unprivileged_favorable = (
-        (n_favorable * n_unprivileged) / (n_total * n_unprivileged_favorable)
+        round((n_favorable * n_unprivileged) / (n_total * n_unprivileged_favorable), precision)
         if n_unprivileged_favorable > 0
         else 0
     )
     weight_unprivileged_unfavorable = (
-        (n_unfavorable * n_unprivileged) / (n_total * n_unprivileged_unfavorable)
+        round((n_unfavorable * n_unprivileged) / (n_total * n_unprivileged_unfavorable), precision)
         if n_unprivileged_unfavorable > 0
         else 0
     )
