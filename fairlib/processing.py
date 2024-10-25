@@ -35,7 +35,7 @@ setattr(Processor, "__name__", "Processor")
 
 
 def ensure_is_processor(obj):
-    if not isinstance(obj, Processor):
+    if not isinstance(obj, (Estimator, Predictor, Transformer, FittableTransformer, Model)):
         raise TypeError("Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, "
                         "or Model.")
 
