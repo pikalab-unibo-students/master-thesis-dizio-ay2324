@@ -1,37 +1,38 @@
+import numpy as np
 from fairlib.processing import DataFrameAwareTransformer
 
 __all__ = ["Reweighing", "ReweighingWithMean"]
 
 
-def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total, precision=8):
-    n_favorable = favorable.sum()
-    n_unfavorable = unfavorable.sum()
+def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
+    n_favorable = np.sum(favorable)
+    n_unfavorable = np.sum(unfavorable)
 
-    n_privileged = privileged.sum()
-    n_unprivileged = unprivileged.sum()
+    n_privileged = np.sum(privileged)
+    n_unprivileged = np.sum(unprivileged)
 
-    n_privileged_favorable = (privileged & favorable).sum()
-    n_privileged_unfavorable = (privileged & unfavorable).sum()
-    n_unprivileged_favorable = (unprivileged & favorable).sum()
-    n_unprivileged_unfavorable = (unprivileged & unfavorable).sum()
+    n_privileged_favorable = np.sum(privileged & favorable)
+    n_privileged_unfavorable = np.sum(privileged & unfavorable)
+    n_unprivileged_favorable = np.sum(unprivileged & favorable)
+    n_unprivileged_unfavorable = np.sum(unprivileged & unfavorable)
 
     weight_privileged_favorable = (
-        round((n_favorable * n_privileged) / (n_total * n_privileged_favorable), precision)
+        np.divide(n_favorable * n_privileged, n_total * n_privileged_favorable)
         if n_privileged_favorable > 0
         else 0
     )
     weight_privileged_unfavorable = (
-        round((n_unfavorable * n_privileged) / (n_total * n_privileged_unfavorable), precision)
+        np.divide(n_unfavorable * n_privileged, n_total * n_privileged_unfavorable)
         if n_privileged_unfavorable > 0
         else 0
     )
     weight_unprivileged_favorable = (
-        round((n_favorable * n_unprivileged) / (n_total * n_unprivileged_favorable), precision)
+        np.divide(n_favorable * n_unprivileged, n_total * n_unprivileged_favorable)
         if n_unprivileged_favorable > 0
         else 0
     )
     weight_unprivileged_unfavorable = (
-        round((n_unfavorable * n_unprivileged) / (n_total * n_unprivileged_unfavorable), precision)
+        np.divide(n_unfavorable * n_unprivileged, n_total * n_unprivileged_unfavorable)
         if n_unprivileged_unfavorable > 0
         else 0
     )
