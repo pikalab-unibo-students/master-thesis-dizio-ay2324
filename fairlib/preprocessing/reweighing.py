@@ -58,7 +58,7 @@ class Reweighing(DataFrameAwareTransformer):
 
         n_total = len(df)
 
-        df["weights"] = 0.0
+        df["weights"] = 1.0
 
         privileged = pd.Series([True] * len(df))
         unprivileged = pd.Series([True] * len(df))
@@ -95,7 +95,7 @@ class ReweighingWithMean(DataFrameAwareTransformer):
 
         n_total = len(df)
 
-        df["weights"] = 0.0
+        df["weights"] = 1.0
 
         weight_columns = []
         for sensitive_column in df.sensitive:
@@ -109,7 +109,7 @@ class ReweighingWithMean(DataFrameAwareTransformer):
                 privileged, unprivileged, favorable, unfavorable, n_total)
 
             weight_col_name = f"weights_{sensitive_column}"
-            df[weight_col_name] = 0.0
+            df[weight_col_name] = 1.0
 
             df.loc[privileged & favorable, weight_col_name] = weight_privileged_favorable
             df.loc[privileged & unfavorable, weight_col_name] = weight_privileged_unfavorable
