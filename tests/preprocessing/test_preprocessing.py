@@ -2,7 +2,7 @@ import unittest
 import fairlib as fl
 import pandas.testing as pd_testing
 
-from fairlib.preprocessing.reweighing import Reweighing, ReweighingWithMean
+from fairlib.preprocessing import Reweighing, ReweighingWithMean
 
 
 class TestPreProcessing(unittest.TestCase):
