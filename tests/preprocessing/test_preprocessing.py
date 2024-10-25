@@ -53,7 +53,7 @@ class TestPreProcessing(unittest.TestCase):
                 "target2": [1, 0, 1, 0, 1, 0],
                 "sensitive1": [0, 1, 0, 1, 0, 0],
                 "sensitive2": [1, 1, 0, 0, 0, 1],
-                "weights": [1.5, 0.75, 0.75, 1.5, 0.75, 0.75],
+                "weights":  [0.0, 0.5, 0.5, 0.0, 0.5, 0.0],
             }
         )
 

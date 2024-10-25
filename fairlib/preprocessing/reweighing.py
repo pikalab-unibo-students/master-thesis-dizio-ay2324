@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from fairlib.processing import DataFrameAwareTransformer
 
 __all__ = ["Reweighing", "ReweighingWithMean"]
@@ -11,28 +12,28 @@ def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
     n_privileged = np.sum(privileged)
     n_unprivileged = np.sum(unprivileged)
 
-    n_privileged_favorable = np.sum(privileged & favorable)
-    n_privileged_unfavorable = np.sum(privileged & unfavorable)
-    n_unprivileged_favorable = np.sum(unprivileged & favorable)
-    n_unprivileged_unfavorable = np.sum(unprivileged & unfavorable)
+    n_privileged_favorable = np.sum((privileged & favorable))
+    n_privileged_unfavorable = np.sum((privileged & unfavorable))
+    n_unprivileged_favorable = np.sum((unprivileged & favorable))
+    n_unprivileged_unfavorable = np.sum((unprivileged & unfavorable))
 
     weight_privileged_favorable = (
-        np.divide(n_favorable * n_privileged, n_total * n_privileged_favorable)
+        np.divide(np.multiply(n_favorable, n_privileged), np.multiply(n_total, n_privileged_favorable))
         if n_privileged_favorable > 0
         else 0
     )
     weight_privileged_unfavorable = (
-        np.divide(n_unfavorable * n_privileged, n_total * n_privileged_unfavorable)
+        np.divide(np.multiply(n_unfavorable, n_privileged), np.multiply(n_total, n_privileged_unfavorable))
         if n_privileged_unfavorable > 0
         else 0
     )
     weight_unprivileged_favorable = (
-        np.divide(n_favorable * n_unprivileged, n_total * n_unprivileged_favorable)
+        np.divide(np.multiply(n_favorable, n_unprivileged), np.multiply(n_total, n_unprivileged_favorable))
         if n_unprivileged_favorable > 0
         else 0
     )
     weight_unprivileged_unfavorable = (
-        np.divide(n_unfavorable * n_unprivileged, n_total * n_unprivileged_unfavorable)
+        np.divide(np.multiply(n_unfavorable, n_unprivileged), np.multiply(n_total, n_unprivileged_unfavorable))
         if n_unprivileged_unfavorable > 0
         else 0
     )
@@ -57,14 +58,14 @@ class Reweighing(DataFrameAwareTransformer):
 
         n_total = len(df)
 
-        df["weights"] = 1.0
+        df["weights"] = 0.0
 
-        privileged = []
-        unprivileged = []
+        privileged = pd.Series([True] * len(df))
+        unprivileged = pd.Series([True] * len(df))
 
         for sensitive_column in df.sensitive:
-            privileged = df[sensitive_column] == 1
-            unprivileged = df[sensitive_column] == 0
+            privileged &= df[sensitive_column] == 1
+            unprivileged &= df[sensitive_column] == 0
 
         (weight_privileged_favorable,
          weight_privileged_unfavorable,
@@ -108,7 +109,7 @@ class ReweighingWithMean(DataFrameAwareTransformer):
                 privileged, unprivileged, favorable, unfavorable, n_total)
 
             weight_col_name = f"weights_{sensitive_column}"
-            df[weight_col_name] = 1.0
+            df[weight_col_name] = 0.0
 
             df.loc[privileged & favorable, weight_col_name] = weight_privileged_favorable
             df.loc[privileged & unfavorable, weight_col_name] = weight_privileged_unfavorable
