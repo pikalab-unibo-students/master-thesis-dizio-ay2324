@@ -4,7 +4,7 @@ import numpy as np
 from fairlib.metrics._utils import check_and_setup
 from fairlib.utils import *
 
-from typing import Union, Optional
+from typing import Union
 
 
 class Metric:
@@ -205,19 +205,3 @@ class DisparateImpact(Metric):
 StatisticalParityDifference().apply("statistical_parity_difference")
 DisparateImpact().apply("disparate_impact")
 
-
-def get(name: str) -> Optional[Metric]:
-    """
-    Returns a metric by name.
-
-    Args:
-        name: The name of the metric.
-
-    Returns:
-        Metric: The metric instance or None if the metric is not found.
-    """
-    if name.lower() in {"statistical_parity_difference", "statistical_parity", "sp"}:
-        return statistical_parity_difference
-    elif name.lower() in {"disparate_impact", "di"}:
-        return disparate_impact
-    return None
