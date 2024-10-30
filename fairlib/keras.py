@@ -1,10 +1,11 @@
-import enum
-import os
+from enum import Enum
 import importlib
+from typing import Optional, Callable
+import os
 from .logging import logger
 
 
-class KerasBackend(enum.Enum):
+class KerasBackend(Enum):
     TENSORFLOW = ('tensorflow', 'tf', 't')
     PYTORCH = ('torch', 'pytorch', 'pt', 'p')
     NUMPY = ('numpy', 'np', 'n')
@@ -13,9 +14,9 @@ class KerasBackend(enum.Enum):
     @classmethod
     def parse(cls, string: str):
         string = string.strip().lower()
-        for backend in cls:
-            if string in backend.value:
-                return backend
+        for keras_backend in cls:
+            if string in keras_backend.value:
+                return keras_backend
         raise ValueError(f"Unknown backend: {string}")
 
     @property
@@ -31,31 +32,35 @@ class KerasBackend(enum.Enum):
 
 
 def keras_backend_specific(
-        backend: KerasBackend = None,
-        tensorflow: callable = None,
-        pytorch: callable = None,
-        numpy: callable = None,
-        jax: callable = None):
-    backend = backend or KerasBackend.from_env()
-    do_nothing = lambda _: None
-    match backend:
+        keras_backend: Optional[KerasBackend] = None,
+        tensorflow: Optional[Callable] = None,
+        pytorch: Optional[Callable] = None,
+        numpy: Optional[Callable] = None,
+        jax: Optional[Callable] = None):
+
+    keras_backend = keras_backend or KerasBackend.from_env()
+
+    def do_nothing(_):
+        return None
+
+    match keras_backend:
         case KerasBackend.TENSORFLOW:
-            return (tensorflow or do_nothing)(backend)
+            return (tensorflow or do_nothing)(keras_backend)
         case KerasBackend.PYTORCH:
-            return (pytorch or do_nothing)(backend)
+            return (pytorch or do_nothing)(keras_backend)
         case KerasBackend.NUMPY:
-            return (numpy or do_nothing)(backend)
+            return (numpy or do_nothing)(keras_backend)
         case KerasBackend.JAX:
-            return (jax or do_nothing)(backend)
+            return (jax or do_nothing)(keras_backend)
         case _:
-            raise ValueError(f"Unknown backend: {backend}")
+            raise ValueError(f"Unknown backend: {keras_backend}")
 
 
-def load_backend(backend):
+def load_backend(keras_backend):
     try:
-        return importlib.import_module(backend.module_name)
+        return importlib.import_module(keras_backend.module_name)
     except ImportError:
-        raise RuntimeError(f"Backend {backend} not found: Keras will not work.")
+        raise RuntimeError(f"Backend {keras_backend} not found: Keras will not work.")
 
 
 keras_backend_specific(
@@ -124,6 +129,14 @@ class JaxMixin:
 
 logger.info(f"Using Keras backend: {KerasBackend.from_env()}")
 
-
-from keras import *
-KerasBackend.current = KerasBackend.parse(backend.backend())
+from keras import ops
+from keras import backend
+from keras import losses
+from keras import metrics
+from keras import initializers
+from keras import activations
+from keras import constraints
+from keras import regularizers
+from keras import layers
+from keras import Model
+from keras import Sequential

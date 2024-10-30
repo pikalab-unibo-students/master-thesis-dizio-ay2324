@@ -1,6 +1,6 @@
-from fairlib.keras import backend as K
-from fairlib.keras import ops as ops
-from typing import Optional
+from fairlib.keras import backend as keras_backend
+from fairlib.keras import ops as keras_ops
+from typing import Optional, Callable
 
 
 def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
@@ -16,18 +16,18 @@ def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
     A measure of statistical parity difference as a loss.
     """
     # Ensure that y_pred is limited between 0 and 1
-    y_pred = ops.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    y_pred = keras_ops.clip(y_pred, keras_backend.epsilon(), 1 - keras_backend.epsilon())
 
     #  Groups based on the sensitive attribute
-    group_positive = ops.cast(ops.equal(sensitive_attr, 1), K.floatx())
-    group_negative = ops.cast(ops.equal(sensitive_attr, 0), K.floatx())
+    group_positive = keras_ops.cast(keras_ops.equal(sensitive_attr, 1), keras_backend.floatx())
+    group_negative = keras_ops.cast(keras_ops.equal(sensitive_attr, 0), keras_backend.floatx())
 
     # Average probability of a positive result for each group
-    prob_positive = ops.sum(y_pred * group_positive) / (ops.sum(group_positive) + K.epsilon())
-    prob_negative = ops.sum(y_pred * group_negative) / (ops.sum(group_negative) + K.epsilon())
+    prob_positive = keras_ops.sum(y_pred * group_positive) / (keras_ops.sum(group_positive) + keras_backend.epsilon())
+    prob_negative = keras_ops.sum(y_pred * group_negative) / (keras_ops.sum(group_negative) + keras_backend.epsilon())
 
     # Statistical Parity Difference
-    spd = ops.abs(prob_positive - prob_negative)
+    spd = keras_ops.abs(prob_positive - prob_negative)
 
     return spd
 
@@ -37,7 +37,7 @@ def disparate_impact(y_true, y_pred, sensitive_attr):
     return 0
 
 
-def get(name: str) -> Optional[callable]:
+def get(name: str) -> Optional[Callable]:
     """
     Returns a metric by name.
 

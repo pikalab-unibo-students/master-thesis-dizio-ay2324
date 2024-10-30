@@ -1,6 +1,9 @@
+from typing_extensions import override
+
 from ._keras_metrics import get as get_metric
 from fairlib.processing import *
 import fairlib.keras as keras
+from typing import Optional, Any
 
 
 class RegularizedLoss:
@@ -50,7 +53,7 @@ class FaUCI(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAw
     def __init__(self,
                  model: keras.Model,
                  loss: str | keras.losses.Loss,
-                 regularizer: str = None,
+                 regularizer: Optional[str] = None,
                  regularization_weight: float = 1.0,
                  **kwargs):
         if not isinstance(model, keras.Model):
@@ -62,7 +65,8 @@ class FaUCI(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAw
         else:
             self.__loss = PenalizedLoss(loss, model, regularization_weight, regularizer)
 
-    def fit(self, x: DataFrame, converting_to_type: type = None, **kwargs):
+    @override
+    def fit(self, x: DataFrame, y: Optional[Any] = None, converting_to_type: Optional[type] = None, **kwargs):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
         x, y, _, _, _, sensitive_indexes = x.unpack()

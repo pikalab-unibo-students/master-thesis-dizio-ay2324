@@ -35,7 +35,7 @@ setattr(Processor, "__name__", "Processor")
 
 
 def ensure_is_processor(obj):
-    if not isinstance(obj, Processor):
+    if not isinstance(obj, (Estimator, Predictor, Transformer, FittableTransformer, Model)):
         raise TypeError("Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, or Model.")
 
 
@@ -121,8 +121,10 @@ if __name__ == "__main__":
     processor1 = StandardScaler()
     processor2 = MLPClassifier(hidden_layer_sizes=(64, 32), activation='relu', solver='adam', max_iter=500, random_state=42)
 
+    processors = [Estimator, Predictor, Transformer, FittableTransformer, Model]
+
     for processor in [processor1, processor2]:
-        for protocol in [Estimator, Predictor, Transformer, FittableTransformer, Model, Processor]:
+        for protocol in processors:
             print(f"{type(processor).__name__} is instance of {protocol.__name__}: {isinstance(processor, protocol)}")
 
     iris = load_iris()
