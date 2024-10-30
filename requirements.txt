@@ -3,7 +3,6 @@ numpy~=1.26.4
 nbformat~=5.10.4
 pandas~=2.2.3
 scikit-learn~=1.5.2
-fairlib~=2.0.1
 nbconvert~=7.16.4
 keras~=3.6.0
 tensorflow~=2.17.0
