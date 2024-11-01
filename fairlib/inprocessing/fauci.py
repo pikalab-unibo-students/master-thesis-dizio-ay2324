@@ -7,7 +7,7 @@ from typing import Optional, Any
 
 
 class RegularizedLoss:
-    def __init__(self, loss: str | keras.losses.Loss, model: keras.Model, regularization_weight: float):
+    def __init__(self, loss: Union[str, keras.losses.Loss], model: keras.Model, regularization_weight: float):
         self.__loss: keras.losses.Loss = keras.losses.get(loss) if isinstance(loss, str) else loss
         self.__model: keras.Model = model
         self.__regularization_weight: float = regularization_weight
@@ -26,7 +26,7 @@ class RegularizedLoss:
 
 
 class PenalizedLoss(RegularizedLoss):
-    def __init__(self, loss: str | keras.losses.Loss, model: keras.Model, regularization_weight: float, metric: str):
+    def __init__(self, loss: Union[str, keras.losses.Loss], model: keras.Model, regularization_weight: float, metric: str):
         super().__init__(loss, model, regularization_weight)
         self.__metric = get_metric(metric)
         if self.__metric is None:
