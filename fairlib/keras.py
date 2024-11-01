@@ -43,17 +43,16 @@ def keras_backend_specific(
     def do_nothing(_):
         return None
 
-    match keras_backend:
-        case KerasBackend.TENSORFLOW:
-            return (tensorflow or do_nothing)(keras_backend)
-        case KerasBackend.PYTORCH:
-            return (pytorch or do_nothing)(keras_backend)
-        case KerasBackend.NUMPY:
-            return (numpy or do_nothing)(keras_backend)
-        case KerasBackend.JAX:
-            return (jax or do_nothing)(keras_backend)
-        case _:
-            raise ValueError(f"Unknown backend: {keras_backend}")
+    if keras_backend == KerasBackend.TENSORFLOW:
+        return (tensorflow or do_nothing)(keras_backend)
+    elif keras_backend == KerasBackend.PYTORCH:
+        return (pytorch or do_nothing)(keras_backend)
+    elif keras_backend == KerasBackend.NUMPY:
+        return (numpy or do_nothing)(keras_backend)
+    elif keras_backend == KerasBackend.JAX:
+        return (jax or do_nothing)(keras_backend)
+    else:
+        raise ValueError(f"Unknown backend: {keras_backend}")
 
 
 def load_backend(keras_backend):
