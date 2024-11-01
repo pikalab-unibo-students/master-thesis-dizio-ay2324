@@ -52,7 +52,7 @@ class PenalizedLoss(RegularizedLoss):
 class FaUCI(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareModel):
     def __init__(self,
                  model: keras.Model,
-                 loss: str | keras.losses.Loss,
+                 loss: Union[str, keras.losses.Loss],
                  regularizer: Optional[str] = None,
                  regularization_weight: float = 1.0,
                  **kwargs):
