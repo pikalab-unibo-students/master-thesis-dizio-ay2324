@@ -77,16 +77,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Poetry
-        if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
-        if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
         run: poetry install --all-extras
+      
+      - name: Fix TensorFlow and Torch installation on Windows
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          TF_VERSION=$(cat pyproject.toml | grep tensorflow | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
+          TORCH_VERSION=$(cat pyproject.toml | grep torch | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
+          echo "Installing TensorFlow $TF_VERSION and PyTorch $TORCH_VERSION"
+          poetry run pip install tensorflow~=$TF_VERSION torch~=$TORCH_VERSION
 
       - name: Test
         shell: bash
-        if: ${{ matrix.os != 'windows-latest' || matrix.python-version == '3.12' }}
         run: poetry run poe test
 
   deploy:
