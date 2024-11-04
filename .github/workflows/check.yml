@@ -26,7 +26,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
-        run: poetry install --all-extras
+        run: poetry install
 
       - name: Check code is syntactically correct
         shell: bash
@@ -35,20 +35,6 @@ jobs:
       - name: Static Checks
         shell: bash
         run: poetry run poe mypy
-
-      - name: Test with Coverage
-        shell: bash
-        run: |
-          poetry run poe coverage
-          poetry run poe coverage-report
-          poetry run poe coverage-html
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report-${{ github.sha }}
-          path: htmlcov
-          if-no-files-found: ignore
-          overwrite: true
 
   test:
     needs: check
@@ -80,10 +66,11 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
+        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: poetry install --all-extras
       
-      - name: Fix TensorFlow and Torch installation on Windows
-        if: matrix.os == 'windows-latest'
+      - name: Restore Development Environment on Windows
+        if: matrix.os == 'windows-latest' && matrix.python-version == '3.12'
         shell: bash
         run: |
           TF_VERSION=$(cat pyproject.toml | grep tensorflow | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
@@ -93,7 +80,24 @@ jobs:
 
       - name: Test
         shell: bash
+        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: poetry run poe test
+
+      - name: Test with Coverage
+        shell: bash
+        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
+        run: |
+          poetry run poe coverage
+          poetry run poe coverage-report
+          poetry run poe coverage-html
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
+        with:
+          name: coverage-report-${{ github.sha }}
+          path: htmlcov
+          if-no-files-found: ignore
+          overwrite: true
 
   deploy:
     name: Deploy
