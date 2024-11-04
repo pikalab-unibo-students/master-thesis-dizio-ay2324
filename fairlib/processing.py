@@ -110,37 +110,3 @@ class DataFrameAwareProcessorWrapper:
     def _score(self, *args, **kwargs):
         return self.__processor.score(*args, **kwargs)
 
-
-# TODO turn this into unit tests and remove
-if __name__ == "__main__":
-    from sklearn.datasets import load_iris
-    from fairlib import DataFrame
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.neural_network import MLPClassifier
-
-    processor1 = StandardScaler()
-    processor2 = MLPClassifier(hidden_layer_sizes=(64, 32), activation='relu', solver='adam', max_iter=500, random_state=42)
-
-    processors = [Estimator, Predictor, Transformer, FittableTransformer, Model]
-
-    for processor in [processor1, processor2]:
-        for protocol in processors:
-            print(f"{type(processor).__name__} is instance of {protocol.__name__}: {isinstance(processor, protocol)}")
-
-    iris = load_iris()
-    df = DataFrame(data=iris.data, columns=iris.feature_names)
-    df['Class'] = iris.target
-    df.targets = 'Class'
-    iris = df
-    try:
-        processor2.fit(iris)
-    except TypeError as e:
-        print(e)
-
-    class DataFrameAwareMLPClassifier(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareModel):
-        def __init__(self, mlp):
-            assert isinstance(mlp, MLPClassifier)
-            super().__init__(mlp)
-
-    processor2 = DataFrameAwareMLPClassifier(processor2)
-    processor2.fit(iris)
