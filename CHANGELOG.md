@@ -1,3 +1,32 @@
+## [2.1.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.0.1...2.1.0) (2024-11-04)
+
+### Features
+
+* **pre-processing:** modified preprocessing structure and reweighing ([#30](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/30)) ([50ad12e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/50ad12e780a3d31d6cf23535d0b503bfd6078eb3))
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.6.4 ([6595631](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6595631658b506dd62cfb30b7bc6a4f2e3947507))
+* **deps:** update dependency mypy to v1.12.1 ([bc23de5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bc23de5da1a909535f87986d1092cd73938d6ddf))
+* **deps:** update dependency mypy to v1.13.0 ([cb3d7eb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/cb3d7eb908fb6de6771e037ccfc3fcb4afaffb24))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.112 ([6b19dd2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6b19dd2eccb12638a4f6cc71031f12f434ac5b7a))
+
+### Bug Fixes
+
+* **ci:** avoid triggering deploy on non-master branches ([6ea16f7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6ea16f7fa5817b4c0989adadfeb72df43588d53e))
+* **deps:** update dependency tensorflow to v2.18.0 ([2f57add](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2f57addc6d637b6877b400650e106cf7b6981cba))
+* problem in corelib notebook ([541b004](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/541b0048014d24581af3ee34b894e7ddc9ea2719))
+* shown both values of sensitive fields in the metrics printout ([4c25dd8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4c25dd81f7ec333a106ca0f7e24eddb19e6d6b72))
+
+### Tests
+
+* Updated tests subsequent to changes in metrics ([27c0386](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/27c038607feaaa24927dfaad5e9e7bce2308f4d8))
+
+### General maintenance
+
+* First version of the explanation of the core lib metrics ([e352608](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e352608c37eb155c60537f2473ed44d7aac9c9a4))
+* Improved print metrics and ability to use categorical fields ([e1bcedb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e1bcedb487a3dcefe5c8ae60a1d540eaeec1e43f))
+
 ## [2.0.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.0.0...2.0.1) (2024-10-17)
 
 ### Dependency updates
