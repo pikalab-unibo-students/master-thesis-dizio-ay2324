@@ -94,7 +94,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         with:
-          name: coverage-report-${{ github.sha }}
+          name: coverage-report-${{ matrix.os }}-python-${{ matrix.python-version }}-${{ github.sha }}
           path: htmlcov
           if-no-files-found: ignore
           overwrite: true
