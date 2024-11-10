@@ -77,15 +77,18 @@ jobs:
           TORCH_VERSION=$(cat pyproject.toml | grep torch | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
           echo "Installing TensorFlow $TF_VERSION and PyTorch $TORCH_VERSION"
           poetry run pip install tensorflow~=$TF_VERSION torch~=$TORCH_VERSION
-          PYTHONIOENCODING=utf-8 
 
       - name: Test
         shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
         if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: poetry run poe test
 
       - name: Test with Coverage
         shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
         if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: |
           poetry run poe coverage
