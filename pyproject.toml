@@ -32,6 +32,9 @@ ipykernel = "^6.29.5"
 notebook = "^7.2.2"
 matplotlib = "^3.9.2"
 openml = "^0.15.0"
+keras = "^3.6.0"
+torch = { version = "^2.4.1", optional = true }
+tensorflow = { version = "^2.16.1", optional = true }
 
 [tool.poe.tasks]
 test = "python -m unittest discover -v -s tests -p '*.py'"

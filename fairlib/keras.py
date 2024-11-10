@@ -139,3 +139,4 @@ from keras import regularizers
 from keras import layers
 from keras import Model
 from keras import Sequential
+from keras import utils
