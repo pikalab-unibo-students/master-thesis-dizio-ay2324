@@ -4,15 +4,17 @@ from ._keras_metrics import get as get_metric
 from fairlib.processing import *
 import fairlib.keras as keras
 from typing import Optional, Any
+from keras import regularizers
 
 
-class RegularizedLoss:
+class RegularizedLoss(keras.losses.Loss):
     def __init__(self, loss: Union[str, keras.losses.Loss], model: keras.Model, regularization_weight: float):
+        super().__init__()
         self.__loss: keras.losses.Loss = keras.losses.get(loss) if isinstance(loss, str) else loss
         self.__model: keras.Model = model
         self.__regularization_weight: float = regularization_weight
 
-    def __call__(self, y_true, y_pred):
+    def call(self, y_true, y_pred):
         loss = self.loss(self.__loss, y_true, y_pred)
         regularization = self.regularization(self.__model, y_true, y_pred)
         weight = self.__regularization_weight

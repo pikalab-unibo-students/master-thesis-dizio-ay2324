@@ -108,6 +108,9 @@ def disparate_impact(
                 else -np.inf
             )
 
+            print("this is unprivileged in di: ", unprivileged_rate)
+            print("this is privileged in di: ", privileged_rate)
+
             di = unprivileged_rate / privileged_rate
 
             if as_dict:

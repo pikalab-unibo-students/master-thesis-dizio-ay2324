@@ -4,6 +4,7 @@ from typing import Optional, Callable
 
 
 def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
+    print("RICHIAMO LA SPD")
     """
     Loss function calculating statistical parity difference.
 
@@ -34,6 +35,7 @@ def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
 
 
 def _disparate_impact_loss(y_true, y_pred, sensitive_attr):
+    print("RICHIAMO LA DI")
     """
        Loss function calculating disparate impact.
 
