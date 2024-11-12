@@ -17,8 +17,9 @@ class RegularizedLoss(keras.losses.Loss):
     def call(self, y_true, y_pred):
         loss = self.loss(self.__loss, y_true, y_pred)
         regularization = self.regularization(self.__model, y_true, y_pred)
-        weight = self.__regularization_weight
-        return loss + keras.ops.convert_to_tensor(weight * regularization)
+        weight = keras.ops.convert_to_tensor(self.__regularization_weight)
+        return (keras.ops.convert_to_tensor(1.0 - weight) * loss) + \
+            (weight * keras.ops.convert_to_tensor(regularization))
 
     def loss(self, f, y_true, y_pred):
         return f(y_true, y_pred)
@@ -56,13 +57,13 @@ class FaUCI(DataFrameAwareProcessorWrapper, DataFrameAwareEstimator, DataFrameAw
                  model: keras.Model,
                  loss: Union[str, keras.losses.Loss],
                  regularizer: Optional[str] = None,
-                 regularization_weight: float = 1.0,
+                 regularization_weight: float = 0.5,
                  **kwargs):
         if not isinstance(model, keras.Model):
             raise TypeError(f"Expected a Keras model, got {type(model)}")
         super().__init__(model)
         self.__compilation_parameters = kwargs
-        if regularizer is None:
+        if regularizer is None or regularization_weight == 0.0:
             self.__loss = RegularizedLoss(loss, model, regularization_weight)
         else:
             self.__loss = PenalizedLoss(loss, model, regularization_weight, regularizer)
