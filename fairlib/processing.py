@@ -35,13 +35,17 @@ setattr(Processor, "__name__", "Processor")
 
 
 def ensure_is_processor(obj):
-    if not isinstance(obj, (Estimator, Predictor, Transformer, FittableTransformer, Model)):
-        raise TypeError("Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, or Model.")
+    if not isinstance(
+        obj, (Estimator, Predictor, Transformer, FittableTransformer, Model)
+    ):
+        raise TypeError(
+            "Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, or Model."
+        )
 
 
 def unpack_dataframe(
-        x: Union[ndarray, DataFrame],
-        y: Optional[ndarray] = None) -> tuple[ndarray, Optional[ndarray]]:
+    x: Union[ndarray, DataFrame], y: Optional[ndarray] = None
+) -> tuple[ndarray, Optional[ndarray]]:
     if isinstance(x, ndarray):
         if y is None:
             raise ValueError("y must be provided if x is a numpy array")
@@ -71,7 +75,9 @@ class DataFrameAwareTransformer(Transformer):
         return self._transform(x, y)
 
 
-class DataFrameAwareFittableTransformer(FittableTransformer, DataFrameAwareEstimator, DataFrameAwareTransformer):
+class DataFrameAwareFittableTransformer(
+    FittableTransformer, DataFrameAwareEstimator, DataFrameAwareTransformer
+):
     def fit_transform(self, x, y=None):
         x, y = unpack_dataframe(x, y)
         return self._fit_transform(x, y)
@@ -109,4 +115,3 @@ class DataFrameAwareProcessorWrapper:
 
     def _score(self, *args, **kwargs):
         return self.__processor.score(*args, **kwargs)
-

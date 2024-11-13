@@ -6,10 +6,10 @@ from .logging import logger
 
 
 class KerasBackend(Enum):
-    TENSORFLOW = ('tensorflow', 'tf', 't')
-    PYTORCH = ('torch', 'pytorch', 'pt', 'p')
-    NUMPY = ('numpy', 'np', 'n')
-    JAX = ('jax', 'j')
+    TENSORFLOW = ("tensorflow", "tf", "t")
+    PYTORCH = ("torch", "pytorch", "pt", "p")
+    NUMPY = ("numpy", "np", "n")
+    JAX = ("jax", "j")
 
     @classmethod
     def parse(cls, string: str):
@@ -32,11 +32,12 @@ class KerasBackend(Enum):
 
 
 def keras_backend_specific(
-        keras_backend: Optional[KerasBackend] = None,
-        tensorflow: Optional[Callable] = None,
-        pytorch: Optional[Callable] = None,
-        numpy: Optional[Callable] = None,
-        jax: Optional[Callable] = None):
+    keras_backend: Optional[KerasBackend] = None,
+    tensorflow: Optional[Callable] = None,
+    pytorch: Optional[Callable] = None,
+    numpy: Optional[Callable] = None,
+    jax: Optional[Callable] = None,
+):
 
     keras_backend = keras_backend or KerasBackend.from_env()
 
@@ -63,10 +64,7 @@ def load_backend(keras_backend):
 
 
 keras_backend_specific(
-    tensorflow=load_backend,
-    pytorch=load_backend,
-    numpy=load_backend,
-    jax=load_backend
+    tensorflow=load_backend, pytorch=load_backend, numpy=load_backend, jax=load_backend
 )
 
 
@@ -140,3 +138,4 @@ from keras import layers
 from keras import Model
 from keras import Sequential
 from keras import utils
+from keras import callbacks

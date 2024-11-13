@@ -16,8 +16,7 @@ class TestMetricsOnBinaryData(unittest.TestCase):
 
     def test_statistical_parity_difference(self):
         spd = statistical_parity_difference(
-            target_column=self.data[:, 1],
-            sensitive_column=self.data[:, 0]
+            target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
         print(spd)
         self.assertTrue(np.array_equal(spd.squeeze(), np.array([-0.5, 0.5])))
@@ -30,8 +29,7 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
         col2 = str_to_int_list("01011010")
         self.data = array([col1, col2]).transpose()
         spd = statistical_parity_difference(
-            target_column=self.data[:, 1],
-            sensitive_column=self.data[:, 0]
+            target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
         self.assertEqual(spd, inf)
 
@@ -40,7 +38,6 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
         col2 = str_to_int_list("01011010")
         self.data = array([col1, col2]).transpose()
         spd = statistical_parity_difference(
-            target_column=self.data[:, 1],
-            sensitive_column=self.data[:, 0]
+            target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
         self.assertEqual(spd, inf)

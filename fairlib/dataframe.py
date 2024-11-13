@@ -109,6 +109,7 @@ class DataFrameExtensionFunction(DataFrameExtensionProperty):
     Args:
         callable: The function to be called with the DataFrame.
     """
+
     def __init__(self, callable=None):
         super().__init__(can_read=True)
         self.__callable = callable
@@ -129,6 +130,7 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
 
     Inherits from DataFrameExtensionProperty.
     """
+
     def __init__(self):
         super().__init__(can_read=True, can_write=True, default=set())
 
@@ -226,7 +228,9 @@ def unpack_dataframe(df: DataFrame) -> UnpackedDataframe:
     inputs = df[input_names].values
     targets = df[target_names].values
     sensitive_indexes = [input_names.index(name) for name in sensitive_names]
-    return UnpackedDataframe(inputs, targets, input_names, target_names, sensitive_names, sensitive_indexes)
+    return UnpackedDataframe(
+        inputs, targets, input_names, target_names, sensitive_names, sensitive_indexes
+    )
 
 
 DataFrameExtensionFunction(callable=unpack_dataframe).apply("unpack")

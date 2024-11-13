@@ -63,15 +63,14 @@ print(df.domains)
 spd = df.statistical_parity_difference()
 print(type(spd))
 
-#df.sensitive = {"sex"}
+# df.sensitive = {"sex"}
 
-#print(df.domains)
+# print(df.domains)
 # Apply reweighing for 1 sensitive field
-#df_transformed = df.reweighing()
-#print(df_transformed)
+# df_transformed = df.reweighing()
+# print(df_transformed)
 
 # Apply reweighing for 2 or more sensitive field
-#df.sensitive = {"sex", "age"}
-#df_transformed = df.reweighing()
-#print(df_transformed)
-
+# df.sensitive = {"sex", "age"}
+# df_transformed = df.reweighing()
+# print(df_transformed)

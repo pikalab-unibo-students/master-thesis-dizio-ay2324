@@ -33,12 +33,12 @@ class Metric:
 
 
 def statistical_parity_difference(
-        target_column: np.ndarray,
-        sensitive_column: np.ndarray,
-        as_dict: bool = False) -> Union[np.ndarray, dict]:
+    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
+) -> Union[np.ndarray, dict]:
 
-    result, sensitive_len, sensitive_values, target_len, target_values = \
+    result, sensitive_len, sensitive_values, target_len, target_values = (
         check_and_setup(as_dict, sensitive_column, target_column)
+    )
 
     for i in range(target_len):
         target = target_values[i]
@@ -76,12 +76,12 @@ def statistical_parity_difference(
 
 
 def disparate_impact(
-        target_column: np.ndarray,
-        sensitive_column: np.ndarray,
-        as_dict: bool = False) -> Union[np.ndarray, dict]:
+    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
+) -> Union[np.ndarray, dict]:
 
-    result, sensitive_len, sensitive_values, target_len, target_values = \
+    result, sensitive_len, sensitive_values, target_len, target_values = (
         check_and_setup(as_dict, sensitive_column, target_column)
+    )
 
     for i in range(target_len):
         target = target_values[i]
@@ -188,9 +188,7 @@ class DisparateImpact(Metric):
 
         for target_column in target_columns:
             for group_column in group_columns:
-                di = disparate_impact(
-                    df[target_column], df[group_column], as_dict=True
-                )
+                di = disparate_impact(df[target_column], df[group_column], as_dict=True)
                 if isinstance(di, dict):
                     for (target, group), value in di.items():
                         result[
@@ -204,4 +202,3 @@ class DisparateImpact(Metric):
 
 StatisticalParityDifference().apply("statistical_parity_difference")
 DisparateImpact().apply("disparate_impact")
-
