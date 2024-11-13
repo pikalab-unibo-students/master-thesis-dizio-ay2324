@@ -4,7 +4,6 @@ from typing import Optional, Callable
 
 
 def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
-    print("RICHIAMO LA SPD")
     """
     Loss function calculating statistical parity difference.
 
@@ -35,7 +34,6 @@ def _statistical_parity_difference_loss(y_true, y_pred, sensitive_attr):
 
 
 def _disparate_impact_loss(y_true, y_pred, sensitive_attr):
-    print("RICHIAMO LA DI")
     """
        Loss function calculating disparate impact.
 
@@ -59,7 +57,7 @@ def _disparate_impact_loss(y_true, y_pred, sensitive_attr):
     prob_negative = keras_ops.sum(y_pred * group_negative) / (keras_ops.sum(group_negative) + keras_backend.epsilon())
 
     # Disparate Impact
-    di = prob_positive / (prob_negative + keras_backend.epsilon())
+    di = prob_negative / (prob_positive + keras_backend.epsilon())
 
     return di
 
