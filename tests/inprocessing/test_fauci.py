@@ -12,12 +12,11 @@ from keras.models import Sequential
 from keras.layers import Dense
 
 
-
-
 def create_model():
     model = Sequential()
-    model.add(Dense(units=16, activation='sigmoid'))
-    model.add(Dense(1, activation='hard_sigmoid'))
+    model.add(Dense(32, activation='relu'))
+    model.add(Dense(16, activation='relu'))
+    model.add(Dense(1, activation='sigmoid'))
     return model
 
 
@@ -55,53 +54,55 @@ class TestFauci(unittest.TestCase):
         self.y = y.apply(lambda x: x == ">50K").astype(int)
 
     def testFauciOneSensitiveAttrSPD(self):
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.35, random_state=42)
+        X_train, _, y_train, _ = train_test_split(self.X, self.y, test_size=0.35, random_state=42)
         X_train['income'] = y_train
         fauci_train_dataset = fl.DataFrame(X_train)
         fauci_train_dataset.targets = "income"
         fauci_train_dataset.sensitive = 'sex'
         fauci_model = create_model()
+        X_train.drop(columns=['income'], inplace=True)
 
         fauciModel = Fauci(fauci_model, loss='binary_crossentropy', regularizer='sp', optimizer='adam',
                            metrics=['accuracy'])
-        fauciModel.fit(fauci_train_dataset, converting_to_type=float, epochs=5, batch_size=32, validation_split=0.1)
-        fauci_accuracy, fauci_spd = evaluate_model(fauciModel, X_test, y_test, "spd")
+        fauciModel.fit(fauci_train_dataset, converting_to_type=float, epochs=10, batch_size=32, validation_split=0.2)
+        fauci_accuracy, fauci_spd = evaluate_model(fauciModel, X_train, y_train, "spd")
 
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.35, random_state=42)
+        X_train, _, y_train, _ = train_test_split(self.X, self.y, test_size=0.35, random_state=42)
         X_train = X_train.astype(float)
         y_train = y_train.astype(float)
         default_model = create_model()
         default_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        default_model.fit(X_train, y_train, epochs=5, batch_size=32, validation_split=0.1)
-        default_model_accuracy, default_model_spd = evaluate_model(default_model, X_test, y_test, "spd")
+        default_model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
+        default_model_accuracy, default_model_spd = evaluate_model(default_model, X_train, y_train, "spd")
 
         print("FAUCI: accuracy: ", fauci_accuracy, " spd: ", fauci_spd)
         print("Default Model: accuracy: ", default_model_accuracy, " spd: ", default_model_spd)
 
         assert (
-                fauci_spd[{'income': 1, 'sex': 1}] >= default_model_spd[{'income': 1, 'sex': 1}]
+                fauci_spd[{'income': 1, 'sex': 1}] <= default_model_spd[{'income': 1, 'sex': 1}]
         ), f"Expected {fauci_spd}, to be less than {default_model_spd}"
 
     def testFauciOneSensitiveAttrDI(self):
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.35, random_state=1)
+        X_train, _, y_train, _ = train_test_split(self.X, self.y, test_size=0.35, random_state=1)
         X_train['income'] = y_train
         fauci_train_dataset = fl.DataFrame(X_train)
         fauci_train_dataset.targets = "income"
         fauci_train_dataset.sensitive = 'sex'
         fauci_model = create_model()
+        X_train.drop(columns=['income'], inplace=True)
 
         fauciModel = Fauci(fauci_model, loss='binary_crossentropy', regularizer='di', optimizer='adam',
                            metrics=['accuracy'])
-        fauciModel.fit(fauci_train_dataset, converting_to_type=float, epochs=5, batch_size=32, validation_split=0.1)
-        fauci_accuracy, fauci_di = evaluate_model(fauciModel, X_test, y_test, "di")
+        fauciModel.fit(fauci_train_dataset, converting_to_type=float, epochs=10, batch_size=32, validation_split=0.2)
+        fauci_accuracy, fauci_di = evaluate_model(fauciModel, X_train, y_train, "di")
 
-        X_train, X_test, y_train, y_test = train_test_split(self.X, self.y, test_size=0.35, random_state=1)
+        X_train, _, y_train, _ = train_test_split(self.X, self.y, test_size=0.35, random_state=1)
         X_train = X_train.astype(float)
         y_train = y_train.astype(float)
         default_model = create_model()
         default_model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-        default_model.fit(X_train, y_train, epochs=5, batch_size=32, validation_split=0.1)
-        default_model_accuracy, default_model_di = evaluate_model(default_model, X_test, y_test, "di")
+        default_model.fit(X_train, y_train, epochs=10, batch_size=32, validation_split=0.2)
+        default_model_accuracy, default_model_di = evaluate_model(default_model, X_train, y_train, "di")
 
         print("FAUCI: accuracy: ", fauci_accuracy, " di: ", fauci_di)
         print("Default Model: accuracy: ", default_model_accuracy, " di: ", default_model_di)
