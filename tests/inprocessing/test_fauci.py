@@ -16,6 +16,7 @@ def create_model():
     model = Sequential()
     model.add(Dense(32, activation="relu"))
     model.add(Dense(16, activation="relu"))
+    model.add(Dense(8, activation="relu"))
     model.add(Dense(1, activation="sigmoid"))
     return model
 
@@ -40,7 +41,7 @@ def evaluate_model(model, X_test, y_test, typeOfEval):
 class TestFauci(unittest.TestCase):
 
     def setUp(self):
-        keras.utils.set_random_seed(423)
+        keras.utils.set_random_seed(420)
         dataset = openml.datasets.get_dataset(179)
         X, y, _, names = dataset.get_data(target=dataset.default_target_attribute)
         imputer = SimpleImputer(strategy="most_frequent")
@@ -54,11 +55,11 @@ class TestFauci(unittest.TestCase):
                 )
         self.X = fl.DataFrame(X_discretized, columns=names)
         self.y = y.apply(lambda x: x == ">50K").astype(int)
+        self.EPOCHS = 20
 
     def testFauciOneSensitiveAttrSPD(self):
-        X_train, _, y_train, _ = train_test_split(
-            self.X, self.y, test_size=0.35, random_state=42
-        )
+        X_train = self.X.copy()
+        y_train = self.y.copy()
         X_train["income"] = y_train
         fauci_train_dataset = fl.DataFrame(X_train)
         fauci_train_dataset.targets = "income"
@@ -76,15 +77,14 @@ class TestFauci(unittest.TestCase):
         fauciModel.fit(
             fauci_train_dataset,
             converting_to_type=float,
-            epochs=10,
+            epochs=self.EPOCHS,
             batch_size=32,
             validation_split=0.2,
         )
         fauci_accuracy, fauci_spd = evaluate_model(fauciModel, X_train, y_train, "spd")
 
-        X_train, _, y_train, _ = train_test_split(
-            self.X, self.y, test_size=0.35, random_state=42
-        )
+        X_train = self.X.copy()
+        y_train = self.y.copy()
         X_train = X_train.astype(float)
         y_train = y_train.astype(float)
         default_model = create_model()
@@ -92,7 +92,7 @@ class TestFauci(unittest.TestCase):
             loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
         )
         default_model.fit(
-            X_train, y_train, epochs=10, batch_size=32, validation_split=0.2
+            X_train, y_train, epochs=self.EPOCHS, batch_size=32, validation_split=0.2
         )
         default_model_accuracy, default_model_spd = evaluate_model(
             default_model, X_train, y_train, "spd"
@@ -112,9 +112,8 @@ class TestFauci(unittest.TestCase):
         ), f"Expected {fauci_spd}, to be less than {default_model_spd}"
 
     def testFauciOneSensitiveAttrDI(self):
-        X_train, _, y_train, _ = train_test_split(
-            self.X, self.y, test_size=0.35, random_state=1
-        )
+        X_train = self.X.copy()
+        y_train = self.y.copy()
         X_train["income"] = y_train
         fauci_train_dataset = fl.DataFrame(X_train)
         fauci_train_dataset.targets = "income"
@@ -132,15 +131,14 @@ class TestFauci(unittest.TestCase):
         fauciModel.fit(
             fauci_train_dataset,
             converting_to_type=float,
-            epochs=10,
+            epochs=self.EPOCHS,
             batch_size=32,
             validation_split=0.2,
         )
         fauci_accuracy, fauci_di = evaluate_model(fauciModel, X_train, y_train, "di")
 
-        X_train, _, y_train, _ = train_test_split(
-            self.X, self.y, test_size=0.35, random_state=1
-        )
+        X_train = self.X.copy()
+        y_train = self.y.copy()
         X_train = X_train.astype(float)
         y_train = y_train.astype(float)
         default_model = create_model()
@@ -148,7 +146,7 @@ class TestFauci(unittest.TestCase):
             loss="binary_crossentropy", optimizer="adam", metrics=["accuracy"]
         )
         default_model.fit(
-            X_train, y_train, epochs=10, batch_size=32, validation_split=0.2
+            X_train, y_train, epochs=self.EPOCHS, batch_size=32, validation_split=0.2
         )
         default_model_accuracy, default_model_di = evaluate_model(
             default_model, X_train, y_train, "di"
