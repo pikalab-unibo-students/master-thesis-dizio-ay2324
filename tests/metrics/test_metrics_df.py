@@ -13,6 +13,7 @@ class TestMetrics(unittest.TestCase):
                 "sensitive1": [1, 1, 0, 0, 1, 0, 0, 1],
                 "sensitive2": [0, 0, 1, 1, 0, 1, 1, 0],
                 "sensitive3": [1, 0, 1, 1, 1, 0, 0, 1],
+                "predictions": [0, 0, 1, 0, 0, 1, 0, 1],
             }
         )
 
@@ -86,6 +87,41 @@ class TestMetrics(unittest.TestCase):
         assert (
                 di_result == expected_di
         ), f"Expected {expected_di}, but got {di_result}"
+
+    def testEqualityOfOpportunity(self):
+        self.df.targets = ["target1"]
+        self.df.sensitive = ["sensitive1"]
+        predictions = self.df["predictions"]
+        res = {(Assignment("target1", 1), Assignment("sensitive1", 1)): 0.33333333333333337,
+               (Assignment("target1", 1), Assignment("sensitive1", 0)): -0.33333333333333337}
+        expected_eoo = DomainDict(res)
+
+        eoo_result = self.df.equality_of_opportunity(predictions)
+        assert eoo_result == expected_eoo, f"Expected {expected_eoo}, but got {eoo_result}"
+
+        self.df.targets = ["target1", "target2"]
+        self.df.sensitive = ["sensitive1", "sensitive2", "sensitive3"]
+
+        res = {
+            (Assignment("target1", 1), Assignment("sensitive3", 1)): -0.33333333333333337,
+            (Assignment("target1", 1), Assignment("sensitive3", 0)): 0.33333333333333337,
+            (Assignment("target1", 1), Assignment("sensitive1", 1)): 0.33333333333333337,
+            (Assignment("target1", 1), Assignment("sensitive1", 0)): -0.33333333333333337,
+            (Assignment("target1", 1), Assignment("sensitive2", 1)): -0.33333333333333337,
+            (Assignment("target1", 1), Assignment("sensitive2", 0)): 0.33333333333333337,
+            (Assignment("target2", 1), Assignment("sensitive3", 1)): 0.16666666666666663,
+            (Assignment("target2", 1), Assignment("sensitive3", 0)): -0.16666666666666663,
+            (Assignment("target2", 1), Assignment("sensitive1", 1)): -0.6666666666666667,
+            (Assignment("target2", 1), Assignment("sensitive1", 0)): 0.6666666666666667,
+            (Assignment("target2", 1), Assignment("sensitive2", 1)): 0.6666666666666667,
+            (Assignment("target2", 1), Assignment("sensitive2", 0)): -0.6666666666666667,
+        }
+        expected_eoo = DomainDict(res)
+
+        eoo_result = self.df.equality_of_opportunity(predictions)
+        assert (
+                eoo_result == expected_eoo
+        ), f"Expected {expected_eoo}, but got {eoo_result}"
 
     def tearDown(self):
         del self.df
