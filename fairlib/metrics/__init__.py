@@ -113,7 +113,7 @@ def disparate_impact(
             if as_dict:
                 result[(target, sensitive)] = di
             else:
-                result[i, j] = di
+                result[j, i] = di
 
     return result
 
