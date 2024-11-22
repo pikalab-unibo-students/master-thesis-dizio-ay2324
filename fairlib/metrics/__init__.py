@@ -70,7 +70,7 @@ def statistical_parity_difference(
             if as_dict:
                 result[(target, sensitive)] = spd
             else:
-                result[i, j] = spd
+                result[j, i] = spd
 
     return result
 
