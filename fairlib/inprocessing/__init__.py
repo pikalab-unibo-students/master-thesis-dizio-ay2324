@@ -6,10 +6,9 @@ from typing import Union, Optional
 
 class InProcessing(BaseEstimator):
 
-    def __unpack_dataframe( 
-            self, 
-            x: Union[ndarray, DataFrame],
-            y: Optional[ndarray] = None) -> tuple[ndarray, Optional[ndarray]]:
+    def __unpack_dataframe(
+        self, x: Union[ndarray, DataFrame], y: Optional[ndarray] = None
+    ) -> tuple[ndarray, Optional[ndarray]]:
         if isinstance(x, ndarray):
             if y is None:
                 raise ValueError("y must be provided if x is a numpy array")
@@ -23,20 +22,20 @@ class InProcessing(BaseEstimator):
     def fit(self, x, y):
         x, y = self.__unpack_dataframe(x, y)
         return self._fit(x, y)
-    
+
     def _fit(self, x, y):
         raise NotImplementedError
 
     def transform(self, x, y):
         x, y = self.__unpack_dataframe(x, y)
         return self._transform(x, y)
-    
+
     def _transform(self, x, y):
         raise NotImplementedError
 
     def fit_transform(self, x, y):
         x, y = self.__unpack_dataframe(x, y)
         return self._fit_transform(x, y)
-    
+
     def _fit_transform(self, x, y):
         raise NotImplementedError

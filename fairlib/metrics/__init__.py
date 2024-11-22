@@ -33,12 +33,12 @@ class Metric:
 
 
 def statistical_parity_difference(
-        target_column: np.ndarray, 
-        sensitive_column: np.ndarray,
-        as_dict: bool = False) -> Union[np.ndarray, dict]:
-    
-    result, sensitive_len, sensitive_values, target_len, target_values = \
+    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
+) -> Union[np.ndarray, dict]:
+
+    result, sensitive_len, sensitive_values, target_len, target_values = (
         check_and_setup(as_dict, sensitive_column, target_column)
+    )
 
     for i in range(target_len):
         target = target_values[i]
@@ -76,12 +76,12 @@ def statistical_parity_difference(
 
 
 def disparate_impact(
-        target_column: np.ndarray, 
-        sensitive_column: np.ndarray,
-        as_dict: bool = False) -> Union[np.ndarray, dict]:
-    
-    result, sensitive_len, sensitive_values, target_len, target_values = \
+    target_column: np.ndarray, sensitive_column: np.ndarray, as_dict: bool = False
+) -> Union[np.ndarray, dict]:
+
+    result, sensitive_len, sensitive_values, target_len, target_values = (
         check_and_setup(as_dict, sensitive_column, target_column)
+    )
 
     for i in range(target_len):
         target = target_values[i]
@@ -119,11 +119,11 @@ def disparate_impact(
 
 
 def equality_of_opportunity(
-        target_column: np.ndarray,
-        sensitive_column: np.ndarray,
-        predicted_column: np.ndarray,
-        positive_target: int = 1,
-        as_dict: bool = False
+    target_column: np.ndarray,
+    sensitive_column: np.ndarray,
+    predicted_column: np.ndarray,
+    positive_target: int = 1,
+    as_dict: bool = False,
 ) -> Union[np.ndarray, dict]:
     """
     Calculates Equality of Opportunity for sensitive groups.
@@ -138,8 +138,9 @@ def equality_of_opportunity(
     Returns:
         np.ndarray or dict: The difference in True Positive Rates between privileged and unprivileged groups.
     """
-    result, sensitive_len, sensitive_values, _, _ = \
-        check_and_setup(as_dict, sensitive_column, target_column)
+    result, sensitive_len, sensitive_values, _, _ = check_and_setup(
+        as_dict, sensitive_column, target_column
+    )
 
     for j in range(sensitive_len):
         sensitive = sensitive_values[j]
@@ -147,19 +148,25 @@ def equality_of_opportunity(
         # TPR for the privileged group
         privileged_mask = sensitive_column == sensitive
         privileged_positive = (target_column == positive_target) & privileged_mask
-        privileged_pred_positive = (predicted_column == positive_target) & privileged_mask
+        privileged_pred_positive = (
+            predicted_column == positive_target
+        ) & privileged_mask
         privileged_tpr = (
             privileged_pred_positive.sum() / privileged_positive.sum()
-            if privileged_positive.sum() > 0 else np.inf
+            if privileged_positive.sum() > 0
+            else np.inf
         )
 
         # TPR for the non-privileged group
         unprivileged_mask = sensitive_column != sensitive
         unprivileged_positive = (target_column == positive_target) & unprivileged_mask
-        unprivileged_pred_positive = (predicted_column == positive_target) & unprivileged_mask
+        unprivileged_pred_positive = (
+            predicted_column == positive_target
+        ) & unprivileged_mask
         unprivileged_tpr = (
             unprivileged_pred_positive.sum() / unprivileged_positive.sum()
-            if unprivileged_positive.sum() > 0 else -np.inf
+            if unprivileged_positive.sum() > 0
+            else -np.inf
         )
 
         eoo = privileged_tpr - unprivileged_tpr
@@ -242,9 +249,7 @@ class DisparateImpact(Metric):
 
         for target_column in target_columns:
             for group_column in group_columns:
-                di = disparate_impact(
-                    df[target_column], df[group_column], as_dict=True
-                )
+                di = disparate_impact(df[target_column], df[group_column], as_dict=True)
                 if isinstance(di, dict):
                     for (target, group), value in di.items():
                         result[

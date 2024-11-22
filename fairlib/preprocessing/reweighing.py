@@ -24,19 +24,31 @@ class Reweighing(Transformer):
         n_unprivileged_favorable = np.sum((unprivileged & favorable))
         n_unprivileged_unfavorable = np.sum((unprivileged & unfavorable))
 
-        weight_privileged_favorable = ratio(n_favorable, n_privileged, n_total, n_privileged_favorable)
-        weight_privileged_unfavorable = ratio(n_unfavorable, n_privileged, n_total, n_privileged_unfavorable)
-        weight_unprivileged_favorable = ratio(n_favorable, n_unprivileged, n_total, n_unprivileged_favorable)
-        weight_unprivileged_unfavorable = ratio(n_unfavorable, n_unprivileged, n_total, n_unprivileged_unfavorable)
+        weight_privileged_favorable = ratio(
+            n_favorable, n_privileged, n_total, n_privileged_favorable
+        )
+        weight_privileged_unfavorable = ratio(
+            n_unfavorable, n_privileged, n_total, n_privileged_unfavorable
+        )
+        weight_unprivileged_favorable = ratio(
+            n_favorable, n_unprivileged, n_total, n_unprivileged_favorable
+        )
+        weight_unprivileged_unfavorable = ratio(
+            n_unfavorable, n_unprivileged, n_total, n_unprivileged_unfavorable
+        )
 
-        return (weight_privileged_favorable,
-                weight_privileged_unfavorable,
-                weight_unprivileged_favorable,
-                weight_unprivileged_unfavorable)
+        return (
+            weight_privileged_favorable,
+            weight_privileged_unfavorable,
+            weight_unprivileged_favorable,
+            weight_unprivileged_unfavorable,
+        )
 
     def transform(self, df, favorable_label=1):
         if len(df.targets) > 1:
-            raise ValueError("More than one “target” column is present. Reweighing supports only 1 target.")
+            raise ValueError(
+                "More than one “target” column is present. Reweighing supports only 1 target."
+            )
 
         target_column = df.targets.pop()
 
@@ -54,10 +66,12 @@ class Reweighing(Transformer):
             privileged &= df[sensitive_column] == 1
             unprivileged &= df[sensitive_column] == 0
 
-        (weight_privileged_favorable,
-        weight_privileged_unfavorable,
-        weight_unprivileged_favorable,
-        weight_unprivileged_unfavorable) = self._reweighing(privileged, unprivileged, favorable, unfavorable, n_total)
+        (
+            weight_privileged_favorable,
+            weight_privileged_unfavorable,
+            weight_unprivileged_favorable,
+            weight_unprivileged_unfavorable,
+        ) = self._reweighing(privileged, unprivileged, favorable, unfavorable, n_total)
 
         df.loc[privileged & favorable, "weights"] = weight_privileged_favorable
         df.loc[privileged & unfavorable, "weights"] = weight_privileged_unfavorable
@@ -70,7 +84,9 @@ class Reweighing(Transformer):
 class ReweighingWithMean(Reweighing):
     def transform(self, df, favorable_label=1, remove_weight_columns=True):
         if len(df.targets) > 1:
-            raise ValueError("More than one “target” column is present. Reweighing supports only 1 target")
+            raise ValueError(
+                "More than one “target” column is present. Reweighing supports only 1 target"
+            )
 
         target_column = df.targets.pop()
 
@@ -86,18 +102,30 @@ class ReweighingWithMean(Reweighing):
             privileged = df[sensitive_column] == 1
             unprivileged = df[sensitive_column] == 0
 
-            (weight_privileged_favorable,
-            weight_privileged_unfavorable,
-            weight_unprivileged_favorable,
-            weight_unprivileged_unfavorable) = self._reweighing(privileged, unprivileged, favorable, unfavorable, n_total)
+            (
+                weight_privileged_favorable,
+                weight_privileged_unfavorable,
+                weight_unprivileged_favorable,
+                weight_unprivileged_unfavorable,
+            ) = self._reweighing(
+                privileged, unprivileged, favorable, unfavorable, n_total
+            )
 
             weight_col_name = f"weights_{sensitive_column}"
             df[weight_col_name] = 1.0
 
-            df.loc[privileged & favorable, weight_col_name] = weight_privileged_favorable
-            df.loc[privileged & unfavorable, weight_col_name] = weight_privileged_unfavorable
-            df.loc[unprivileged & favorable, weight_col_name] = weight_unprivileged_favorable
-            df.loc[unprivileged & unfavorable, weight_col_name] = weight_unprivileged_unfavorable
+            df.loc[privileged & favorable, weight_col_name] = (
+                weight_privileged_favorable
+            )
+            df.loc[privileged & unfavorable, weight_col_name] = (
+                weight_privileged_unfavorable
+            )
+            df.loc[unprivileged & favorable, weight_col_name] = (
+                weight_unprivileged_favorable
+            )
+            df.loc[unprivileged & unfavorable, weight_col_name] = (
+                weight_unprivileged_unfavorable
+            )
 
             weight_columns.append(weight_col_name)
 

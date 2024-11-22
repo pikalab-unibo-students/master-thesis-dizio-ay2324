@@ -19,7 +19,7 @@ class DataFrameExtensionProperty:
         self.__can_write = can_write
         self.__can_delete = can_delete
         self.__default = default
-        
+
     def __set_name__(self, owner, name):
         assert owner is DataFrame
         self.__name = name
@@ -107,6 +107,7 @@ class DataFrameExtensionFunction(DataFrameExtensionProperty):
     Args:
         callable: The function to be called with the DataFrame.
     """
+
     def __init__(self, callable=None):
         super().__init__(can_read=True)
         self.__callable = callable
@@ -127,6 +128,7 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
 
     Inherits from DataFrameExtensionProperty.
     """
+
     def __init__(self):
         super().__init__(can_read=True, can_write=True, default=set())
 

@@ -59,9 +59,16 @@ class DomainDict(Mapping):
                     intersection = dict_intersection(intersection, self[k])
             return intersection
         elif isinstance(key, str):
-            return {k: v for k, v in self.__dict.items() for domain in k if domain.feature == key}
+            return {
+                k: v
+                for k, v in self.__dict.items()
+                for domain in k
+                if domain.feature == key
+            }
         elif isinstance(key, Domain):
-            return {k: v for k, v in self.__dict.items() for domain in k if domain == key}
+            return {
+                k: v for k, v in self.__dict.items() for domain in k if domain == key
+            }
         else:
             raise KeyError(key)
 

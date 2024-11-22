@@ -6,12 +6,12 @@ from typing import Callable
 
 
 DIR_ROOT = Path(__file__).parent.parent
-DIR_EXAMPLES = DIR_ROOT / 'examples'
+DIR_EXAMPLES = DIR_ROOT / "examples"
 
 
 class NotebookRunner:
     DEFAULT_VERSION = 4
-    DEFAULT_KERNEL = 'python3'
+    DEFAULT_KERNEL = "python3"
     DEFAULT_TIMEOUT = 600
 
     def __init__(self, path: Path) -> None:
@@ -19,7 +19,7 @@ class NotebookRunner:
         self.__notebook = None
 
     def __get_outputs(self, notebook, filter: Callable) -> dict[int, dict[int, list]]:
-        outputs: dict[int, dict[int, list]]  = dict()
+        outputs: dict[int, dict[int, list]] = dict()
         for i, cell in enumerate(notebook.cells):
             if i not in outputs:
                 outputs[i] = dict()
@@ -32,16 +32,17 @@ class NotebookRunner:
         return outputs
 
     def __notebook_run(
-            self,
-            version: int = DEFAULT_VERSION, 
-            kernel: str = DEFAULT_KERNEL,
-            timeout: int = DEFAULT_TIMEOUT):
+        self,
+        version: int = DEFAULT_VERSION,
+        kernel: str = DEFAULT_KERNEL,
+        timeout: int = DEFAULT_TIMEOUT,
+    ):
         if self.__notebook is not None:
             return
-        with open(self.path, 'r', encoding='utf-8') as f:
+        with open(self.path, "r", encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=version)
             ep = ExecutePreprocessor(timeout=timeout, kernel_name=kernel)
-            ep.preprocess(nb, {'metadata': {'path': DIR_EXAMPLES}})
+            ep.preprocess(nb, {"metadata": {"path": DIR_EXAMPLES}})
             self.__notebook = nb
 
     @property
@@ -51,31 +52,41 @@ class NotebookRunner:
 
     @property
     def errors_by_cell(self):
-        return self.__get_outputs(self.notebook, lambda output: output.output_type == "error")
-    
+        return self.__get_outputs(
+            self.notebook, lambda output: output.output_type == "error"
+        )
+
     @property
     def all_errors(self):
-        return [error for _, outputs in self.errors_by_cell.items() for _, error in outputs]
-    
+        return [
+            error for _, outputs in self.errors_by_cell.items() for _, error in outputs
+        ]
+
     @property
     def warnings_by_cell(self):
-        return self.__get_outputs(self.notebook, lambda output: output.output_type == "warning")
-    
+        return self.__get_outputs(
+            self.notebook, lambda output: output.output_type == "warning"
+        )
+
     @property
     def all_warnings(self):
-        return [warning for _, outputs in self.warnings_by_cell.items() for _, warning in outputs]
-    
+        return [
+            warning
+            for _, outputs in self.warnings_by_cell.items()
+            for _, warning in outputs
+        ]
+
 
 def fancy_name(path: Path) -> str:
-    names = path.with_suffix('').name.split('_')
-    if names[0].lower() in {'test', 'demo'}:
+    names = path.with_suffix("").name.split("_")
+    if names[0].lower() in {"test", "demo"}:
         names = names[1:]
-    return ''.join(map(str.capitalize, names))
+    return "".join(map(str.capitalize, names))
 
 
 class BaseNotebookTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.nbr = NotebookRunner(self.notebook_path) # type: ignore
+        self.nbr = NotebookRunner(self.notebook_path)  # type: ignore
         self.assertIsNotNone(self.nbr.notebook)
 
     def test_notebook_has_no_errors(self):
@@ -86,16 +97,14 @@ class BaseNotebookTest(unittest.TestCase):
                         self.fail(f"Error: {error}")
 
 
-for notebook in DIR_EXAMPLES.glob('*.ipynb'):
+for notebook in DIR_EXAMPLES.glob("*.ipynb"):
     name = f"TestDemo{fancy_name(notebook)}"
-    klass = type(name, (BaseNotebookTest,), {
-        'notebook_path': notebook
-    })
+    klass = type(name, (BaseNotebookTest,), {"notebook_path": notebook})
     globals()[name] = klass
     print("Generate test case: ", name)
 
 
 del BaseNotebookTest
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
