@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Check code is syntactically correct
+poetry run poe compile
+if [ $? -ne 0 ]; then
+  echo "ERROR: code is not syntactically correct."
+  exit 1
+fi
+
+# Static Checks
+poetry run poe mypy
+if [ $? -ne 0 ]; then
+  echo "ERROR: Static Checks failed."
+  exit 1
+fi
+
+# Test Coverage
+poetry run poe coverage
+if [ $? -ne 0 ]; then
+  echo "ERROR: Test Coverage failed."
+  exit 1
+fi
+
+# Test
+poetry run poe test
+if [ $? -ne 0 ]; then
+  echo "ERROR: Tests failed."
+  exit 1
+fi
+
+# OK!
+exit 0

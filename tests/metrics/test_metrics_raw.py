@@ -66,7 +66,7 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
             target_column=self.data[:, 2],
             sensitive_column=self.data[:, 0]
         )
-        self.assertEqual(di, inf)
+        self.assertEqual(di, -inf)
 
     def test_disparate_impact_with_all_one(self):
         di = disparate_impact(
