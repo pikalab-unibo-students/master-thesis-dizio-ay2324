@@ -23,5 +23,5 @@ def check_and_setup(as_dict, sensitive_column, target_column):
         warnings.warn(
             f"Sensitive column has less than 2 unique values: {sensitive_len}"
         )
-    result = np.zeros((target_len, sensitive_len)) if not as_dict else {}
+    result = np.zeros((sensitive_len, target_len)) if not as_dict else {}
     return result, sensitive_len, sensitive_values, target_len, target_values
