@@ -19,7 +19,7 @@ class Encoder(nn.Module):
             nn.ReLU(),
             nn.Linear(64, 32),
             nn.ReLU(),
-            nn.Linear(32, latent_dim)
+            nn.Linear(32, latent_dim),
         )
 
     def forward(self, x):
@@ -37,7 +37,7 @@ class Decoder(nn.Module):
             nn.ReLU(),
             nn.Linear(32, 64),
             nn.ReLU(),
-            nn.Linear(64, output_dim)
+            nn.Linear(64, output_dim),
         )
 
     def forward(self, z):
@@ -51,10 +51,7 @@ class Classifier(nn.Module):
         """
         super(Classifier, self).__init__()
         self.classifier = nn.Sequential(
-            nn.Linear(latent_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1),
-            nn.Sigmoid()
+            nn.Linear(latent_dim, 32), nn.ReLU(), nn.Linear(32, 1), nn.Sigmoid()
         )
 
     def forward(self, z):

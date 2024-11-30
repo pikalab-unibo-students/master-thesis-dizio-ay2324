@@ -9,6 +9,25 @@ import torch.optim as optim
 from fairlib.preprocessing._lfr_model import Encoder, Decoder, Classifier
 from fairlib.dataframe import DataFrame
 
+
+def compute_reconstruction_loss(x, x_reconstructed):
+    return torch.mean((x - x_reconstructed) ** 2)
+
+
+def compute_fairness_loss(z, sensitive_attr):
+    protected_mask = sensitive_attr == 1
+    unprotected_mask = sensitive_attr == 0
+
+    protected_mean = torch.mean(z[protected_mask], dim=0)
+    unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
+
+    return torch.sum((protected_mean - unprotected_mean) ** 2)
+
+
+def compute_classification_loss(y_pred, y_true):
+    return nn.BCELoss()(y_pred, y_true)
+
+
 class LFR:
     def __init__(self, input_dim, latent_dim, alpha_z=1.0, alpha_x=1.0, alpha_y=1.0):
         self.input_dim = input_dim
@@ -23,28 +42,17 @@ class LFR:
 
         self.scaler = StandardScaler()
 
-    def compute_fairness_loss(self, z, sensitive_attr):
-        protected_mask = (sensitive_attr == 1)
-        unprotected_mask = (sensitive_attr == 0)
-
-        protected_mean = torch.mean(z[protected_mask], dim=0)
-        unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
-
-        return torch.sum((protected_mean - unprotected_mean) ** 2)
-
-    def compute_reconstruction_loss(self, x, x_reconstructed):
-        return torch.mean((x - x_reconstructed) ** 2)
-
-    def compute_classification_loss(self, y_pred, y_true):
-        return nn.BCELoss()(y_pred, y_true)
-
     def fit(self, df: DataFrame, epochs=100, batch_size=32, learning_rate=0.001):
 
         if len(df.targets) > 1:
-            raise ValueError("More than one “target” column is present. LFR supports only 1 target.")
+            raise ValueError(
+                "More than one “target” column is present. LFR supports only 1 target."
+            )
         target_columns = df.targets.pop()
         if len(df.sensitive) > 1:
-            raise ValueError("More than one “sensitive” column is present. LFR supports only 1 sensitive.")
+            raise ValueError(
+                "More than one “sensitive” column is present. LFR supports only 1 sensitive."
+            )
         sensitive_columns = df.sensitive.pop()
 
         X = df.drop(columns=target_columns).values
@@ -56,34 +64,40 @@ class LFR:
         y = torch.FloatTensor(y).reshape(-1, 1)
         sensitive_attr = torch.FloatTensor(sensitive_attr)
 
-        optimizer = optim.Adam(list(self.encoder.parameters()) +
-                               list(self.decoder.parameters()) +
-                               list(self.classifier.parameters()),
-                               lr=learning_rate)
+        optimizer = optim.Adam(
+            list(self.encoder.parameters())
+            + list(self.decoder.parameters())
+            + list(self.classifier.parameters()),
+            lr=learning_rate,
+        )
 
         for epoch in range(epochs):
             z = self.encoder(X)
             x_reconstructed = self.decoder(z)
             y_pred = self.classifier(z)
 
-            fairness_loss = self.compute_fairness_loss(z, sensitive_attr)
-            reconstruction_loss = self.compute_reconstruction_loss(X, x_reconstructed)
-            classification_loss = self.compute_classification_loss(y_pred, y)
+            fairness_loss = compute_fairness_loss(z, sensitive_attr)
+            reconstruction_loss = compute_reconstruction_loss(X, x_reconstructed)
+            classification_loss = compute_classification_loss(y_pred, y)
 
-            total_loss = (self.alpha_z * fairness_loss +
-                          self.alpha_x * reconstruction_loss +
-                          self.alpha_y * classification_loss)
+            total_loss = (
+                self.alpha_z * fairness_loss
+                + self.alpha_x * reconstruction_loss
+                + self.alpha_y * classification_loss
+            )
 
             optimizer.zero_grad()
             total_loss.backward()
             optimizer.step()
 
             if (epoch + 1) % 10 == 0:
-                print(f"Epoch [{epoch + 1}/{epochs}], "
-                      f"Loss: {total_loss.item():.4f}, "
-                      f"Fairness: {fairness_loss.item():.4f}, "
-                      f"Reconstruction: {reconstruction_loss.item():.4f}, "
-                      f"Classification: {classification_loss.item():.4f}")
+                print(
+                    f"Epoch [{epoch + 1}/{epochs}], "
+                    f"Loss: {total_loss.item():.4f}, "
+                    f"Fairness: {fairness_loss.item():.4f}, "
+                    f"Reconstruction: {reconstruction_loss.item():.4f}, "
+                    f"Classification: {classification_loss.item():.4f}"
+                )
 
     def predict(self, df: DataFrame):
         X = df.drop(columns=df.targets).values
