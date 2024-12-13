@@ -69,10 +69,9 @@ ColumnDomainInspectorProperty().apply("domains")
 
 @dataframe_extension
 def separate_columns(df: DataFrame, *columns, as_array: bool = False):
-    if not columns:
-        columns = list(df.targets)
-    X = df.drop(columns, axis=1)
-    y = df[columns]
+    input_columns = list(columns) if len(columns) > 0 else list(df.targets)
+    X = df.drop(input_columns, axis=1)
+    y = df[input_columns]
     if as_array:
         return X.values, y.values
     return X, y
@@ -131,7 +130,7 @@ class _preserving_extension_properties:
 
 
 @dataframe_extension
-def one_hot_encode(df: DataFrame, *columns_to_ohe, in_place: bool = False, force_int: bool = True) -> DataFrame:
+def one_hot_encode(df: DataFrame, *columns, in_place: bool = False, force_int: bool = True) -> DataFrame:
     def _flatten(lst):
         for item in lst:
             if isinstance(item, list):
@@ -141,9 +140,8 @@ def one_hot_encode(df: DataFrame, *columns_to_ohe, in_place: bool = False, force
 
     if not in_place:
         df = df.copy()
-    if not columns_to_ohe:
-        columns_to_ohe = [col for col in df.columns if is_discrete(df[col]) and not is_binary(df[col])]
-    columns_to_ohe = set(columns_to_ohe)
+    columns_to_ohe = set(col for col in df.columns if is_discrete(df[col]) and not is_binary(df[col])) \
+        if not columns else set(columns)
     all_columns = list(df.columns)
     with _preserving_extension_properties(df) as props:
         for column_name in all_columns:
