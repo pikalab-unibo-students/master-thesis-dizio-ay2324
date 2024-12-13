@@ -1,3 +1,9 @@
+## [2.3.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.2.1...2.3.0) (2024-12-13)
+
+### Features
+
+* new discretization api for dataframe ([2d3fa53](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2d3fa5371fe19ed4448be81fa2e044af9d7da24d))
+
 ## [2.2.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.2.0...2.2.1) (2024-12-10)
 
 ### Dependency updates
