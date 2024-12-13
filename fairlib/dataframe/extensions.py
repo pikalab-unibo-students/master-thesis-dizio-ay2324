@@ -1,5 +1,6 @@
 from ..dataframe import *
 from pandas import Series
+from typing import Union
 
 
 ColumnsContainerProperty().apply("targets")
@@ -78,7 +79,7 @@ def separate_columns(df: DataFrame, *columns, as_array: bool = False):
 
 
 @dataframe_extension
-def is_discrete(df: DataFrame | Series) -> bool:
+def is_discrete(df: Union[DataFrame, Series]) -> bool:
     if isinstance(df, Series):
         return df.dtype.kind in "Oib"
     elif isinstance(df, DataFrame):
@@ -87,7 +88,7 @@ def is_discrete(df: DataFrame | Series) -> bool:
 
 
 @dataframe_extension
-def is_binary(df: DataFrame | Series) -> bool:
+def is_binary(df: Union[DataFrame, Series]) -> bool:
     if isinstance(df, Series):
         return df.dtype.kind == "b" or len(df.unique()) == 2
     elif isinstance(df, DataFrame):
