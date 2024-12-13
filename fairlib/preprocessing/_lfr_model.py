@@ -1,58 +1,51 @@
-import torch.nn as nn
+from fairlib.keras import Model
+from fairlib.keras import layers
 
 
-class Encoder(nn.Module):
+class Encoder(Model):
     def __init__(self, input_dim, latent_dim):
-        """
-        Encoder network to transform input features into fair representations
-
-        Parameters:
-        -----------
-        input_dim: int
-            Dimension of input features
-        latent_dim: int
-            Dimension of the learned fair representation
-        """
         super(Encoder, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(input_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, latent_dim),
-        )
+        self.encoder = [
+            layers.Dense(64, input_dim=input_dim),
+            layers.ReLU(),
+            layers.Dense(32),
+            layers.ReLU(),
+            layers.Dense(latent_dim),
+        ]
 
-    def forward(self, x):
-        return self.encoder(x)
+    def call(self, x):
+        for layer in self.encoder:
+            x = layer(x)
+        return x
 
 
-class Decoder(nn.Module):
+class Decoder(Model):
     def __init__(self, latent_dim, output_dim):
-        """
-        Decoder network to reconstruct original features from fair representations
-        """
         super(Decoder, self).__init__()
-        self.decoder = nn.Sequential(
-            nn.Linear(latent_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, 64),
-            nn.ReLU(),
-            nn.Linear(64, output_dim),
-        )
+        self.decoder = [
+            layers.Dense(32, input_dim=latent_dim),
+            layers.ReLU(),
+            layers.Dense(64),
+            layers.ReLU(),
+            layers.Dense(output_dim),
+        ]
 
-    def forward(self, z):
-        return self.decoder(z)
+    def call(self, z):
+        for layer in self.decoder:
+            z = layer(z)
+        return z
 
 
-class Classifier(nn.Module):
+class Classifier(Model):
     def __init__(self, latent_dim):
-        """
-        Classifier network to predict target variable from fair representations
-        """
         super(Classifier, self).__init__()
-        self.classifier = nn.Sequential(
-            nn.Linear(latent_dim, 32), nn.ReLU(), nn.Linear(32, 1), nn.Sigmoid()
-        )
+        self.classifier = [
+            layers.Dense(32, input_dim=latent_dim),
+            layers.ReLU(),
+            layers.Dense(1, activation='sigmoid'),
+        ]
 
-    def forward(self, z):
-        return self.classifier(z)
+    def call(self, z):
+        for layer in self.classifier:
+            z = layer(z)
+        return z
