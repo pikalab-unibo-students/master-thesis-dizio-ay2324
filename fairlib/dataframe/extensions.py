@@ -101,12 +101,33 @@ def _optionally_force_int(s: Series, force_int: bool = True) -> Series:
 
 
 def ohe(series: Series, force_int: bool = True) -> DataFrame:
-    values = series.unique()
+    values = list(series.unique())
     values.sort()
     df = DataFrame()
     for value in values:
         df[f'{series.name}=={value}'] = _optionally_force_int(series == value, force_int)
     return df
+
+
+class _preserving_extension_properties:
+    def __init__(self, df: DataFrame):
+        self.df = df
+        self.__renames: list[tuple[str, str]] = []
+
+    def __enter__(self):
+        self.targets = set(self.df.targets)
+        self.sensitive = set(self.df.sensitive)
+        return self
+    
+    def renaming(self, old_column: str, new_column: str):
+        self.__renames.append((old_column, new_column))
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        for old_column, new_column in self.__renames:
+            if old_column in self.targets:
+                self.df.targets |= {new_column}
+            if old_column in self.sensitive:
+                self.df.sensitive |= {new_column}
 
 
 @dataframe_extension
@@ -124,20 +145,22 @@ def one_hot_encode(df: DataFrame, *columns_to_ohe, in_place: bool = False, force
         columns_to_ohe = [col for col in df.columns if is_discrete(df[col]) and not is_binary(df[col])]
     columns_to_ohe = set(columns_to_ohe)
     all_columns = list(df.columns)
-    for column_name in all_columns:
-        column = df[column_name]
-        df.drop(column_name, axis=1, inplace=True)
-        if column_name in columns_to_ohe:
-            ohe_columns = ohe(column, force_int=force_int)
-            for ohe_col in ohe_columns.columns:
-                df[ohe_col] = ohe_columns[ohe_col]
-        else:
-            df[column_name] = column
+    with _preserving_extension_properties(df) as props:
+        for column_name in all_columns:
+            column = df[column_name]
+            df.drop(column_name, axis=1, inplace=True)
+            if column_name in columns_to_ohe:
+                ohe_columns = ohe(column, force_int=force_int)
+                for ohe_col in ohe_columns.columns:
+                    df[ohe_col] = ohe_columns[ohe_col]
+                    props.renaming(column_name, ohe_col)
+            else:
+                df[column_name] = column
     return df
 
 
 @dataframe_extension
-def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_int: bool = True, **discretization_functions) -> DataFrame:
+def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_int: bool = False, **discretization_functions) -> DataFrame:
     if not in_place:
         df = df.copy()
     if not discrete_columns and not discretization_functions:
@@ -152,7 +175,9 @@ def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_i
             if not is_discrete(column):
                 raise ValueError(f"Column {name} is not discrete")
             df[column.name] = _optionally_force_int(column, force_int)
-            df.rename(columns={column.name: name}, inplace=True)
+            with _preserving_extension_properties(df) as props:
+                df.rename(columns={column.name: name}, inplace=True)
+                props.renaming(column.name, name)
         else:
             raise TypeError(f"Unsupported type: {type(column)}")
     for column_name, discretization in discretization_functions.items():
@@ -166,8 +191,10 @@ def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_i
         if callable(discretization):
             column = df[column_name]
             new_name = column_name if new_name is None else new_name
-            df.drop(column_name, axis=1, inplace=True)
-            df[new_name] = _optionally_force_int(column.apply(discretization), force_int)
+            with _preserving_extension_properties(df) as props:
+                df.drop(column_name, axis=1, inplace=True)
+                df[new_name] = _optionally_force_int(column.apply(discretization), force_int)
+                props.renaming(column_name, new_name)
         else:
             raise ValueError(f"Unsupported discretization function for column {column_name}")
     return df
