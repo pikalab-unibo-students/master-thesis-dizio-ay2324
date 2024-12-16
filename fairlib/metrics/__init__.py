@@ -50,7 +50,7 @@ def statistical_parity_difference(
                 privileged_sensitive == target
             ]
             privileged_rate = (
-                privileged_sensitive_with_target.sum() / len(privileged_sensitive)
+                len(privileged_sensitive_with_target) / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
                 else np.inf
             )
@@ -60,7 +60,7 @@ def statistical_parity_difference(
                 unprivileged_sensitive == target
             ]
             unprivileged_rate = (
-                unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
+                len(unprivileged_sensitive_with_target) / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0
                 else -np.inf
             )
@@ -93,7 +93,7 @@ def disparate_impact(
                 privileged_sensitive == target
             ]
             privileged_rate = (
-                privileged_sensitive_with_target.sum() / len(privileged_sensitive)
+                len(privileged_sensitive_with_target) / len(privileged_sensitive)
                 if len(privileged_sensitive) > 0
                 else np.inf
             )
@@ -103,7 +103,7 @@ def disparate_impact(
                 unprivileged_sensitive == target
             ]
             unprivileged_rate = (
-                unprivileged_sensitive_with_target.sum() / len(unprivileged_sensitive)
+                len(unprivileged_sensitive_with_target) / len(unprivileged_sensitive)
                 if len(unprivileged_sensitive) > 0
                 else -np.inf
             )

@@ -6,11 +6,11 @@ def _get_values(values: np.ndarray, is_target=False) -> tuple[np.ndarray, int]:
     values = np.unique(values)
     values.sort()
     length = len(values)
-    if len(values) == 2:
-        if is_target:
-            length -= 1
-        if values[0] == 0:
-            values = values[::-1]
+    # if len(values) == 2:
+    #     if is_target:
+    #         length -= 1
+    #     if values[0] == 0:
+    #         values = values[::-1]
     return values, length
 
 
