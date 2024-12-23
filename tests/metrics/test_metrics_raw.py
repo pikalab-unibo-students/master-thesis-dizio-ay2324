@@ -1,4 +1,3 @@
-import numpy as np
 from numpy import array, inf
 from fairlib.metrics import *
 import unittest
@@ -18,8 +17,7 @@ class TestMetricsOnBinaryData(unittest.TestCase):
         spd = statistical_parity_difference(
             target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
-        print(spd)
-        self.assertTrue(np.array_equal(spd.squeeze(), np.array([-0.5, 0.5])))
+        self.assertTrue(np.array_equal(spd.squeeze(), np.array([[-0.5, 0.5], [0.5, -0.5]])))
 
 
 class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
@@ -31,8 +29,7 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
         spd = statistical_parity_difference(
             target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
-        self.assertEqual(spd, inf)
-
+        self.assertTrue(np.array_equal(spd.squeeze(), np.array([inf, inf])))
     def test_statistical_parity_difference_with_all_one(self):
         col1 = str_to_int_list("11111111")
         col2 = str_to_int_list("01011010")
@@ -40,4 +37,4 @@ class TestMetricsOnVeryPolarisedBinaryData(unittest.TestCase):
         spd = statistical_parity_difference(
             target_column=self.data[:, 1], sensitive_column=self.data[:, 0]
         )
-        self.assertEqual(spd, inf)
+        self.assertTrue(np.array_equal(spd.squeeze(), np.array([inf, inf])))
