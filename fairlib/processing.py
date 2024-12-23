@@ -34,15 +34,6 @@ Processor = Union[Estimator, Predictor, Transformer, FittableTransformer, Model]
 setattr(Processor, "__name__", "Processor")
 
 
-def ensure_is_processor(obj):
-    if not isinstance(
-        obj, (Estimator, Predictor, Transformer, FittableTransformer, Model)
-    ):
-        raise TypeError(
-            "Object must be an instance of Estimator, Predictor, Transformer, FittableTransformer, or Model."
-        )
-
-
 def unpack_dataframe(
     x: Union[ndarray, DataFrame], y: Optional[ndarray] = None
 ) -> tuple[ndarray, Optional[ndarray]]:
@@ -91,11 +82,7 @@ class DataFrameAwareModel(Model):
 
 class DataFrameAwareProcessorWrapper:
     def __init__(self, processor):
-        self.__processor = self._initialize_processor(processor)
-
-    def _initialize_processor(self, processor):
-        ensure_is_processor(processor)
-        return processor
+        self.__processor = processor
 
     @property
     def processor(self):

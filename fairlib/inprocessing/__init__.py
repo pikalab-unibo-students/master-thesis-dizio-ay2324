@@ -1,4 +1,4 @@
-from .fauci import FaUCI
+from .fauci import Fauci
 
 
-Fauci = FaUCI  # alias to make imports easier
+Fauci = Fauci  # alias to make imports easier

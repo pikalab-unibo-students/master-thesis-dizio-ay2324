@@ -1,8 +1,10 @@
 poetry==1.8.4
-numpy~=1.26.4
+numpy~=2.0.2
 nbformat~=5.10.4
 pandas~=2.2.3
 scikit-learn~=1.5.2
 nbconvert~=7.16.4
 keras~=3.6.0
-tensorflow~=2.17.0
+fairlib~=2.0.1
+openml~=0.15.0
+torch~=2.5.1

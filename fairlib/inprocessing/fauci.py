@@ -1,130 +1,44 @@
-from typing_extensions import override
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from ._torch_metrics import get as get_metric
+from typing import Optional, Callable, Union, override, Any
+from fairlib import DataFrame
+from fairlib.processing import (
+    DataFrameAwareProcessorWrapper,
+    DataFrameAwareEstimator,
+    DataFrameAwarePredictor,
+    DataFrameAwareModel,
+)
 
-from ._keras_metrics import get as get_metric
-from fairlib.processing import *
-import fairlib.keras as keras
-from typing import Optional, Any
-from keras import regularizers
+
+def _convert_to_tensor(x: Any) -> torch.Tensor:
+    if isinstance(x, DataFrame):
+        return torch.tensor(x.to_numpy().astype(float)).float()
+    if not isinstance(x, torch.Tensor):
+        return torch.tensor(x.astype(float), dtype=torch.float32)
+    return x
 
 
-class RegularizedLoss(keras.losses.Loss):
-    """
-    A custom loss class that adds regularization to the loss function.
+class BaseLoss:
+    def __init__(self, base_loss_fn: Callable):
+        self.base_loss_fn = base_loss_fn
 
-    Attributes:
-        __loss (keras.losses.Loss): The base loss function.
-        __model (keras.Model): The Keras model.
-        __regularization_weight (float): The weight of the regularization term.
-    """
+    def __call__(self, y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
+        return self.base_loss_fn(y_pred, y_true)
 
+
+class PenalizedLoss(BaseLoss):
     def __init__(
-        self,
-        loss: Union[str, keras.losses.Loss],
-        model: keras.Model,
-        regularization_weight: float,
+            self,
+            base_loss_fn: Callable = nn.MSELoss(),
+            regularizer: str = "spd",
+            weight: float = 0.0,
     ):
-        """
-        Initializes the RegularizedLoss class.
-
-        Args:
-            loss (Union[str, keras.losses.Loss]): The base loss function or its name.
-            model (keras.Model): The Keras model.
-            regularization_weight (float): The weight of the regularization term.
-        """
-        super().__init__()
-        self.__loss: keras.losses.Loss = (
-            keras.losses.get(loss) if isinstance(loss, str) else loss
-        )
-        self.__model: keras.Model = model
-        self.__regularization_weight: float = regularization_weight
-
-    def call(self, y_true, y_pred):
-        """
-        Computes the loss with regularization.
-
-        Args:
-            y_true: Ground truth values.
-            y_pred: Predicted values.
-
-        Returns:
-            The computed loss with regularization.
-        """
-        loss = self.loss(self.__loss, y_true, y_pred)
-        regularization = self.regularization(self.__model, y_true, y_pred)
-        weight = keras.ops.convert_to_tensor(self.__regularization_weight)
-        return (keras.ops.convert_to_tensor(1.0 - weight) * loss) + (
-            weight * keras.ops.convert_to_tensor(regularization)
-        )
-
-    def loss(self, f, y_true, y_pred):
-        """
-        Computes the base loss.
-
-        Args:
-            f: The base loss function.
-            y_true: Ground truth values.
-            y_pred: Predicted values.
-
-        Returns:
-            The computed base loss.
-        """
-        return f(y_true, y_pred)
-
-    def regularization(self, model: keras.Model, y_true, y_pred):
-        """
-        Computes the regularization term.
-
-        Args:
-            model (keras.Model): The Keras model.
-            y_true: Ground truth values.
-            y_pred: Predicted values.
-
-        Returns:
-            The computed regularization term.
-        """
-        return 0.0
-
-
-class PenalizedLoss(RegularizedLoss):
-    """
-    A custom loss class that adds a penalty term based on a specified fairness metric.
-
-    Attributes:
-        __metric: The metric used for the penalty term.
-        __sensitive_feature: The sensitive feature used for the penalty term.
-    """
-
-    def __init__(
-        self,
-        loss: Union[str, keras.losses.Loss],
-        model: keras.Model,
-        regularization_weight: float,
-        metric: str,
-    ):
-        """
-        Initializes the PenalizedLoss class.
-
-        Args:
-            loss (Union[str, keras.losses.Loss]): The base loss function or its name.
-            model (keras.Model): The Keras model.
-            regularization_weight (float): The weight of the regularization term.
-            metric (str): The name of the metric used for the penalty term.
-        """
-        super().__init__(loss, model, regularization_weight)
-        self.__metric = get_metric(metric)
-        if self.__metric is None:
-            raise ValueError(f"Unknown metric: {metric}")
+        super().__init__(base_loss_fn)
+        self.regularizer = regularizer
+        self.weight = weight
         self.__sensitive_feature = None
-
-    @property
-    def metric(self):
-        """
-        Returns the metric used for the penalty term.
-
-        Returns:
-            The metric used for the penalty term.
-        """
-        return self.__metric
 
     @property
     def sensitive_feature(self):
@@ -146,103 +60,156 @@ class PenalizedLoss(RegularizedLoss):
         """
         self.__sensitive_feature = value
 
-    def regularization(self, model: keras.Model, y_true, y_pred):
-        """
-        Computes the penalty term based on the specified metric.
+    def __call__(
+            self,
+            y_true: torch.Tensor,
+            y_pred: torch.Tensor,
+    ) -> torch.Tensor:
+        base_loss = super().__call__(y_true, y_pred)
 
-        Args:
-            model (keras.Model): The Keras model.
-            y_true: Ground truth values.
-            y_pred: Predicted values.
+        regularizer_fn = get_metric(self.regularizer)
+        if regularizer_fn is None:
+            raise ValueError(f"Invalid fairness metric: {self.regularizer}")
 
-        Returns:
-            The computed penalty term.
-        """
-        return self.metric(
-            y_true=y_true, y_pred=y_pred, sensitive_attr=self.sensitive_feature
-        )
+        regularizer_loss = regularizer_fn(y_true, y_pred, self.sensitive_feature)
+
+        total_loss = (1 - self.weight) * base_loss + self.weight * regularizer_loss
+
+        return total_loss
 
 
-class FaUCI(
+class Fauci(
     DataFrameAwareProcessorWrapper,
     DataFrameAwareEstimator,
     DataFrameAwarePredictor,
     DataFrameAwareModel,
 ):
-    """
-    A custom model wrapper that integrates fairness-aware processing with Keras models.
-
-    Attributes:
-        __compilation_parameters: The parameters used for model compilation.
-        __loss: The loss function used for training.
-    """
-
     def __init__(
-        self,
-        model: keras.Model,
-        loss: Union[str, keras.losses.Loss],
-        regularizer: Optional[str] = None,
-        regularization_weight: float = 0.5,
-        **kwargs,
+            self,
+            torchModel: nn.Module,
+            optimizer: Optional[torch.optim.Optimizer] = None,
+            loss: Union[nn.Module] = nn.MSELoss(),
+            fairness_regularization: str = "spd",
+            regularization_weight: float = 0.5,
+            **kwargs,
     ):
-        """
-        Initializes the FaUCI class.
-
-        Args:
-            model (keras.Model): The Keras model.
-            loss (Union[str, keras.losses.Loss]): The base loss function or its name.
-            regularizer (Optional[str]): The name of the regularizer metric.
-            regularization_weight (float): The weight of the regularization term.
-            **kwargs: Additional parameters for model compilation.
-        """
-        if not isinstance(model, keras.Model):
-            raise TypeError(f"Expected a Keras model, got {type(model)}")
-        super().__init__(model)
+        if not isinstance(torchModel, nn.Module):
+            raise TypeError(f"Expected a Torch model, got {type(torchModel)}")
+        super().__init__(torchModel)
+        self.model = torchModel
         self.__compilation_parameters = kwargs
-        if regularizer is None or regularization_weight == 0.0:
-            self.__loss = RegularizedLoss(loss, model, regularization_weight)
+        self.optimizer = optimizer or optim.Adam(torchModel.parameters())
+        self.loss = loss
+        if fairness_regularization is None or regularization_weight == 0.0:
+            self.total_loss = BaseLoss(base_loss_fn=self.loss)
         else:
-            self.__loss = PenalizedLoss(loss, model, regularization_weight, regularizer)
+            self.total_loss = PenalizedLoss(
+                base_loss_fn=self.loss,
+                regularizer=fairness_regularization,
+                weight=regularization_weight,
+            )
 
     @override
     def fit(
-        self,
-        x: DataFrame,
-        y: Optional[Any] = None,
-        converting_to_type: Optional[type] = None,
-        **kwargs,
+            self,
+            x: DataFrame,
+            y: Optional[Any] = None,
+            epochs: int = 100,
+            batch_size: int = 32,
+            verbose: bool = True,
     ):
-        """
-        Fits the model to the data.
-
-        Args:
-            x (DataFrame): The input data.
-            y (Optional[Any]): The target data.
-            converting_to_type (Optional[type]): The type to convert the data to.
-            **kwargs: Additional parameters for fitting the model.
-
-        Returns:
-            The fitted model.
-        """
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
-        x, y, _, _, _, sensitive_indexes = x.unpack()
-        if converting_to_type is not None:
-            x = x.astype(converting_to_type)
-            y = y.astype(converting_to_type)
-        y.astype(float)
+        if y is None:
+            x, y, _, _, _, sensitive_indexes = x.unpack()
+        else:
+            x, _, _, _, _, sensitive_indexes = x.unpack()
         if len(sensitive_indexes) != 1:
             raise ValueError(
                 f"FaUCI expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"
             )
-        if isinstance(self.__loss, PenalizedLoss):
-            self.__loss.sensitive_feature = x[:, sensitive_indexes[0]]
-        if y.shape[1] != 1:
-            raise ValueError(
-                f"FaUCI expects exactly one target column, got {y.shape[1]}"
-            )
-        model: keras.Model = self.processor
-        compilation_params = self.__compilation_parameters.copy()
-        compilation_params["loss"] = self.__loss
-        model.compile(**compilation_params)
-        return self._fit(x, y, **kwargs)
+        sensitive_attr = x[:, sensitive_indexes[0]]
+
+        # Ensure all inputs are tensors and have the same dtype
+        x = _convert_to_tensor(x)
+        y = _convert_to_tensor(y)
+        sensitive_attr = _convert_to_tensor(sensitive_attr)
+
+        # Prepare dataset
+        if sensitive_attr is not None:
+            dataset = torch.utils.data.TensorDataset(x, y, sensitive_attr)
+        else:
+            dataset = torch.utils.data.TensorDataset(x, y)
+
+        dataloader = torch.utils.data.DataLoader(
+            dataset, batch_size=batch_size, shuffle=True
+        )
+
+        for epoch in range(epochs):
+            epoch_loss = 0.0
+
+            for batch in dataloader:
+                if sensitive_attr is not None:
+                    batch_X, batch_y, batch_sensitive = batch
+                else:
+                    batch_X, batch_y = batch
+                    batch_sensitive = None
+
+                # Zero gradients
+                self.optimizer.zero_grad()
+
+                # Forward pass
+                outputs = self.model(batch_X)
+
+                # Compute loss
+                if isinstance(self.total_loss, PenalizedLoss):
+                    self.total_loss.sensitive_feature = batch_sensitive
+                loss = self.total_loss(batch_y, outputs)
+
+                # Backward pass and optimize
+                loss.backward()
+                self.optimizer.step()
+
+                epoch_loss += loss.item()
+
+            # Print progress
+            if verbose:
+                print(
+                    f"Epoch [{epoch + 1}/{epochs}], Loss: {epoch_loss / len(dataloader):.4f}"
+                )
+
+        return self
+
+    @override
+    def predict(self, x: DataFrame, batch_size: int = 32) -> torch.Tensor:
+        """
+        Make predictions using the trained model.
+
+        Args:
+            x (DataFrame): Input features for prediction
+            batch_size (int): Batch size for prediction
+
+        Returns:
+            torch.Tensor: Model predictions
+        """
+        # Ensure model is in evaluation mode
+        self.model.eval()
+        x = _convert_to_tensor(x)
+        # Prepare prediction dataset
+        pred_dataset = torch.utils.data.TensorDataset(x)
+        pred_loader = torch.utils.data.DataLoader(pred_dataset, batch_size=batch_size)
+
+        # Collect predictions
+        predictions = []
+
+        # Disable gradient computation for inference
+        with torch.no_grad():
+            for (batch_X,) in pred_loader:
+                # Forward pass
+                batch_pred = self.model(batch_X)
+
+                # Store predictions
+                predictions.append(batch_pred.cpu())
+
+        # Concatenate predictions
+        return torch.cat(predictions, dim=0)
