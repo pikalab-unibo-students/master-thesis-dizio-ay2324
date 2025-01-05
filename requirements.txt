@@ -1,4 +1,4 @@
-poetry==1.8.5
+poetry==2.0.0
 numpy~=2.0.2
 nbformat~=5.10.4
 pandas~=2.2.3
