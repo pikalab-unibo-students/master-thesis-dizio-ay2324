@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from ._torch_metrics import get as get_metric
-from typing import Optional, Callable, Union, override, Any
+from typing import Optional, Callable, Union, Any
+from typing_extensions import override
 from fairlib import DataFrame
 from fairlib.processing import (
     DataFrameAwareProcessorWrapper,
