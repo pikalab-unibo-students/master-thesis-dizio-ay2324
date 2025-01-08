@@ -5,6 +5,5 @@ pandas~=2.2.3
 scikit-learn~=1.5.2
 nbconvert~=7.16.4
 keras~=3.6.0
-fairlib~=2.0.1
 openml~=0.15.0
 torch~=2.5.1
