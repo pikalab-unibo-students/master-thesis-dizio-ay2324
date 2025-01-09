@@ -1,0 +1,2 @@
+[report]
+omit = /tmp/*, */_remote_module_non_scriptable.py
