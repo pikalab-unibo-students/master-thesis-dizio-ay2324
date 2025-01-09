@@ -66,37 +66,24 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Restore Development Environment
-        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: poetry install --all-extras
-      
-      - name: Restore Development Environment on Windows
-        if: matrix.os == 'windows-latest' && matrix.python-version == '3.12'
-        shell: bash
-        run: |
-          TF_VERSION=$(cat pyproject.toml | grep tensorflow | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
-          TORCH_VERSION=$(cat pyproject.toml | grep torch | head -n 1 | cut -d '"' -f 2 | cut -d '^' -f 2)
-          echo "Installing TensorFlow $TF_VERSION and PyTorch $TORCH_VERSION"
-          poetry run pip install tensorflow~=$TF_VERSION torch~=$TORCH_VERSION
 
       - name: Test
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
-        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: poetry run poe test
 
       - name: Test with Coverage
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
-        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         run: |
           poetry run poe coverage
           poetry run poe coverage-report
           poetry run poe coverage-html
 
       - uses: actions/upload-artifact@v4
-        if: matrix.os != 'windows-latest' || matrix.python-version == '3.12'
         with:
           name: coverage-report-${{ matrix.os }}-python-${{ matrix.python-version }}-${{ github.sha }}
           path: htmlcov
