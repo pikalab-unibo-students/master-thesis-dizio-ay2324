@@ -1,3 +1,25 @@
+## [2.3.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.3.0...2.3.1) (2025-01-10)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.6.10 ([#59](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/59)) ([5e384ac](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/5e384ac81f44d9f8f8cb6b4f2674a8c05860f185))
+* **deps:** update dependency matplotlib to v3.9.4 ([#54](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/54)) ([8f7af93](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8f7af9356f64f5e350ead1c9592aba445ce03ea3))
+* **deps:** update dependency mypy to v1.14.0 ([#57](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/57)) ([f92889f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f92889f068ce0950c97231cb1be3b4aa6af71759))
+* **deps:** update dependency mypy to v1.14.1 ([#61](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/61)) ([99733c9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/99733c92153c6522bb21a0c16e93db79e89ae4d4))
+* **deps:** update dependency notebook to v7.3.2 ([#58](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/58)) ([e6bd0fa](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e6bd0fac19d1b9c140b2138630af30cfb7a004d1))
+* **deps:** update dependency poethepoet to ^0.32.0 ([#60](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/60)) ([1d8c746](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/1d8c746193ecdd11771017f6f2d67413f667f564))
+* **deps:** update dependency poethepoet to v0.32.1 ([#66](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/66)) ([ec82a05](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ec82a05cde918cb68f42236cca9b8d24258babca))
+* **deps:** update dependency poetry to v2 ([#62](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/62)) ([0233a55](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0233a55b68263d0d08fbc49a0603adec59ff743d))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.117 ([#56](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/56)) ([71e7307](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/71e7307a73a431fad8bf4701e08daab7e46ccdf0))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.118 ([#63](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/63)) ([b566b0a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b566b0aebf04459a22fcbac4f84197e6e16b0604))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.119 ([#65](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/65)) ([9f4be34](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9f4be3476bba7ad647407525f13e9d8221834d5f))
+* **deps:** update node.js to 22.13 ([#64](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/64)) ([2ce0ab9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2ce0ab92dbd34cfbbc15c020baf3295948a5b264))
+* **deps:** update npm to v11 ([#55](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/55)) ([0d3a377](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0d3a37751d9a715bf07074c9f0485aaf9ba0a426))
+
+### Bug Fixes
+
+* **deps:** update dependency scikit-learn to v1.6.1 ([#67](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/67)) ([a2b5fbd](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a2b5fbd72b721e59c63a4a0f319ad67dcdea373d))
+
 ## [2.3.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.2.1...2.3.0) (2024-12-13)
 
 ### Features
