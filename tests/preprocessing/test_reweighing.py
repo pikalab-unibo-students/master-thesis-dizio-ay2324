@@ -5,7 +5,7 @@ import pandas.testing as pd_testing
 from fairlib.preprocessing import Reweighing, ReweighingWithMean
 
 
-class TestPreProcessing(unittest.TestCase):
+class TestReweighing(unittest.TestCase):
 
     def setUp(self):
         self.df = fl.DataFrame(
