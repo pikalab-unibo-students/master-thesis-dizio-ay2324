@@ -1,7 +1,8 @@
 from pandas import DataFrame
-from .logging import logger
-from typing import NamedTuple
+from ..logging import logger
 import numpy as np
+from typing import NamedTuple
+
 
 
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
@@ -124,6 +125,11 @@ class DataFrameExtensionFunction(DataFrameExtensionProperty):
         return lambda *args, **kwargs: self.call(instance, *args, **kwargs)
 
 
+def dataframe_extension(callable):
+    DataFrameExtensionFunction(callable).apply(callable.__name__)
+    return callable
+
+
 class ColumnsContainerProperty(DataFrameExtensionProperty):
     """
     A property class to manage a collection of DataFrame columns.
@@ -145,71 +151,6 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
             if column not in instance.columns:
                 raise ValueError(f"Column `{column}` not found")
         return value
-
-
-ColumnsContainerProperty().apply("targets")
-ColumnsContainerProperty().apply("sensitive")
-
-
-class ColumnsDomainInspector:
-    """
-    A class to inspect the domain of columns in a DataFrame.
-
-    Args:
-        df (DataFrame): The DataFrame to inspect.
-    """
-
-    def __init__(self, df: DataFrame):
-        assert isinstance(df, DataFrame)
-        self.__df = df
-
-    def __getitem__(self, name):
-        if name in self.__df.columns:
-            domain = self.__df[name].unique()
-            logger.debug(
-                "Inspect domain of %s#%s[%s]: %r",
-                DataFrame.__name__,
-                id(self.__df),
-                name,
-                domain,
-            )
-            return domain
-        raise KeyError(f"Column {name} not found")
-
-    def __len__(self):
-        return len(self.__df.columns)
-
-    def __iter__(self):
-        columns = list(self.__df.columns)
-        return iter(columns)
-
-    def __contains__(self, name):
-        return name in self.__df.columns
-
-    def items(self):
-        for column in self:
-            yield column, self[column]
-
-    def __repr__(self):
-        return f"<{type(self).__name__}#{id(self)}>"
-
-    def __str__(self):
-        return (
-            "{"
-            + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items())
-            + "}"
-        )
-
-
-class ColumnDomainInspectorProperty(DataFrameExtensionProperty):
-    def __init__(self):
-        super().__init__(can_read=True)
-
-    def __get__(self, instance, owner):
-        return ColumnsDomainInspector(instance)
-
-
-ColumnDomainInspectorProperty().apply("domains")
 
 
 class UnpackedDataframe(NamedTuple):

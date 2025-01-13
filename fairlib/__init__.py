@@ -1,5 +1,6 @@
 from .logging import logger
 from .dataframe import DataFrame
+import fairlib.dataframe.extensions
 from .metrics import *
 from .inprocessing import *
 from .preprocessing import *

@@ -70,7 +70,7 @@ def statistical_parity_difference(
             if as_dict:
                 result[(target, sensitive)] = spd
             else:
-                result[i, j] = spd
+                result[j, i] = spd
 
     return result
 
@@ -113,7 +113,68 @@ def disparate_impact(
             if as_dict:
                 result[(target, sensitive)] = di
             else:
-                result[i, j] = di
+                result[j, i] = di
+
+    return result
+
+
+def equality_of_opportunity(
+    target_column: np.ndarray,
+    sensitive_column: np.ndarray,
+    predicted_column: np.ndarray,
+    positive_target: int = 1,
+    as_dict: bool = False,
+) -> Union[np.ndarray, dict]:
+    """
+    Calculates Equality of Opportunity for sensitive groups.
+
+    Args:
+        target_column: Array containing the true value of the target.
+        sensitive_column: Array containing the value of the sensitive group.
+        predicted_column: Array containing the predictions of the model.
+        positive_target: Value considered as positive class (default 1).
+        as_dict: If True, returns a dictionary with results for each combination.
+
+    Returns:
+        np.ndarray or dict: The difference in True Positive Rates between privileged and unprivileged groups.
+    """
+    result, sensitive_len, sensitive_values, _, _ = check_and_setup(
+        as_dict, sensitive_column, target_column
+    )
+
+    for j in range(sensitive_len):
+        sensitive = sensitive_values[j]
+
+        # TPR for the privileged group
+        privileged_mask = sensitive_column == sensitive
+        privileged_positive = (target_column == positive_target) & privileged_mask
+        privileged_pred_positive = (
+            predicted_column == positive_target
+        ) & privileged_mask
+        privileged_tpr = (
+            privileged_pred_positive.sum() / privileged_positive.sum()
+            if privileged_positive.sum() > 0
+            else np.inf
+        )
+
+        # TPR for the non-privileged group
+        unprivileged_mask = sensitive_column != sensitive
+        unprivileged_positive = (target_column == positive_target) & unprivileged_mask
+        unprivileged_pred_positive = (
+            predicted_column == positive_target
+        ) & unprivileged_mask
+        unprivileged_tpr = (
+            unprivileged_pred_positive.sum() / unprivileged_positive.sum()
+            if unprivileged_positive.sum() > 0
+            else -np.inf
+        )
+
+        eoo = privileged_tpr - unprivileged_tpr
+
+        if as_dict:
+            result[sensitive] = eoo
+        else:
+            result[j] = eoo
 
     return result
 
@@ -200,5 +261,52 @@ class DisparateImpact(Metric):
         return DomainDict(result)
 
 
+class EqualityOfOpportunity(Metric):
+    """
+    Calculates Equality of Opportunity for target columns, predictions, and sensitive groups.
+
+    Args:
+        df: The DataFrame containing the data.
+        target_columns: List of columns representing the target (default is df.targets).
+        group_columns: List of columns representing the sensitive group (default is df.sensitive).
+        prediction_columns: List of columns representing the predictions.
+
+    Returns:
+        dict: Dictionary where keys are pairs of target and group columns,
+              and the values are the differences in the TPRs.
+
+    Raises:
+        ValueError: If the columns are not numeric.
+
+    """
+
+    def __call__(self, df, predictions, target_columns=None, group_columns=None):
+
+        if target_columns is None:
+            target_columns = df.targets
+        if group_columns is None:
+            group_columns = df.sensitive
+        if predictions is []:
+            raise "predictions cannot be empty"
+
+        result = {}
+
+        for target_column in target_columns:
+            for group_column in group_columns:
+                eoo = equality_of_opportunity(
+                    df[target_column], df[group_column], predictions, as_dict=True
+                )
+                if isinstance(eoo, dict):
+                    for group, value in eoo.items():
+                        result[
+                            (
+                                Assignment(target_column, 1),
+                                Assignment(group_column, group),
+                            )
+                        ] = value
+        return DomainDict(result)
+
+
 StatisticalParityDifference().apply("statistical_parity_difference")
 DisparateImpact().apply("disparate_impact")
+EqualityOfOpportunity().apply("equality_of_opportunity")

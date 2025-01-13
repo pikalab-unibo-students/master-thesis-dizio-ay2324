@@ -33,7 +33,6 @@ class Model(Protocol):
 Processor = Union[Estimator, Predictor, Transformer, FittableTransformer, Model]
 setattr(Processor, "__name__", "Processor")
 
-
 def unpack_dataframe(
     x: Union[ndarray, DataFrame], y: Optional[ndarray] = None
 ) -> tuple[ndarray, Optional[ndarray]]:
