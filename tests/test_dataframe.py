@@ -20,11 +20,11 @@ class TestCustomDataframe(unittest.TestCase):
         self.df.sensitive = {"age", "sex"}
         self.discretized = fl.DataFrame(
             {
-            "name": ["Alice", "Bob", "Carla", "Davide", "Elena"],
-            "age>=30": [False, True, True, False, True],
-            "sex==M": [False, True, False, True, False],
-            "sex==F": [True, False, True, False, True],
-            "income>=50k": [False, True, False, True, False],
+                "name": ["Alice", "Bob", "Carla", "Davide", "Elena"],
+                "age>=30": [False, True, True, False, True],
+                "sex==M": [False, True, False, True, False],
+                "sex==F": [True, False, True, False, True],
+                "income>=50k": [False, True, False, True, False],
             }
         ).reindex(columns=["name", "age>=30", "sex==F", "sex==M", "income>=50k"])
 
@@ -60,17 +60,17 @@ class TestCustomDataframe(unittest.TestCase):
 
     def testDiscretize(self):
         discretized = self.df.discretize(
-            ('age>=30', self.df['age'] >= 30),
-            sex='ohe',
-            income=('income>=50k', lambda income: int(income) >= 50_000),
+            ("age>=30", self.df["age"] >= 30),
+            sex="ohe",
+            income=("income>=50k", lambda income: int(income) >= 50_000),
         )
         self.assertDataFramesAreEqual(self.discretized, discretized)
 
     def testDiscretizePreservesTargetsAndSensitive(self):
         discretized = self.df.discretize(
-            ('age>=30', self.df['age'] >= 30),
-            sex='ohe',
-            income=('income>=50k', lambda income: int(income) >= 50_000),
+            ("age>=30", self.df["age"] >= 30),
+            sex="ohe",
+            income=("income>=50k", lambda income: int(income) >= 50_000),
         )
         self.assertEqual({"income>=50k"}, discretized.targets)
         self.assertEqual({"age>=30", "sex==F", "sex==M"}, discretized.sensitive)

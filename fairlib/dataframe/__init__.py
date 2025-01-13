@@ -4,7 +4,6 @@ import numpy as np
 from typing import NamedTuple
 
 
-
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
 class DataFrameExtensionProperty:
     """

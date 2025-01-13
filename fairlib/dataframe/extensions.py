@@ -50,9 +50,9 @@ class ColumnsDomainInspector:
 
     def __str__(self):
         return (
-                "{"
-                + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items())
-                + "}"
+            "{"
+            + "; ".join(f'{k}: [{", ".join(map(str, v))}]' for k, v in self.items())
+            + "}"
         )
 
 
@@ -104,7 +104,9 @@ def ohe(series: Series, force_int: bool = True) -> DataFrame:
     values.sort()
     df = DataFrame()
     for value in values:
-        df[f'{series.name}=={value}'] = _optionally_force_int(series == value, force_int)
+        df[f"{series.name}=={value}"] = _optionally_force_int(
+            series == value, force_int
+        )
     return df
 
 
@@ -130,7 +132,9 @@ class _preserving_extension_properties:
 
 
 @dataframe_extension
-def one_hot_encode(df: DataFrame, *columns, in_place: bool = False, force_int: bool = True) -> DataFrame:
+def one_hot_encode(
+    df: DataFrame, *columns, in_place: bool = False, force_int: bool = True
+) -> DataFrame:
     def _flatten(lst):
         for item in lst:
             if isinstance(item, list):
@@ -140,8 +144,13 @@ def one_hot_encode(df: DataFrame, *columns, in_place: bool = False, force_int: b
 
     if not in_place:
         df = df.copy()
-    columns_to_ohe = set(col for col in df.columns if is_discrete(df[col]) and not is_binary(df[col])) \
-        if not columns else set(columns)
+    columns_to_ohe = (
+        set(
+            col for col in df.columns if is_discrete(df[col]) and not is_binary(df[col])
+        )
+        if not columns
+        else set(columns)
+    )
     all_columns = list(df.columns)
     with _preserving_extension_properties(df) as props:
         for column_name in all_columns:
@@ -158,12 +167,17 @@ def one_hot_encode(df: DataFrame, *columns, in_place: bool = False, force_int: b
 
 
 @dataframe_extension
-def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_int: bool = False,
-               **discretization_functions) -> DataFrame:
+def discretize(
+    df: DataFrame,
+    *discrete_columns,
+    in_place: bool = False,
+    force_int: bool = False,
+    **discretization_functions,
+) -> DataFrame:
     if not in_place:
         df = df.copy()
     if not discrete_columns and not discretization_functions:
-        discretization_functions = {col: 'ohe' for col in df.columns}
+        discretization_functions = {col: "ohe" for col in df.columns}
     for column in discrete_columns:
         if isinstance(column, tuple):
             name, column = column
@@ -180,7 +194,10 @@ def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_i
         else:
             raise TypeError(f"Unsupported type: {type(column)}")
     for column_name, discretization in discretization_functions.items():
-        if isinstance(discretization, str) and discretization.lower() in {'ohe', 'onehotencode'}:
+        if isinstance(discretization, str) and discretization.lower() in {
+            "ohe",
+            "onehotencode",
+        }:
             one_hot_encode(df, column_name, in_place=True, force_int=force_int)
             continue
         if isinstance(discretization, tuple):
@@ -192,8 +209,12 @@ def discretize(df: DataFrame, *discrete_columns, in_place: bool = False, force_i
             new_name = column_name if new_name is None else new_name
             with _preserving_extension_properties(df) as props:
                 df.drop(column_name, axis=1, inplace=True)
-                df[new_name] = _optionally_force_int(column.apply(discretization), force_int)
+                df[new_name] = _optionally_force_int(
+                    column.apply(discretization), force_int
+                )
                 props.renaming(column_name, new_name)
         else:
-            raise ValueError(f"Unsupported discretization function for column {column_name}")
+            raise ValueError(
+                f"Unsupported discretization function for column {column_name}"
+            )
     return df

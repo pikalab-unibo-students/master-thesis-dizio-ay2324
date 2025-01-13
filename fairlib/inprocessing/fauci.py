@@ -31,10 +31,10 @@ class BaseLoss:
 
 class PenalizedLoss(BaseLoss):
     def __init__(
-            self,
-            base_loss_fn: Callable = nn.MSELoss(),
-            regularizer: str = "spd",
-            weight: float = 0.0,
+        self,
+        base_loss_fn: Callable = nn.MSELoss(),
+        regularizer: str = "spd",
+        weight: float = 0.0,
     ):
         super().__init__(base_loss_fn)
         self.regularizer = regularizer
@@ -62,9 +62,9 @@ class PenalizedLoss(BaseLoss):
         self.__sensitive_feature = value
 
     def __call__(
-            self,
-            y_true: torch.Tensor,
-            y_pred: torch.Tensor,
+        self,
+        y_true: torch.Tensor,
+        y_pred: torch.Tensor,
     ) -> torch.Tensor:
         base_loss = super().__call__(y_true, y_pred)
 
@@ -86,13 +86,13 @@ class Fauci(
     DataFrameAwareModel,
 ):
     def __init__(
-            self,
-            torchModel: nn.Module,
-            optimizer: Optional[torch.optim.Optimizer] = None,
-            loss: Union[nn.Module] = nn.MSELoss(),
-            fairness_regularization: str = "spd",
-            regularization_weight: float = 0.5,
-            **kwargs,
+        self,
+        torchModel: nn.Module,
+        optimizer: Optional[torch.optim.Optimizer] = None,
+        loss: Union[nn.Module] = nn.MSELoss(),
+        fairness_regularization: str = "spd",
+        regularization_weight: float = 0.5,
+        **kwargs,
     ):
         if not isinstance(torchModel, nn.Module):
             raise TypeError(f"Expected a Torch model, got {type(torchModel)}")
@@ -112,12 +112,12 @@ class Fauci(
 
     @override
     def fit(
-            self,
-            x: DataFrame,
-            y: Optional[Any] = None,
-            epochs: int = 100,
-            batch_size: int = 32,
-            verbose: bool = True,
+        self,
+        x: DataFrame,
+        y: Optional[Any] = None,
+        epochs: int = 100,
+        batch_size: int = 32,
+        verbose: bool = True,
     ):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")

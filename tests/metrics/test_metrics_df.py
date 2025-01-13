@@ -23,7 +23,7 @@ class TestMetrics(unittest.TestCase):
             (Assignment("target1", 0), Assignment("sensitive1", 0)): -0.5,
             (Assignment("target1", 0), Assignment("sensitive1", 1)): 0.5,
             (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.5,
-            (Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5
+            (Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5,
         }
         expected_spd = DomainDict(res)
 
@@ -45,9 +45,18 @@ class TestMetrics(unittest.TestCase):
             (Assignment("target1", 1), Assignment("sensitive1", 0)): 0.5,
             (Assignment("target1", 1), Assignment("sensitive1", 1)): -0.5,
             (Assignment("target1", 0), Assignment("sensitive3", 0)): 0.2666666666666666,
-            (Assignment("target1", 0), Assignment("sensitive3", 1)): -0.2666666666666666,
-            (Assignment("target1", 1), Assignment("sensitive3", 0)): -0.26666666666666666,
-            (Assignment("target1", 1), Assignment("sensitive3", 1)): 0.26666666666666666,
+            (
+                Assignment("target1", 0),
+                Assignment("sensitive3", 1),
+            ): -0.2666666666666666,
+            (
+                Assignment("target1", 1),
+                Assignment("sensitive3", 0),
+            ): -0.26666666666666666,
+            (
+                Assignment("target1", 1),
+                Assignment("sensitive3", 1),
+            ): 0.26666666666666666,
             (Assignment("target2", 0), Assignment("sensitive2", 0)): -0.25,
             (Assignment("target2", 0), Assignment("sensitive2", 1)): 0.25,
             (Assignment("target2", 1), Assignment("sensitive2", 0)): 0.25,
@@ -56,10 +65,22 @@ class TestMetrics(unittest.TestCase):
             (Assignment("target2", 0), Assignment("sensitive1", 1)): -0.25,
             (Assignment("target2", 1), Assignment("sensitive1", 0)): -0.25,
             (Assignment("target2", 1), Assignment("sensitive1", 1)): 0.25,
-            (Assignment("target2", 0), Assignment("sensitive3", 0)): -0.06666666666666671,
-            (Assignment("target2", 0), Assignment("sensitive3", 1)): 0.06666666666666671,
-            (Assignment("target2", 1), Assignment("sensitive3", 0)): 0.06666666666666665,
-            (Assignment("target2", 1), Assignment("sensitive3", 1)): -0.06666666666666665,
+            (
+                Assignment("target2", 0),
+                Assignment("sensitive3", 0),
+            ): -0.06666666666666671,
+            (
+                Assignment("target2", 0),
+                Assignment("sensitive3", 1),
+            ): 0.06666666666666671,
+            (
+                Assignment("target2", 1),
+                Assignment("sensitive3", 0),
+            ): 0.06666666666666665,
+            (
+                Assignment("target2", 1),
+                Assignment("sensitive3", 1),
+            ): -0.06666666666666665,
         }
         expected_spd = DomainDict(res)
         spd_result = self.df.statistical_parity_difference()
