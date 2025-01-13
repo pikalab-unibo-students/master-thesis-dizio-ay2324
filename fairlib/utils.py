@@ -14,7 +14,9 @@ class Assignment(Domain):
     value: object
 
     def __str__(self) -> str:
-        if isinstance(self.value, bool) or (hasattr(self.value, "dtype") and self.value.dtype.kind == "b"):
+        if isinstance(self.value, bool) or (
+            hasattr(self.value, "dtype") and self.value.dtype.kind == "b"
+        ):
             return self.feature if self.value else f"not({self.feature})"
         return f"{self.feature}={self.value}"
 

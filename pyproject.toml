@@ -3,7 +3,7 @@ name = "fairlib"
 packages = [
     { include = "fairlib" },
 ]
-version = "2.3.1"
+version = "2.0.1"
 description = "A library that enables the use of tools suitable for improving equity in machine learning processes"
 authors = ["Giovanni Ciatto <giovanni.ciatto@unibo.it>", "Valerio Di Zio <valerio.dizio@studio.unibo.it"]
 license = "Apache 2.0"
@@ -13,24 +13,25 @@ readme = "README.md"
 python =  ">=3.9.0,<3.13"
 scikit-learn = "^1.5.0"
 pandas = "^2.2.2"
-tensorflow = { version = "2.18.*", optional = true }
-tensorflow-io-gcs-filesystem = { version = "0.37.1", platform = "linux", optional = true }
-
+torch = { version = "^2.4.1", optional = true }
+pytest-cov = "^6.0.0"
 
 [tool.poetry.extras]
-tf = ["tensorflow"]
+torch = ["torch"]
 
 [tool.poetry.group.dev.dependencies]
 coverage = "^7.4.0"
 mypy = "^1.10.1"
-poethepoet = "^0.32.0"
-poetry = "^2.0.0"
+poethepoet = "^0.29.0"
+poetry = "^1.8.3"
 pytest = "^8.2.2"
 nbformat = "^5.10.4"
 ipykernel = "^6.29.5"
 notebook = "^7.2.2"
 matplotlib = "^3.9.2"
 openml = "^0.15.0"
+torch = { version = "^2.4.1", optional = true }
+black = "^24.10.0"
 
 [tool.poe.tasks]
 test = "python -m unittest discover -v -s tests -p '*.py'"
@@ -53,4 +54,4 @@ priority = "primary"
 
 [tool.mypy]
 ignore_missing_imports = true
-allow_redefinition = true
+namespace_packages = true

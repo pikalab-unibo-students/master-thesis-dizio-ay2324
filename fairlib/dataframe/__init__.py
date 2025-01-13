@@ -1,5 +1,7 @@
 from pandas import DataFrame
 from ..logging import logger
+import numpy as np
+from typing import NamedTuple
 
 
 # https://realpython.com/python-magic-methods/#managing-attributes-through-descriptors
@@ -120,7 +122,7 @@ class DataFrameExtensionFunction(DataFrameExtensionProperty):
 
     def __get__(self, instance, _):
         return lambda *args, **kwargs: self.call(instance, *args, **kwargs)
-    
+
 
 def dataframe_extension(callable):
     DataFrameExtensionFunction(callable).apply(callable.__name__)
@@ -148,4 +150,27 @@ class ColumnsContainerProperty(DataFrameExtensionProperty):
             if column not in instance.columns:
                 raise ValueError(f"Column `{column}` not found")
         return value
-    
+
+
+class UnpackedDataframe(NamedTuple):
+    inputs: np.ndarray
+    targets: np.ndarray
+    inputs_names: list[str]
+    targets_names: list[str]
+    sensitive_names: list[str]
+    sensitive_indexes: list[int]
+
+
+def unpack_dataframe(df: DataFrame) -> UnpackedDataframe:
+    target_names = [name for name in df.columns if name in df.targets]
+    sensitive_names = [name for name in df.columns if name in df.sensitive]
+    input_names = [name for name in df.columns if name not in target_names]
+    inputs = df[input_names].values
+    targets = df[target_names].values
+    sensitive_indexes = [input_names.index(name) for name in sensitive_names]
+    return UnpackedDataframe(
+        inputs, targets, input_names, target_names, sensitive_names, sensitive_indexes
+    )
+
+
+DataFrameExtensionFunction(callable=unpack_dataframe).apply("unpack")
