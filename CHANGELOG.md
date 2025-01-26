@@ -1,3 +1,13 @@
+## [2.4.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.3.1...2.4.0) (2025-01-26)
+
+### Features
+
+* **in-processing:** fauci ([#70](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/70)) ([1864752](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/1864752fd78adddc074970e6bba0f68e49687765))
+
+### Dependency updates
+
+* **deps:** update dependency openml to v0.15.1 ([#74](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/74)) ([d4430c5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d4430c5a616ab7a2f58a3743c0adbbfa3265bfee))
+
 ## [2.3.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.3.0...2.3.1) (2025-01-10)
 
 ### Dependency updates
