@@ -31,7 +31,7 @@ notebook = "^7.2.2"
 matplotlib = "^3.9.2"
 openml = "^0.15.0"
 torch = { version = "^2.4.1", optional = true }
-black = "^24.10.0"
+black = "^25.0.0"
 
 [tool.poe.tasks]
 test = "python -m unittest discover -v -s tests -p '*.py'"
