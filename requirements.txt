@@ -4,5 +4,5 @@ nbformat~=5.10.4
 pandas~=2.2.3
 nbconvert~=7.16.4
 openml~=0.15.0
-torch~=2.5.1
+torch~=2.6.0
 scikit-learn~=1.6.0
