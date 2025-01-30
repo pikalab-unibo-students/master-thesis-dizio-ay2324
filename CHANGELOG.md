@@ -1,3 +1,16 @@
+## [2.4.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.0...2.4.1) (2025-01-30)
+
+### Dependency updates
+
+* **deps:** update dependency black to v25 ([#75](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/75)) ([990eb9b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/990eb9bb8b59c0b1f78757ea6b22cee9c18261fc))
+* **deps:** update dependency matplotlib to v3.10.0 ([#76](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/76)) ([326fd72](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/326fd72b92f29262d97b0243fa1c00cf99173a54))
+* **deps:** update dependency poetry to v2.0.1 ([#68](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/68)) ([29dc0dd](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/29dc0dd5b2b0cbaa2d4c37d6361f1cc6128715a6))
+* **deps:** update dependency torch to ~=2.6.0 ([#77](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/77)) ([ed2c41e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ed2c41e6d8727dc0ff31920c8087225939da5470))
+
+### Bug Fixes
+
+* **deps:** update dependency torch to v2.6.0 ([#78](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/78)) ([ccd485b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ccd485bc1e6ccded8e36d4ceb5091e7410814a46))
+
 ## [2.4.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.3.1...2.4.0) (2025-01-26)
 
 ### Features
