@@ -1,7 +1,15 @@
+from typing_extensions import override
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.preprocessing import StandardScaler
+
+from fairlib.processing import (
+    DataFrameAwareEstimator,
+    DataFrameAwarePredictor,
+    DataFrameAwareModel,
+    DataFrameAwareTransformer,
+)
 
 
 class Encoder(nn.Module):
@@ -61,7 +69,34 @@ class Classifier(nn.Module):
         return self.classifier(z)
 
 
-class LFR:
+def compute_fairness_loss(z, sensitive_attr):
+    """
+    Compute statistical parity loss (Lz)
+    """
+    protected_mask = sensitive_attr == 1
+    unprotected_mask = sensitive_attr == 0
+
+    protected_mean = torch.mean(z[protected_mask], dim=0)
+    unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
+
+    return torch.sum((protected_mean - unprotected_mean) ** 2)
+
+
+def compute_reconstruction_loss(x, x_reconstructed):
+    """
+    Compute reconstruction loss (Lx)
+    """
+    return torch.mean((x - x_reconstructed) ** 2)
+
+
+def compute_classification_loss(y_pred, y_true):
+    """
+    Compute binary cross-entropy loss (Ly)
+    """
+    return nn.BCELoss()(y_pred, y_true)
+
+
+class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransformer):
     def __init__(self, input_dim, latent_dim, alpha_z=1.0, alpha_x=1.0, alpha_y=1.0):
         """
         Learning Fair Representations (LFR) model
@@ -93,30 +128,7 @@ class LFR:
         # Initialize scaler
         self.scaler = StandardScaler()
 
-    def compute_fairness_loss(self, z, sensitive_attr):
-        """
-        Compute statistical parity loss (Lz)
-        """
-        protected_mask = sensitive_attr == 1
-        unprotected_mask = sensitive_attr == 0
-
-        protected_mean = torch.mean(z[protected_mask], dim=0)
-        unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
-
-        return torch.sum((protected_mean - unprotected_mean) ** 2)
-
-    def compute_reconstruction_loss(self, x, x_reconstructed):
-        """
-        Compute reconstruction loss (Lx)
-        """
-        return torch.mean((x - x_reconstructed) ** 2)
-
-    def compute_classification_loss(self, y_pred, y_true):
-        """
-        Compute binary cross-entropy loss (Ly)
-        """
-        return nn.BCELoss()(y_pred, y_true)
-
+    @override
     def fit(self, X, y, sensitive_attr, epochs=100, batch_size=32, learning_rate=0.001):
         """
         Train the LFR model
@@ -143,9 +155,9 @@ class LFR:
             y_pred = self.classifier(z)
 
             # Compute losses
-            fairness_loss = self.compute_fairness_loss(z, sensitive_attr)
-            reconstruction_loss = self.compute_reconstruction_loss(X, x_reconstructed)
-            classification_loss = self.compute_classification_loss(y_pred, y)
+            fairness_loss = compute_fairness_loss(z, sensitive_attr)
+            reconstruction_loss = compute_reconstruction_loss(X, x_reconstructed)
+            classification_loss = compute_classification_loss(y_pred, y)
 
             # Compute total loss
             total_loss = (
@@ -168,7 +180,7 @@ class LFR:
                     f"Classification: {classification_loss.item():.4f}"
                 )
 
-    def predict(self, X):
+    def _predict(self, X):
         """
         Make predictions on new data
         """
@@ -178,7 +190,7 @@ class LFR:
         y_pred = self.classifier(z)
         return (y_pred.detach().numpy() > 0.5).astype(int)
 
-    def transform(self, X):
+    def _transform(self, X, y=None):
         """
         Transform data into fair representations
         """
