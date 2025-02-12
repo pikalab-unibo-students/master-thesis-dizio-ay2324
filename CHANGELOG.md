@@ -1,3 +1,14 @@
+## [2.4.3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.2...2.4.3) (2025-02-12)
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.123 ([#86](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/86)) ([9f4fbcd](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9f4fbcd26e3f839ac1d3fdde5df491eddbf78ad7))
+
+### Documentation
+
+* update readme ([5b7fecc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/5b7feccba1f8c290faa07571bd719e22f619881a))
+* update readme ([b7368d6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b7368d677c378842d2d3af6c837cd3c81837cc6a))
+
 ## [2.4.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.1...2.4.2) (2025-02-12)
 
 ### Dependency updates
