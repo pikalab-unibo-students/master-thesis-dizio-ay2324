@@ -1,3 +1,18 @@
+## [2.4.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.1...2.4.2) (2025-02-12)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.6.11 ([#83](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/83)) ([e3db3b3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e3db3b3e172abcd04d035e6b91de159cc55ce8ac))
+* **deps:** update dependency coverage to v7.6.12 ([#84](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/84)) ([35b8452](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/35b8452efbbacab9555502563a35dea26fdccd9b))
+* **deps:** update dependency mypy to v1.15.0 ([#81](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/81)) ([f75d8cb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f75d8cb8d78787cef9ca3819486bf43c0e9501f4))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.121 ([#80](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/80)) ([cc74c00](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/cc74c00b3ed7f45cc28171452e8413379e0a8d2b))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.122 ([#82](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/82)) ([c9a58d6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c9a58d68b4d50bdd69a13d7778418a2b07d7db8d))
+* **deps:** update node.js to 22.14 ([#85](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/85)) ([56fd1a8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/56fd1a893b97f69bb80f9c439a5bbac72c5f58b0))
+
+### Documentation
+
+* adding example notebook for FaUCI and LFR ([a678c6e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a678c6ef60b3bb98c0c4da988bf05f091e77b503))
+
 ## [2.4.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.0...2.4.1) (2025-01-30)
 
 ### Dependency updates
