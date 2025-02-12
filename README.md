@@ -1,4 +1,5 @@
-![FairLib Logo](assets/logo.svg)
+<p align="center"><img src="assets/logo.svg"></p>
+<p align="center"><a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3670A0?style=flate&logo=python&logoColor=ffdd54"></a>   <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits"></a></p>
 
 # FairLib - Python Library for Fairness Metrics and Processing
 
@@ -79,5 +80,3 @@ poetry run poe test
 
 > Tests are automatically run in CI, on all pushes on all branches.
 > There, tests are executed on multiple OS (Win, Mac, Ubuntu) and on multiple Python versions.
-
-
