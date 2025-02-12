@@ -1,3 +1,5 @@
+![FairLib Logo](assets/logo.svg)
+
 # FairLib - Python Library for Fairness Metrics and Processing
 
 This library provides a set of tools for measuring and improving fairness in machine learning models, covering a variety of fairness metrics, pre-processing, in-processing, and post-processing techniques.
@@ -18,6 +20,7 @@ The library will provide some fairness metrics to perform various analyses. Plus
 - Reweighing
 
 ### In-Processing Techniques
+- FaUCI
 - Adversarial Debiasing
 - Prejudice Remover
 - Meta-Fair Classifier
