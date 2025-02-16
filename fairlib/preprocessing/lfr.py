@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from sklearn.preprocessing import StandardScaler
 
+from fairlib import logger
 from fairlib.processing import (
     DataFrameAwareEstimator,
     DataFrameAwarePredictor,
@@ -172,7 +173,7 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
             optimizer.step()
 
             if (epoch + 1) % 10 == 0:
-                print(
+                logger.info(
                     f"Epoch [{epoch + 1}/{epochs}], "
                     f"Loss: {total_loss.item():.4f}, "
                     f"Fairness: {fairness_loss.item():.4f}, "

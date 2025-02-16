@@ -4,7 +4,7 @@ import torch.optim as optim
 from ._torch_metrics import get as get_metric
 from typing import Optional, Callable, Union, Any
 from typing_extensions import override
-from fairlib import DataFrame
+from fairlib import DataFrame, logger
 from fairlib.processing import (
     DataFrameAwareProcessorWrapper,
     DataFrameAwareEstimator,
@@ -116,8 +116,7 @@ class Fauci(
         x: DataFrame,
         y: Optional[Any] = None,
         epochs: int = 100,
-        batch_size: int = 32,
-        verbose: bool = True,
+        batch_size: int = 32
     ):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
@@ -174,8 +173,7 @@ class Fauci(
                 epoch_loss += loss.item()
 
             # Print progress
-            if verbose:
-                print(
+                logger.info(
                     f"Epoch [{epoch + 1}/{epochs}], Loss: {epoch_loss / len(dataloader):.4f}"
                 )
 

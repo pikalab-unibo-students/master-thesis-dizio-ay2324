@@ -6,6 +6,8 @@ from torch.utils.data import DataLoader
 from typing import Tuple, Optional
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
+from fairlib import logger
+
 
 class GradientReversalFunction(torch.autograd.Function):
     """
@@ -247,12 +249,12 @@ class AdversarialDebiasingModel(nn.Module):
                 scheduler_pred.step(val_loss)
                 scheduler_adv.step(adv_loss)
 
-                print(f"Epoch [{epoch + 1}/{num_epochs}] | "
+                logger.info(f"Epoch [{epoch + 1}/{num_epochs}] | "
                       f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
                       f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
                       f"Adv Loss: {adv_loss:.4f}")
             else:
-                print(f"Epoch [{epoch + 1}/{num_epochs}] | "
+                logger.info(f"Epoch [{epoch + 1}/{num_epochs}] | "
                       f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
                       f"Adv Loss: {adv_loss:.4f}")
 
