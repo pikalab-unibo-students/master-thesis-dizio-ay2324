@@ -1,5 +1,13 @@
 <p align="center"><img src="assets/logo.svg"></p>
-<p align="center"><a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3670A0?style=flate&logo=python&logoColor=ffdd54"></a>   <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits"></a></p>
+<p align="center">
+    <img src="https://img.shields.io/badge/fairness-8A2BE2">
+    <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3670A0?style=flate&logo=python&logoColor=ffdd54"></a>   
+    <a href="https://pytorch.org/"><img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flate&logo=pytorch&logoColor=white"></a>
+    <a href="https://pandas.pydata.org/"><img src="https://img.shields.io/badge/-Pandas-150458?&logo=pandas"></a>
+    <a href="https://jupyter.org/"><img src="https://img.shields.io/badge/Jupyter%20Notebook-F37626?style=flate&logo=jupyter&logoColor=white"></a>
+    <a href="https://conventionalcommits.org"><img src="https://img.shields.io/badge/Conventional%20Commits-1.0.0-%23FE5196?logo=conventionalcommits"></a>
+</p>
+
 
 # FairLib - Python Library for Fairness Metrics and Processing
 
