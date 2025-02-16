@@ -9,7 +9,12 @@ import pandas as pd
 
 from fairlib import DataFrame
 from tests.data_generator import biased_dataset_people_height
-from fairlib.inprocessing.adversarial_debiasing import Predictor, Adversary, AdversarialDebiasingModel
+from fairlib.inprocessing.adversarial_debiasing import (
+    Predictor,
+    Adversary,
+    AdversarialDebiasingModel,
+)
+
 
 def evaluate_fairness(X_test, y_pred):
     X_test = X_test.copy()
@@ -21,10 +26,12 @@ def evaluate_fairness(X_test, y_pred):
     di = dataset.disparate_impact()
     return spd, di
 
+
 def train_classifier(X_train, y_train):
     clf = LogisticRegression()
     clf.fit(X_train, y_train)
     return clf
+
 
 class TestAdversarialDebiasingModel(unittest.TestCase):
     def setUp(self):
@@ -55,8 +62,7 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
         y_pred_baseline = clf.predict(X_test_scaled)
 
         X_test_df = pd.DataFrame(
-            X_test_scaled,
-            columns=["height", "age", "weight", "income"]
+            X_test_scaled, columns=["height", "age", "weight", "income"]
         )
         X_test_df["male"] = a_test
 
@@ -76,23 +82,19 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
 
         spd_debiased, di_debiased = evaluate_fairness(X_test_df.copy(), y_pred_debiased)
 
-        print("Baseline: SPD:", spd_baseline)
-        print("Baseline: DI:", di_baseline)
-        print("Adversarial Debiasing: SPD:", spd_debiased)
-        print("Adversarial Debiasing: DI:", di_debiased)
-
         for key in spd_baseline:
             self.assertLessEqual(
                 abs(spd_debiased[key]),
                 abs(spd_baseline[key]),
-                f"For Group: {key}, SPD should improve with Adversarial Debiasing"
+                f"For Group: {key}, SPD should improve with Adversarial Debiasing",
             )
         for key in di_baseline:
             self.assertLessEqual(
                 abs(di_debiased[key] - 1),
                 abs(di_baseline[key] - 1),
-                f"For Group: {key}, DI should improve with Adversarial Debiasing"
+                f"For Group: {key}, DI should improve with Adversarial Debiasing",
             )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

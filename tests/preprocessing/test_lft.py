@@ -78,9 +78,6 @@ class TestLFR(unittest.TestCase):
             X_test.copy(), y_pred_transformed
         )
 
-        print("Original Data: SPD:", spd_original, "DI:", di_original)
-        print("Transformed Data: SPD:", spd_transformed, "DI:", di_transformed)
-
         for key in spd_original:
             self.assertLessEqual(
                 abs(spd_transformed[key]),

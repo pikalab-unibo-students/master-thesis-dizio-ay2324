@@ -40,6 +40,7 @@ class GradientReversalFunction(torch.autograd.Function):
         grad_output = grad_outputs[0]
         return -ctx.lambda_ * grad_output, None
 
+
 def grad_reverse(x: torch.Tensor, lambda_: float = 1.0) -> torch.Tensor:
     """Helper function for gradient reversal."""
     return GradientReversalFunction.apply(x, lambda_)
@@ -51,7 +52,13 @@ class Predictor(nn.Module):
     while trying to be fair with respect to sensitive attributes.
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int, output_dim: int, dropout_rate: float = 0.3):
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        output_dim: int,
+        dropout_rate: float = 0.3,
+    ):
         """
         Args:
             input_dim: Dimension of input features
@@ -68,8 +75,9 @@ class Predictor(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, output_dim)
         self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x: torch.Tensor, return_representation: bool = False) -> Tuple[
-        torch.Tensor, Optional[torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor, return_representation: bool = False
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         x = self.bn1(x)
         x = F.relu(self.fc1(x))
         x = self.bn2(x)
@@ -87,7 +95,13 @@ class Adversary(nn.Module):
     from the predictor's internal representations.
     """
 
-    def __init__(self, input_dim: int, hidden_dim: int, sensitive_dim: int, dropout_rate: float = 0.3):
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        sensitive_dim: int,
+        dropout_rate: float = 0.3,
+    ):
         """
         Args:
             input_dim: Dimension of input features (predictor's representation)
@@ -129,7 +143,9 @@ class AdversarialDebiasingModel(nn.Module):
     Choose based on your fairness vs. performance trade-off requirements.
     """
 
-    def __init__(self, predictor: Predictor, adversary: Adversary, lambda_adv: float = 1.0):
+    def __init__(
+        self, predictor: Predictor, adversary: Adversary, lambda_adv: float = 1.0
+    ):
         """
         Args:
             predictor: Main prediction network
@@ -141,8 +157,9 @@ class AdversarialDebiasingModel(nn.Module):
         self.adversary = adversary
         self.lambda_adv = lambda_adv
 
-    def forward(self, x: torch.Tensor, return_representation: bool = False) -> Tuple[
-        torch.Tensor, Optional[torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor, return_representation: bool = False
+    ) -> Tuple[torch.Tensor, Optional[torch.Tensor]]:
         return self.predictor(x, return_representation=return_representation)
 
     def forward_adversary(self, rep: torch.Tensor) -> torch.Tensor:
@@ -150,8 +167,14 @@ class AdversarialDebiasingModel(nn.Module):
         rep_rev = grad_reverse(rep, self.lambda_adv)
         return self.adversary(rep_rev)
 
-    def fit(self, train_dataloader: DataLoader, val_dataloader: Optional[DataLoader] = None,
-            num_epochs: int = 50, lr: float = 0.001, adv_steps: int = 1) -> dict:
+    def fit(
+        self,
+        train_dataloader: DataLoader,
+        val_dataloader: Optional[DataLoader] = None,
+        num_epochs: int = 50,
+        lr: float = 0.001,
+        adv_steps: int = 1,
+    ) -> dict:
         """
         Train the model using adversarial debiasing.
 
@@ -169,20 +192,28 @@ class AdversarialDebiasingModel(nn.Module):
         self.to(device)
 
         # Initialize optimizers and schedulers
-        optimizer_pred = optim.AdamW(self.predictor.parameters(), lr=lr, weight_decay=0.01)
-        optimizer_adv = optim.AdamW(self.adversary.parameters(), lr=lr, weight_decay=0.01)
-        scheduler_pred = ReduceLROnPlateau(optimizer_pred, mode='min', factor=0.1, patience=3)
-        scheduler_adv = ReduceLROnPlateau(optimizer_adv, mode='min', factor=0.1, patience=3)
+        optimizer_pred = optim.AdamW(
+            self.predictor.parameters(), lr=lr, weight_decay=0.01
+        )
+        optimizer_adv = optim.AdamW(
+            self.adversary.parameters(), lr=lr, weight_decay=0.01
+        )
+        scheduler_pred = ReduceLROnPlateau(
+            optimizer_pred, mode="min", factor=0.1, patience=3
+        )
+        scheduler_adv = ReduceLROnPlateau(
+            optimizer_adv, mode="min", factor=0.1, patience=3
+        )
 
         criterion_task = nn.CrossEntropyLoss()
         criterion_adv = nn.BCEWithLogitsLoss()
 
         history: dict[str, list[float]] = {
-            'train_loss': [],
-            'train_acc': [],
-            'val_loss': [],
-            'val_acc': [],
-            'adv_loss': []
+            "train_loss": [],
+            "train_acc": [],
+            "val_loss": [],
+            "val_acc": [],
+            "adv_loss": [],
         }
 
         for epoch in range(num_epochs):
@@ -191,7 +222,11 @@ class AdversarialDebiasingModel(nn.Module):
             total_correct, total_samples = 0, 0
 
             for x_batch, y_batch, a_batch in train_dataloader:
-                x_batch, y_batch, a_batch = x_batch.to(device), y_batch.to(device), a_batch.to(device)
+                x_batch, y_batch, a_batch = (
+                    x_batch.to(device),
+                    y_batch.to(device),
+                    a_batch.to(device),
+                )
 
                 # Only train adversary if lambda_adv > 0
                 if self.lambda_adv > 0:
@@ -200,11 +235,15 @@ class AdversarialDebiasingModel(nn.Module):
                         optimizer_adv.zero_grad()
                         with torch.no_grad():
                             _, rep = self.forward(x_batch, return_representation=True)
-                        assert rep is not None, "Representation must not be None when return_representation is True"
+                        assert (
+                            rep is not None
+                        ), "Representation must not be None when return_representation is True"
                         adv_logits = self.adversary(rep.detach()).squeeze()
                         loss_adv = criterion_adv(adv_logits, a_batch.float())
                         loss_adv.backward()
-                        torch.nn.utils.clip_grad_norm_(self.adversary.parameters(), max_norm=1.0)
+                        torch.nn.utils.clip_grad_norm_(
+                            self.adversary.parameters(), max_norm=1.0
+                        )
                         optimizer_adv.step()
 
                 # Update Predictor
@@ -215,14 +254,18 @@ class AdversarialDebiasingModel(nn.Module):
                 if self.lambda_adv > 0:
                     assert rep is not None
                     adv_logits_for_pred = self.forward_adversary(rep).squeeze()
-                    loss_adv_for_pred = criterion_adv(adv_logits_for_pred, a_batch.float())
+                    loss_adv_for_pred = criterion_adv(
+                        adv_logits_for_pred, a_batch.float()
+                    )
                     loss_combined = loss_task + self.lambda_adv * loss_adv_for_pred
                 else:
                     loss_combined = loss_task
                     loss_adv_for_pred = torch.tensor(0.0)
 
                 loss_combined.backward()
-                torch.nn.utils.clip_grad_norm_(self.predictor.parameters(), max_norm=1.0)
+                torch.nn.utils.clip_grad_norm_(
+                    self.predictor.parameters(), max_norm=1.0
+                )
                 optimizer_pred.step()
 
                 total_loss_task += loss_task.item()
@@ -235,28 +278,34 @@ class AdversarialDebiasingModel(nn.Module):
             train_acc = total_correct / total_samples
             adv_loss = total_loss_adv / len(train_dataloader)
 
-            history['train_loss'].append(train_loss)
-            history['train_acc'].append(train_acc)
-            history['adv_loss'].append(adv_loss)
+            history["train_loss"].append(train_loss)
+            history["train_acc"].append(train_acc)
+            history["adv_loss"].append(adv_loss)
 
             # Validation step
             if val_dataloader is not None:
-                val_loss, val_acc = self._validate(val_dataloader, criterion_task, device)
-                history['val_loss'].append(val_loss)
-                history['val_acc'].append(val_acc)
+                val_loss, val_acc = self._validate(
+                    val_dataloader, criterion_task, device
+                )
+                history["val_loss"].append(val_loss)
+                history["val_acc"].append(val_acc)
 
                 # Learning rate scheduling
                 scheduler_pred.step(val_loss)
                 scheduler_adv.step(adv_loss)
 
-                logger.info(f"Epoch [{epoch + 1}/{num_epochs}] | "
-                      f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-                      f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
-                      f"Adv Loss: {adv_loss:.4f}")
+                logger.info(
+                    f"Epoch [{epoch + 1}/{num_epochs}] | "
+                    f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                    f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
+                    f"Adv Loss: {adv_loss:.4f}"
+                )
             else:
-                logger.info(f"Epoch [{epoch + 1}/{num_epochs}] | "
-                      f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-                      f"Adv Loss: {adv_loss:.4f}")
+                logger.info(
+                    f"Epoch [{epoch + 1}/{num_epochs}] | "
+                    f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                    f"Adv Loss: {adv_loss:.4f}"
+                )
 
         return history
 
@@ -273,8 +322,9 @@ class AdversarialDebiasingModel(nn.Module):
             preds = torch.argmax(logits, dim=1)
         return preds
 
-    def _validate(self, val_dataloader: DataLoader, criterion: nn.Module,
-                  device: torch.device) -> Tuple[float, float]:
+    def _validate(
+        self, val_dataloader: DataLoader, criterion: nn.Module, device: torch.device
+    ) -> Tuple[float, float]:
         """Perform validation step."""
         self.eval()
         total_loss, total_correct, total_samples = 0.0, 0, 0

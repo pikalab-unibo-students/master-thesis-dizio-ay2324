@@ -116,7 +116,7 @@ class Fauci(
         x: DataFrame,
         y: Optional[Any] = None,
         epochs: int = 100,
-        batch_size: int = 32
+        batch_size: int = 32,
     ):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
@@ -172,7 +172,7 @@ class Fauci(
 
                 epoch_loss += loss.item()
 
-            # Print progress
+                # Print progress
                 logger.info(
                     f"Epoch [{epoch + 1}/{epochs}], Loss: {epoch_loss / len(dataloader):.4f}"
                 )

@@ -207,9 +207,6 @@ class TestFauci(unittest.TestCase):
             self.train_and_evaluate(regularizer="sp", fairness_metric="spd")
         )
 
-        # Print results
-        print("FAUCI: accuracy:", fauci_accuracy, "spd:", fauci_spd)
-        print("Default Model: accuracy:", default_accuracy, "spd:", default_spd)
 
         # Assert fairness improvement
         fauci_spd_value = abs(fauci_spd[{self.TARGET: 1, self.SENSITIVE: 1}])
@@ -226,10 +223,6 @@ class TestFauci(unittest.TestCase):
         fauci_accuracy, fauci_di, default_accuracy, default_di = (
             self.train_and_evaluate(regularizer="di", fairness_metric="di")
         )
-
-        # Print results
-        print("FAUCI: accuracy:", fauci_accuracy, "di:", fauci_di)
-        print("Default Model: accuracy:", default_accuracy, "di:", default_di)
 
         # Assert fairness improvement
         fauci_distance = abs(fauci_di[{self.TARGET: 1, self.SENSITIVE: 1}] - 1)
