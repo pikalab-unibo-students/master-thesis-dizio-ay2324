@@ -27,7 +27,7 @@ class GradientReversalFunction(torch.autograd.Function):
         return x.view_as(x)
 
     @staticmethod
-    def backward(ctx, grad_output: torch.Tensor) -> Tuple[torch.Tensor, None]:
+    def backward(ctx, *grad_outputs: torch.Tensor) -> Tuple[torch.Tensor, None]:
         """
         Backward pass reverses gradient and scales by lambda_.
         Args:
@@ -35,10 +35,8 @@ class GradientReversalFunction(torch.autograd.Function):
         Returns:
             Tuple of (reversed & scaled gradient, None)
         """
-        if grad_output is None:
-            return None, None
+        grad_output = grad_outputs[0]
         return -ctx.lambda_ * grad_output, None
-
 
 def grad_reverse(x: torch.Tensor, lambda_: float = 1.0) -> torch.Tensor:
     """Helper function for gradient reversal."""
@@ -177,9 +175,11 @@ class AdversarialDebiasingModel(nn.Module):
         criterion_task = nn.CrossEntropyLoss()
         criterion_adv = nn.BCEWithLogitsLoss()
 
-        history = {
-            'train_loss': [], 'train_acc': [],
-            'val_loss': [], 'val_acc': [],
+        history: dict[str, list[float]] = {
+            'train_loss': [],
+            'train_acc': [],
+            'val_loss': [],
+            'val_acc': [],
             'adv_loss': []
         }
 
@@ -198,6 +198,7 @@ class AdversarialDebiasingModel(nn.Module):
                         optimizer_adv.zero_grad()
                         with torch.no_grad():
                             _, rep = self.forward(x_batch, return_representation=True)
+                        assert rep is not None, "Representation must not be None when return_representation is True"
                         adv_logits = self.adversary(rep.detach()).squeeze()
                         loss_adv = criterion_adv(adv_logits, a_batch.float())
                         loss_adv.backward()
@@ -210,6 +211,7 @@ class AdversarialDebiasingModel(nn.Module):
                 loss_task = criterion_task(pred_logits, y_batch)
 
                 if self.lambda_adv > 0:
+                    assert rep is not None
                     adv_logits_for_pred = self.forward_adversary(rep).squeeze()
                     loss_adv_for_pred = criterion_adv(adv_logits_for_pred, a_batch.float())
                     loss_combined = loss_task + self.lambda_adv * loss_adv_for_pred
@@ -264,7 +266,8 @@ class AdversarialDebiasingModel(nn.Module):
         """
         self.eval()
         with torch.no_grad():
-            logits = self.forward(x)
+            # Call predictor directly to get logits only
+            logits = self.predictor(x, return_representation=False)
             preds = torch.argmax(logits, dim=1)
         return preds
 
@@ -277,7 +280,7 @@ class AdversarialDebiasingModel(nn.Module):
         with torch.no_grad():
             for x_batch, y_batch, _ in val_dataloader:
                 x_batch, y_batch = x_batch.to(device), y_batch.to(device)
-                logits = self.forward(x_batch)
+                logits, _ = self.forward(x_batch, return_representation=False)
                 loss = criterion(logits, y_batch)
                 total_loss += loss.item()
                 preds = torch.argmax(logits, dim=1)
