@@ -5,23 +5,25 @@
 
 This library provides a set of tools for measuring and improving fairness in machine learning models, covering a variety of fairness metrics, pre-processing, in-processing, and post-processing techniques.
 
+[Complete Workflow Example Notebook](examples/demo_core_lib.ipynb)
+
 ## Library functionality
 The library will provide some fairness metrics to perform various analyses. Plus a number of pre-processing, in-processing and post-processing algorithms.
 
 ### Fairness Metrics
-- Statistical Parity Difference
+- Statistical Parity Difference - [Example Notebook](examples/demo_statistical_parity_difference.ipynb)
 - Disparate Impact
-- Equal Opportunity Difference
+- Equal Opportunity Difference - [Example Notebook](examples/demo_equality_of_opportunity.ipynb)
 - Average Absolute Odds Difference
 
 ### Pre-Processing Techniques
 - Disparate Impact Remover
-- LFR (Learning Fair Representations)
+- LFR (Learning Fair Representations) - [Example Notebook](examples/demo_lfr.ipynb)
 - Optim Preprocessing
 - Reweighing
 
 ### In-Processing Techniques
-- FaUCI
+- FaUCI - [Example Notebook](examples/demo_fauci.ipynb)
 - Adversarial Debiasing
 - Prejudice Remover
 - Meta-Fair Classifier
