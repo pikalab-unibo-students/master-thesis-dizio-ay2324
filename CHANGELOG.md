@@ -1,3 +1,28 @@
+## [2.5.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.3...2.5.0) (2025-02-17)
+
+### Features
+
+* **inprocessing:** adversarial debiasing ([#88](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/88)) ([bdef38b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bdef38bbbeecd6944d5a89d5564632e8ceae70a0))
+
+### Dependency updates
+
+* **deps:** update dependency poetry to v2.1.0 ([#73](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/73)) ([e36bbdc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e36bbdcd55872db7c19c8c47551f84df032e7279))
+* **deps:** update dependency poetry to v2.1.1 ([#89](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/89)) ([734bd6c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/734bd6ca27a924e6eefcd71e3fe599a8041fff1f))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.124 ([#87](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/87)) ([2839101](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/28391014899ba35838b43ed701ac88421ffa4c73))
+
+### Bug Fixes
+
+* use of logger instead of print ([1b9a426](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/1b9a4266c056a612a3f4907678b9174d459ac8ba))
+
+### Documentation
+
+* update readme ([a7dcb82](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a7dcb8230eadf2cc2acf8907aac927f7fbed81e0))
+* update readme ([21f730a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/21f730abc323a5faa0f9144553dbf1778564467e))
+
+### General maintenance
+
+* removal of prints in tests ([3ce954e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/3ce954e6c629faa4c884b922ad122b38f639a338))
+
 ## [2.4.3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.2...2.4.3) (2025-02-12)
 
 ### Dependency updates
