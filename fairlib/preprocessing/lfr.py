@@ -8,7 +8,6 @@ from fairlib import logger
 from fairlib.processing import (
     DataFrameAwareEstimator,
     DataFrameAwarePredictor,
-    DataFrameAwareModel,
     DataFrameAwareTransformer,
 )
 
@@ -98,7 +97,17 @@ def compute_classification_loss(y_pred, y_true):
 
 
 class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransformer):
-    def __init__(self, input_dim, latent_dim, alpha_z=1.0, alpha_x=1.0, alpha_y=1.0):
+
+    def __init__(self,
+                 input_dim = None,
+                 latent_dim = None,
+                 output_dim = None,
+                 encoder = None,
+                 decoder = None,
+                 classifier = None,
+                 alpha_z=1.0,
+                 alpha_x=1.0,
+                 alpha_y=1.0):
         """
         Learning Fair Representations (LFR) model
 
@@ -108,6 +117,12 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
             Dimension of input features
         latent_dim: int
             Dimension of the learned fair representation
+        output_dim: int
+            Dimension of the output features
+        encoder: nn.Module
+            Encoder network
+        decoder: nn.Module
+            Decoder network
         alpha_z: float
             Weight for the fairness loss (Lz)
         alpha_x: float
@@ -115,16 +130,22 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
         alpha_y: float
             Weight for the classification loss (Ly)
         """
-        self.input_dim = input_dim
-        self.latent_dim = latent_dim
+        if encoder is None and decoder is None and classifier is None:
+            if input_dim is None or latent_dim is None or output_dim is None:
+                raise ValueError("input_dim, latent_dim, and output_dim must be provided")
+            self.encoder = Encoder(input_dim, latent_dim)
+            self.decoder = Decoder(latent_dim, output_dim)
+            self.classifier = Classifier(latent_dim)
+        elif encoder is None or decoder is None or classifier is None:
+            raise ValueError("Both encoder and decoder must be provided or None")
+        else:
+            self.encoder = encoder
+            self.decoder = decoder
+            self.classifier = classifier
+
         self.alpha_z = alpha_z
         self.alpha_x = alpha_x
         self.alpha_y = alpha_y
-
-        # Initialize networks
-        self.encoder = Encoder(input_dim, latent_dim)
-        self.decoder = Decoder(latent_dim, input_dim)
-        self.classifier = Classifier(latent_dim)
 
         # Initialize scaler
         self.scaler = StandardScaler()
