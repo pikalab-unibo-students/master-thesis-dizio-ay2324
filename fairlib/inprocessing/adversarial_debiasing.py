@@ -145,12 +145,12 @@ class AdversarialDebiasingModel(nn.Module):
 
     def __init__(
             self,
-            input_dim: int = None,
-            hidden_dim: int = None,
-            output_dim: int = None,
-            sensitive_dim: int = None,
-            predictor: Predictor = None,
-            adversary: Adversary = None,
+            input_dim: int | None = None,
+            hidden_dim: int | None = None,
+            output_dim: int | None = None,
+            sensitive_dim: int | None = None,
+            predictor: Predictor | None = None,
+            adversary: Adversary | None = None,
             lambda_adv: float = 1.0
     ):
         """

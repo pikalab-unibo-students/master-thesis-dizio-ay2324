@@ -70,7 +70,7 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
 
         predictor = Predictor(input_dim=4, hidden_dim=16, output_dim=2)
         adversary = Adversary(input_dim=16, hidden_dim=16, sensitive_dim=1)
-        model = AdversarialDebiasingModel(predictor, adversary, lambda_adv=5.0)
+        model = AdversarialDebiasingModel(predictor=predictor, adversary=adversary, lambda_adv=5.0)
         model.fit(train_loader, num_epochs=50, lr=0.0001)
 
         model.eval()
