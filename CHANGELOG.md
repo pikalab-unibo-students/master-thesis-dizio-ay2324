@@ -1,3 +1,23 @@
+## [2.5.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.5.0...2.5.1) (2025-04-01)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.7.0 ([#95](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/95)) ([4447cec](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4447cec6a47bb27dc479444c1628402c77af68dd))
+* **deps:** update dependency coverage to v7.7.1 ([#96](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/96)) ([da0c725](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/da0c72552d704e4f8ebaf861e80d598ec8c63b83))
+* **deps:** update dependency coverage to v7.8.0 ([#99](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/99)) ([d93846e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d93846e6bb3e6b916380dcc964af39983faa5606))
+* **deps:** update dependency notebook to v7.3.3 ([#93](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/93)) ([ac5e2d1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ac5e2d143cf638a973f59ad6c8d128c6a2d4eb60))
+* **deps:** update dependency poethepoet to ^0.33.0 ([#72](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/72)) ([496e696](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/496e6968ee8fe336021cb1be221c1191401e27af))
+* **deps:** update dependency poethepoet to v0.33.1 ([#94](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/94)) ([0f4241c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0f4241cf4071da3fd52d03ef15f1731217621144))
+* **deps:** update dependency poetry to v2.1.1 ([#90](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/90)) ([ec2fc28](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ec2fc28d777537292f815c012a2f11f0e0d0a143))
+* **deps:** update dependency poetry to v2.1.2 ([#97](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/97)) ([8d57e7c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8d57e7cb90e5c34876c10c82bd7c4c5142df8f08))
+* **deps:** update dependency poetry to v2.1.2 ([#98](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/98)) ([b106dbb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b106dbb47441f41806d2bb4909c6cb8736d7e262))
+* **deps:** update dependency pytest to v8.3.5 ([#92](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/92)) ([ce1111b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/ce1111bbbc81e1a24c8fd867303d15febf9df51c))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.125 ([#91](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/91)) ([69b05c8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/69b05c8a93ecfa503b657c8542ec998cb76da2d4))
+
+### Bug Fixes
+
+* **deps:** update dependency pytest-cov to v6.1.0 ([#100](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/100)) ([4a0ad16](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/4a0ad165ee787a168a65db1270684b213b782535))
+
 ## [2.5.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.4.3...2.5.0) (2025-02-17)
 
 ### Features
