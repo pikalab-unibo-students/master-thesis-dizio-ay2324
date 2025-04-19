@@ -144,17 +144,36 @@ class AdversarialDebiasingModel(nn.Module):
     """
 
     def __init__(
-        self, predictor: Predictor, adversary: Adversary, lambda_adv: float = 1.0
+            self,
+            input_dim: int | None = None,
+            hidden_dim: int | None = None,
+            output_dim: int | None = None,
+            sensitive_dim: int | None = None,
+            predictor: Predictor | None = None,
+            adversary: Adversary | None = None,
+            lambda_adv: float = 1.0
     ):
         """
         Args:
+            input_dim: Dimension of input features
+            hidden_dim: Dimension of hidden layers
+            output_dim: Dimension of output (number of classes)
+            sensitive_dim: Dimension of sensitive attribute
             predictor: Main prediction network
             adversary: Adversarial network
             lambda_adv: Weight of adversarial loss (default=1.0)
         """
         super(AdversarialDebiasingModel, self).__init__()
-        self.predictor = predictor
-        self.adversary = adversary
+        if predictor is None and adversary is None:
+            if input_dim is None or hidden_dim is None or output_dim is None or sensitive_dim is None:
+                raise ValueError("input_dim, hidden_dim, output_dim, and sensitive_dim must be provided")
+            self.predictor = Predictor(input_dim, hidden_dim, output_dim)
+            self.adversary = Adversary(hidden_dim, hidden_dim, sensitive_dim)
+        elif predictor is None or adversary is None:
+            raise ValueError("Both predictor and adversary must be provided or None")
+        else:
+            self.predictor = predictor
+            self.adversary = adversary
         self.lambda_adv = lambda_adv
 
     def forward(

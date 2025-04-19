@@ -54,6 +54,7 @@ class TestLFR(unittest.TestCase):
         lfr = LFR(
             input_dim=self.X.shape[1],
             latent_dim=8,
+            output_dim=self.X.shape[1],
             alpha_z=1.0,
             alpha_x=1.0,
             alpha_y=1.0,
