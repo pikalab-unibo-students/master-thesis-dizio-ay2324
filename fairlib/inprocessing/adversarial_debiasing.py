@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Union
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from fairlib import logger
@@ -145,12 +145,12 @@ class AdversarialDebiasingModel(nn.Module):
 
     def __init__(
             self,
-            input_dim: int | None = None,
-            hidden_dim: int | None = None,
-            output_dim: int | None = None,
-            sensitive_dim: int | None = None,
-            predictor: Predictor | None = None,
-            adversary: Adversary | None = None,
+            input_dim:  Union[int, None] = None,
+            hidden_dim:  Union[int, None] = None,
+            output_dim:  Union[int, None] = None,
+            sensitive_dim:  Union[int, None] = None,
+            predictor:  Union[Predictor, None] = None,
+            adversary: Union[Adversary, None] = None,
             lambda_adv: float = 1.0
     ):
         """
