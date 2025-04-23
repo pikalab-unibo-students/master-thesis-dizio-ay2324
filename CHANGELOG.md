@@ -1,3 +1,22 @@
+## [2.6.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.5.1...2.6.0) (2025-04-23)
+
+### Features
+
+* custom models in Adversarial Debiasing ([7f5dfaf](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/7f5dfaf6f5ffeefa21f79950af662a55a0e043fe))
+
+### Bug Fixes
+
+* adversarial debiasing union typing ([6ab6a66](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6ab6a6665314ba92df7e852502b3d3bb3c5cbf89))
+* **deps:** update dependency pytest-cov to v6.1.1 ([#101](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/101)) ([d154b24](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d154b2444423319baae50af8409743b647c5a5fd))
+
+### Tests
+
+* Updated test for adversary debiasing ([b9f31a3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b9f31a3aa5702494ff8daba019b68e5ce859106d))
+
+### General maintenance
+
+* update lfr ([d10c3f5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d10c3f5a9a436f9e9f431113c0cffa3d2d04c368))
+
 ## [2.5.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.5.0...2.5.1) (2025-04-01)
 
 ### Dependency updates

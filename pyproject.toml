@@ -3,7 +3,7 @@ name = "fairlib"
 packages = [
     { include = "fairlib" },
 ]
-version = "2.5.1"
+version = "2.6.0"
 description = "A library that enables the use of tools suitable for improving equity in machine learning processes"
 authors = ["Giovanni Ciatto <giovanni.ciatto@unibo.it>", "Valerio Di Zio <valerio.dizio@studio.unibo.it"]
 license = "Apache 2.0"
