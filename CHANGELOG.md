@@ -1,3 +1,16 @@
+## [2.6.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.6.0...2.6.1) (2025-04-24)
+
+### Dependency updates
+
+* **deps:** update dependency notebook to v7.4.1 ([#102](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/102)) ([8372fba](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8372fba019f803d7ed710d490b5c900d4495e9bb))
+* **deps:** update dependency poethepoet to ^0.34.0 ([#103](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/103)) ([25d34cf](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/25d34cf01ee5a7bcd86308024500f1509979f8f9))
+* **deps:** update dependency torch to ~=2.7.0 ([#105](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/105)) ([0c94309](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0c9430939d63117af118cc4a61eba752356c6966))
+* **deps:** update node.js to 22.15 ([#104](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/104)) ([55787b8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/55787b864ed2d76fdd2627ecfab62b8da187ed18))
+
+### Bug Fixes
+
+* **deps:** update dependency torch to v2.7.0 ([#106](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/106)) ([47c3a65](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/47c3a6516ee4695611acd198bd16372cd1e5f9d1))
+
 ## [2.6.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.5.1...2.6.0) (2025-04-23)
 
 ### Features
