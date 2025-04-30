@@ -27,19 +27,12 @@ The library will provide some fairness metrics to perform various analyses. Plus
 ### Pre-Processing Techniques
 - Disparate Impact Remover
 - LFR (Learning Fair Representations) - [Example Notebook](examples/demo_lfr.ipynb)
-- Optim Preprocessing
 - Reweighing
 
 ### In-Processing Techniques
 - FaUCI - [Example Notebook](examples/demo_fauci.ipynb)
 - Adversarial Debiasing
 - Prejudice Remover
-- Meta-Fair Classifier
-
-### Post-Processing Techniques
-- Equalized Odds
-- Calibrated Equalized Odds
-- Reject Option Classification
 
 ## Project Structure
 
@@ -51,13 +44,11 @@ Overview of the project structure:
 │   ├── __init__.py        # Package marker
 │   ├── metrics/           # Fairness metrics implementations
 │   ├── preprocessing/     # Pre-processing techniques for fairness
-│   ├── inprocessing/      # In-processing debiasing algorithms
-│   └── postprocessing/    # Post-processing fairness methods
+│   └── inprocessing/      # In-processing debiasing algorithms
 ├── tests/                 # Unit tests for the library
 │   ├── metrics/           # Unit tests for fairness metrics
 │   ├── preprocessing/     # Unit tests for pre-processing methods
-│   ├── inprocessing/      # Unit tests for in-processing techniques
-│   └── postprocessing/    # Unit tests for post-processing methods
+│   └── inprocessing/      # Unit tests for in-processing techniques
 ├── examples/             # Jupyter notebooks with examples
 ├── .github/               # GitHub workflows for CI/CD
 │   └── workflows/
