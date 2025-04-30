@@ -1,8 +1,2 @@
-title: FairLib Documentation
-description: >-  
-  FairLib is a Python library designed to integrate fairness-aware machine learning methods, with the goal of reducing bias in predictive models.
-baseurl: ""
-url: ""
-
-show_downloads: false
 theme: jekyll-theme-cayman
+title: FairLib Documentation
