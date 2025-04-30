@@ -1,11 +1,13 @@
-theme: jekyll-theme-cayman
-
 # Site settings
 title: FairLib Documentation
 description: >-  
   FairLib is a Python library designed to integrate fairness-aware machine learning methods, with the goal of reducing bias in predictive models.
 baseurl: ""
 url: ""
+
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme
 
 # Build settings
 markdown: kramdown
