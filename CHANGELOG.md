@@ -1,3 +1,24 @@
+## [2.7.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.6.1...2.7.0) (2025-04-30)
+
+### Features
+
+* disparate impact remover with tests ([88d7d19](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/88d7d199bb0b63cae7a975a5b75782944a1e8cc3))
+* prejudice_remover with tests ([bb0cbe9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bb0cbe9039393010128cd84f837ef78fcbc330cc))
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.127 ([#107](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/107)) ([16de8f2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/16de8f2b6d204a2fdc7cd1b6776bdf47d0741efd))
+
+### Documentation
+
+* add theme to pages ([0a9a602](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0a9a602f5503f2c85712bfe42b0e27dbf6556489))
+* added documentation for adversarial debiasing, disparate impact remover and fauci ([0da34fc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0da34fcfc13936ed07b660f6a388ac442a24f1a6))
+* completed ([e52b121](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e52b12186b34a7234ae7468ecf96a2386aa23193))
+* fix pages theme ([b41a3e4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/b41a3e41053965b0418c63682fbd3d9a35034242))
+* fix pages theme ([0fd7096](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0fd7096bc7432a1b02867f60244d723dd1b40510))
+* fix theme in pages ([407d8bb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/407d8bb1a9d24483abee66b86f1cad176c45d6d6))
+* update README ([531ca40](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/531ca40352f8eaf3282bc5e37cdd98d667e9db39))
+
 ## [2.6.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.6.0...2.6.1) (2025-04-24)
 
 ### Dependency updates
