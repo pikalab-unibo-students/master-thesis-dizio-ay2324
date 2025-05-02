@@ -2,7 +2,9 @@ from typing_extensions import override
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from fairlib import DataFrame, logger
 from sklearn.preprocessing import StandardScaler
+from typing import Optional, Any
 
 from fairlib import logger
 from fairlib.processing import (
@@ -151,15 +153,32 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
         self.scaler = StandardScaler()
 
     @override
-    def fit(self, X, y, sensitive_attr, epochs=100, batch_size=32, learning_rate=0.001):
+    def fit(self, 
+            X,
+            y: Optional[Any] = None,
+            epochs=100, 
+            batch_size=32, 
+            learning_rate=0.001
+            ):
         """
         Train the LFR model
         """
         # Prepare data
+        if not isinstance(X, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(X)}")
+        if y is None:
+            X, y, _, _, _, sensitive_indexes = X.unpack()
+        else:
+            X, _, _, _, _, sensitive_indexes = X.unpack()
+        if len(sensitive_indexes) != 1:
+            raise ValueError(
+                f"LFR expects exactly one sensitive column, got {len(sensitive_indexes)}: {X.sensitive}"
+            )
+        sensitive_attr = X[:, sensitive_indexes[0]]
         X = self.scaler.fit_transform(X)
         X = torch.FloatTensor(X)
-        y = torch.FloatTensor(y.to_numpy()).reshape(-1, 1)
-        sensitive_attr = torch.FloatTensor(sensitive_attr.to_numpy())
+        y = torch.FloatTensor(y).reshape(-1, 1)
+        sensitive_attr = torch.FloatTensor(sensitive_attr)
 
         # Create optimizer
         optimizer = optim.Adam(

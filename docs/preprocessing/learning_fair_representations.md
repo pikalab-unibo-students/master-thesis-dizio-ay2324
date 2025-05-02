@@ -59,23 +59,20 @@ import torch
 from fairlib.preprocessing.lfr import LFR
 from sklearn.model_selection import train_test_split
 
-# Prepare your data
-X_train, X_test, y_train, y_test, s_train, s_test = train_test_split(
-    features, labels, sensitive_attributes, test_size=0.2
-)
+dataset, X_train, X_test, y_train, y_test = ...
 
 # Initialize LFR model
 lfr = LFR(
-    input_dim=X_train.shape[1],  # Number of input features
+    input_dim=dataset.shape[1],  # Number of input features
     latent_dim=8,                # Dimension of fair representation
-    output_dim=X_train.shape[1], # Same as input for reconstruction
+    output_dim=dataset.shape[1], # Same as input for reconstruction
     alpha_z=1.0,                 # Weight for fairness loss
     alpha_x=1.0,                 # Weight for reconstruction loss
     alpha_y=1.0                  # Weight for classification loss
 )
 
 # Train the model
-lfr.fit(X_train, y_train, s_train, epochs=100)
+lfr.fit(dataset, epochs=100)
 
 # Transform data to fair representation
 X_train_fair = lfr.transform(X_train)
