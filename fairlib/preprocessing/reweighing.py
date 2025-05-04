@@ -1,11 +1,13 @@
 import numpy as np
 import pandas as pd
-from fairlib.processing import Transformer
+from fairlib import DataFrame
+from typing import Any, Optional
 
 __all__ = ["Reweighing", "ReweighingWithMean"]
 
+from .pre_processing import Preprocessor
 
-class Reweighing(Transformer):
+class Reweighing(Preprocessor):
     @staticmethod
     def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
         def ratio(a: np.array, b: np.array, c: np.array, d: np.array) -> float:
@@ -44,7 +46,26 @@ class Reweighing(Transformer):
             weight_unprivileged_unfavorable,
         )
 
-    def transform(self, df, favorable_label=1):
+    def fit_transform(self, X, y: Optional[Any] = None, **kwargs):
+        """
+        Fit the reweighing model and transform the data in one step.
+        Parameters
+        ----------
+        X : DataFrame
+            Input data with numeric features and metadata on target and sensitive columns.
+        y : ignored, use X.targets and X.sensitive
+        favorable_label : int, optional
+            The label of the favorable outcome, by default 1
+        Returns
+        -------
+        DataFrame
+            Transformed data with reweighting applied.
+        """
+        favorable_label = kwargs.get("favorable_label", 1)
+
+        return self._transform(X, y, favorable_label)
+
+    def _transform(self, df, y, favorable_label):
         if len(df.targets) > 1:
             raise ValueError(
                 "More than one “target” column is present. Reweighing supports only 1 target."
@@ -82,7 +103,7 @@ class Reweighing(Transformer):
 
 
 class ReweighingWithMean(Reweighing):
-    def transform(self, df, favorable_label=1, remove_weight_columns=True):
+    def _transform(self, df, y, favorable_label, remove_weight_columns=True):
         if len(df.targets) > 1:
             raise ValueError(
                 "More than one “target” column is present. Reweighing supports only 1 target"
@@ -135,3 +156,4 @@ class ReweighingWithMean(Reweighing):
             df.drop(columns=weight_columns, inplace=True)
 
         return df
+

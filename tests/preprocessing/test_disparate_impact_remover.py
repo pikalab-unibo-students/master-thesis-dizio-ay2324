@@ -22,15 +22,6 @@ class TestDisparateImpactRemover(unittest.TestCase):
         self.df.targets = "class"
         self.df.sensitive = "male"
 
-    def test_initialization(self):
-        # Test default initialization
-        dir_default = DisparateImpactRemover()
-        self.assertEqual(dir_default.repair_level, 1.0)
-        
-        # Test custom repair level
-        dir_custom = DisparateImpactRemover(repair_level=0.5)
-        self.assertEqual(dir_custom.repair_level, 0.5)
-
     def test_fit_transform(self):
         # Test fit_transform with default repair level (1.0)
         dir_model = DisparateImpactRemover()

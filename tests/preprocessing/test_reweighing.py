@@ -21,7 +21,7 @@ class TestReweighing(unittest.TestCase):
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1"}
         model = Reweighing()
-        transformed_df = model.transform(self.df)
+        transformed_df = model.fit_transform(self.df)
         expected_df = fl.DataFrame(
             {
                 "target1": [0, 1, 0, 1, 0, 1],
@@ -37,14 +37,14 @@ class TestReweighing(unittest.TestCase):
         self.df.sensitive = {"sensitive1"}
 
         with self.assertRaises(ValueError):
-            model.transform(self.df)
+            model.fit_transform(self.df)
 
     def testMultipleSensitiveReweighing(self):
         # Test for multiple sensitive columns in Reweighing
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1", "sensitive2"}
         model = Reweighing()
-        transformed_df = model.transform(self.df)
+        transformed_df = model.fit_transform(self.df)
 
         # Expected DataFrame with combined effect of multiple sensitive columns
         expected_df = fl.DataFrame(
@@ -65,7 +65,7 @@ class TestReweighing(unittest.TestCase):
         self.df.targets = {"target1"}
         self.df.sensitive = {"sensitive1", "sensitive2"}
         model = ReweighingWithMean()
-        transformed_df = model.transform(self.df)
+        transformed_df = model.fit_transform(self.df)
 
         # Expected DataFrame for ReweighingWithMean method
         expected_df = fl.DataFrame(
@@ -91,7 +91,7 @@ class TestReweighing(unittest.TestCase):
         # Test with single sensitive column
         self.df.sensitive = {"sensitive1"}
         model = ReweighingWithMean()
-        transformed_df_single_sensitive = model.transform(self.df)
+        transformed_df_single_sensitive = model.fit_transform(self.df)
 
         expected_df_single_sensitive = fl.DataFrame(
             {
@@ -114,7 +114,7 @@ class TestReweighing(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             model = ReweighingWithMean()
-            transformed_df = model.transform(self.df)
+            transformed_df = model.fit_transform(self.df)
 
     def tearDown(self):
         del self.df

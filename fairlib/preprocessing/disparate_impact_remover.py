@@ -60,7 +60,7 @@ class DisparateImpactRemover(Preprocessor):
             raise TypeError(f"Expected a fairlib DataFrame, got {type(X)}")
 
         # Unpack data
-        inputs, targets, input_names, target_names, sensitive_names, sensitive_indexes = X.unpack()
+        inputs, _, input_names, target_names, sensitive_names, sensitive_indexes = X.unpack()
 
         if len(sensitive_indexes) != 1:
             raise ValueError(
