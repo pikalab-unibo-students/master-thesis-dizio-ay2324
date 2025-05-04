@@ -1,9 +1,12 @@
+from typing import Optional, Any
+
+
 class Preprocessor:
     """
     Base class for preprocessing algorithms.
     """
 
-    def fit_transform(self, X, y=None, **kwargs):
+    def fit_transform(self, X, y: Optional[Any] = None, **kwargs):
         """
         Fit the preprocessor to the data and transform it.
 

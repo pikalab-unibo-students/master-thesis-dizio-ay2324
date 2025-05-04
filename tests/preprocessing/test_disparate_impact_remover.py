@@ -1,62 +1,165 @@
 import unittest
 import numpy as np
+import torch
+import fairlib as fl
+import pandas.testing as pd_testing
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from fairlib.preprocessing.disparate_impact_remover import DisparateImpactRemover
-from fairlib import DataFrame
+
+from fairlib.preprocessing import DisparateImpactRemover
 from tests.data_generator import biased_dataset_people_height
 
 
-def evaluate_fairness(X_test, y_pred):
-    """
-    Evaluate the fairness metrics (SPD and DI) of the predictions.
-    """
-    X_test["class"] = y_pred
-    dataset = DataFrame(X_test)
-    dataset.targets = "class"
-    dataset.sensitive = "male"
-
-    spd = dataset.statistical_parity_difference()
-    di = dataset.disparate_impact()
-    return spd, di
-
-
-def train_classifier(X_train, y_train):
-    """
-    Train a simple classifier on the given data.
-    """
-    clf = LogisticRegression(random_state=42, max_iter=1000)
-    clf.fit(X_train, y_train)
-    return clf
-
-
 class TestDisparateImpactRemover(unittest.TestCase):
+
     def setUp(self):
-        """
-        Set up the test case by loading the dataset and initializing the input features and target labels.
-        """
+        # Use the biased_dataset_people_height dataset
         np.random.seed(42)
+        torch.manual_seed(42)
         dataset = biased_dataset_people_height(binary=True)
-        self.X = dataset.drop(columns=["class"])
-        self.y = dataset["class"]
-        self.sensitive_attr = dataset["male"]
+        self.df = fl.DataFrame(dataset)
         
-    def test_disparate_impact_remover_model(self):
+        # Set target and sensitive attributes
+        self.df.targets = "class"
+        self.df.sensitive = "male"
+
+    def test_initialization(self):
+        # Test default initialization
+        dir_default = DisparateImpactRemover()
+        self.assertEqual(dir_default.repair_level, 1.0)
+        
+        # Test custom repair level
+        dir_custom = DisparateImpactRemover(repair_level=0.5)
+        self.assertEqual(dir_custom.repair_level, 0.5)
+
+    def test_fit_transform(self):
+        # Test fit_transform with default repair level (1.0)
+        dir_model = DisparateImpactRemover()
+        transformed_df = dir_model.fit_transform(self.df)
+        
+        # Verify the transformed DataFrame has the expected columns
+        self.assertTrue("height" in transformed_df.columns)
+        self.assertTrue("weight" in transformed_df.columns)
+        
+        # Verify sensitive attribute metadata is preserved
+        self.assertEqual(transformed_df.sensitive, self.df.sensitive)
+        
+        # Verify the transformation has occurred (values should be different)
+        self.assertFalse(np.array_equal(transformed_df["height"].values, self.df["height"].values))
+        self.assertFalse(np.array_equal(transformed_df["weight"].values, self.df["weight"].values))
+
+    def test_no_repair(self):
+        # Test with repair_level=0.0 (no repair)
+        dir_model = DisparateImpactRemover(repair_level=0.0)
+        transformed_df = dir_model.fit_transform(self.df)
+        
+        # With repair_level=0.0, the feature values should be identical to the original
+        # Note: The transformed DataFrame might have different metadata, so we only compare feature values
+        self.assertTrue(np.array_equal(transformed_df["height"].values, self.df["height"].values))
+        self.assertTrue(np.array_equal(transformed_df["weight"].values, self.df["weight"].values))
+
+    def test_partial_repair(self):
+        # Test with repair_level=0.5 (partial repair)
+        dir_model = DisparateImpactRemover(repair_level=0.5)
+        transformed_df = dir_model.fit_transform(self.df)
+        
+        # With partial repair, values should be between original and fully repaired
+        full_repair_df = DisparateImpactRemover(repair_level=1.0).fit_transform(self.df)
+        
+        # Check height values are between original and fully repaired
+        for i in range(len(self.df)):
+            original_val = self.df["height"].values[i]
+            transformed_val = transformed_df["height"].values[i]
+            full_repair_val = full_repair_df["height"].values[i]
+            
+            # If original and full repair values are different
+            if original_val != full_repair_val:
+                # Check if transformed value is between original and full repair
+                # or equal to one of them (due to floating point precision)
+                self.assertTrue(
+                    (original_val <= transformed_val <= full_repair_val) or
+                    (full_repair_val <= transformed_val <= original_val) or
+                    np.isclose(transformed_val, original_val) or
+                    np.isclose(transformed_val, full_repair_val)
+                )
+
+    def test_error_handling(self):
+        # Test with non-DataFrame input
+        dir_model = DisparateImpactRemover()
+        with self.assertRaises(TypeError):
+            dir_model.fit_transform(np.array([1, 2, 3]))
+        
+        # Test with multiple sensitive attributes
+        multi_sensitive_df = self.df.copy()
+        multi_sensitive_df.sensitive = {"male", "class"}  # Using class as a second sensitive attribute
+        with self.assertRaises(ValueError):
+            dir_model.fit_transform(multi_sensitive_df)
+
+    def test_transformation_effect(self):
+        # Split the dataset to create a test subset
+        X_train, X_test = train_test_split(self.df, test_size=0.3, random_state=42)
+        
+        # Apply the transformation with full repair
+        dir_model = DisparateImpactRemover(repair_level=1.0)
+        transformed_df = dir_model.fit_transform(X_train)
+        
+        # Verify that the transformation has occurred by checking that values have changed
+        for feature in ["height", "weight", "income"]:
+            # Get original feature values
+            orig_values = X_train[feature].values
+            # Get transformed feature values
+            trans_values = transformed_df[feature].values
+            
+            # Verify that at least some values have changed
+            self.assertFalse(np.array_equal(orig_values, trans_values),
+                            f"Expected {feature} values to change after transformation")
+        
+        # Verify that the model attributes are properly set
+        self.assertIsNotNone(dir_model.sensitive_values)
+        self.assertIsNotNone(dir_model.quantile_maps)
+        self.assertTrue(len(dir_model.quantile_maps) > 0)
+        
+        # Test fit_transform on new data (DisparateImpactRemover doesn't have a separate transform method)
+        transformed_test = dir_model.fit_transform(X_test)
+        self.assertEqual(len(transformed_test), len(X_test))
+        
+        # Check that important feature columns are present (not necessarily all columns)
+        feature_columns = ["height", "weight", "income"]
+        self.assertTrue(all(col in transformed_test.columns for col in feature_columns))
+
+    def test_fairness_improvement(self):
+        # Define evaluation functions similar to test_lft.py
+        def evaluate_fairness(X_test, y_pred):
+            X_test = X_test.copy()
+            X_test["class"] = y_pred
+            dataset = fl.DataFrame(X_test)
+            dataset.targets = "class"
+            dataset.sensitive = "male"
+
+            spd = dataset.statistical_parity_difference()
+            di = dataset.disparate_impact()
+            return spd, di
+
+        def train_classifier(X_train, y_train):
+            from sklearn.linear_model import LogisticRegression
+            clf = LogisticRegression(random_state=42, max_iter=1000)
+            clf.fit(X_train, y_train)
+            return clf
+
         # Split data
-        X_train, X_test, y_train, y_test, s_train, s_test = train_test_split(
-            self.X, self.y, self.sensitive_attr, test_size=0.2, random_state=42
+        X = self.df.copy()
+        y = X.pop("class")
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
         )
-
-        # Initialize and train DisparateImpactRemover model
-        dir_model = DisparateImpactRemover(repair_level=0.8)
-
-        # Transform the data using DisparateImpactRemover
-        X_train_transformed = dir_model.fit_transform(X_train, y_train, s=s_train)
-        X_test_transformed = dir_model.transform(X_test, s=s_test)
 
         # Train classifier on original data
         clf_original = train_classifier(X_train, y_train)
         y_pred_original = clf_original.predict(X_test)
+
+        # Apply DisparateImpactRemover
+        dir_model = DisparateImpactRemover(repair_level=1.0)
+        X_train_transformed = dir_model.fit_transform(X_train)
+        X_test_transformed = dir_model.fit_transform(X_test)
 
         # Train classifier on transformed data
         clf_transformed = train_classifier(X_train_transformed, y_train)
@@ -64,9 +167,7 @@ class TestDisparateImpactRemover(unittest.TestCase):
 
         # Evaluate fairness metrics
         spd_original, di_original = evaluate_fairness(X_test.copy(), y_pred_original)
-        spd_transformed, di_transformed = evaluate_fairness(
-            X_test.copy(), y_pred_transformed
-        )
+        spd_transformed, di_transformed = evaluate_fairness(X_test.copy(), y_pred_transformed)
 
         # Check if fairness improved
         for key in spd_original:
@@ -81,37 +182,9 @@ class TestDisparateImpactRemover(unittest.TestCase):
                 abs(di_original[key] - 1),
                 f"DI for {key} should be improved with DisparateImpactRemover"
             )
-            
-    def test_all_data_transformation(self):
-        """Test that all data can be transformed correctly."""
-        dir_model = DisparateImpactRemover(repair_level=0.5)
-        
-        dir_model.fit(self.X, self.y, s=self.sensitive_attr)
-        X_transformed = dir_model.transform(self.X, s=self.sensitive_attr)
-        
-        # Check output shape
-        self.assertEqual(X_transformed.shape, self.X.shape)
-        
-        # Check that values are different after transformation
-        self.assertFalse(np.array_equal(X_transformed.values, self.X.values))
-        
-    def test_repair_level_effect(self):
-        """Test that repair_level affects the transformation."""
-        # Two models with different repair levels
-        dir_no_repair = DisparateImpactRemover(repair_level=0)
-        dir_full_repair = DisparateImpactRemover(repair_level=1)
-        
-        dir_no_repair.fit(self.X, self.y, s=self.sensitive_attr)
-        dir_full_repair.fit(self.X, self.y, s=self.sensitive_attr)
-        
-        X_no_repair = dir_no_repair.transform(self.X, s=self.sensitive_attr)
-        X_full_repair = dir_full_repair.transform(self.X, s=self.sensitive_attr)
-        
-        # With repair_level=0, the output should be almost identical to input
-        np.testing.assert_array_almost_equal(X_no_repair.values, self.X.values, decimal=5)
-        
-        # With repair_level=1, the output should be different from the input
-        self.assertFalse(np.array_equal(X_full_repair.values, self.X.values))
+
+    def tearDown(self):
+        del self.df
 
 
 if __name__ == "__main__":

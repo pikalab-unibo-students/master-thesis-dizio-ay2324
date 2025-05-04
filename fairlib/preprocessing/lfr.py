@@ -1,18 +1,12 @@
-from typing_extensions import override
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from fairlib import DataFrame, logger
+
+from fairlib import DataFrame
 from sklearn.preprocessing import StandardScaler
 from typing import Optional, Any
-
-from fairlib import logger
-from fairlib.processing import (
-    DataFrameAwareEstimator,
-    DataFrameAwarePredictor,
-    DataFrameAwareTransformer,
-)
-
+from .pre_processing import Preprocessor
+from ..logging import logger
 
 class Encoder(nn.Module):
     def __init__(self, input_dim, latent_dim):
@@ -37,8 +31,6 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         return self.encoder(x)
-
-
 class Decoder(nn.Module):
     def __init__(self, latent_dim, output_dim):
         """
@@ -55,8 +47,6 @@ class Decoder(nn.Module):
 
     def forward(self, z):
         return self.decoder(z)
-
-
 class Classifier(nn.Module):
     def __init__(self, latent_dim):
         """
@@ -70,7 +60,6 @@ class Classifier(nn.Module):
     def forward(self, z):
         return self.classifier(z)
 
-
 def compute_fairness_loss(z, sensitive_attr):
     """
     Compute statistical parity loss (Lz)
@@ -82,15 +71,11 @@ def compute_fairness_loss(z, sensitive_attr):
     unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
 
     return torch.sum((protected_mean - unprotected_mean) ** 2)
-
-
 def compute_reconstruction_loss(x, x_reconstructed):
     """
     Compute reconstruction loss (Lx)
     """
     return torch.mean((x - x_reconstructed) ** 2)
-
-
 def compute_classification_loss(y_pred, y_true):
     """
     Compute binary cross-entropy loss (Ly)
@@ -98,7 +83,7 @@ def compute_classification_loss(y_pred, y_true):
     return nn.BCELoss()(y_pred, y_true)
 
 
-class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransformer):
+class LFR(Preprocessor):
 
     def __init__(self,
                  input_dim = None,
@@ -152,18 +137,24 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
         # Initialize scaler
         self.scaler = StandardScaler()
 
-    @override
-    def fit(self, 
-            X,
-            y: Optional[Any] = None,
-            epochs=100, 
-            batch_size=32, 
-            learning_rate=0.001
-            ):
+    def fit_transform(self, X, y: Optional[Any] = None, **kwargs):
         """
-        Train the LFR model
+        Fit the LFR model to the data and transform it into fair representations.
+        Parameters:
+        ----------
+        X : DataFrame
+            Input features to fit and transform.
+        y : Series or None, optional
+        epochs : int, default=100
+            Number of training epochs.
+        learning_rate : float, default=0.001
+            Learning rate for the optimizer.
         """
-        # Prepare data
+
+        # Check in kwargs parameters else use default
+        epochs = kwargs.get("epochs", 100)
+        learning_rate = kwargs.get("learning_rate", 0.001)
+
         if not isinstance(X, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(X)}")
         if y is None:
@@ -175,10 +166,28 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
                 f"LFR expects exactly one sensitive column, got {len(sensitive_indexes)}: {X.sensitive}"
             )
         sensitive_attr = X[:, sensitive_indexes[0]]
+
+        self._fit(X, y, sensitive_attr, epochs=epochs, learning_rate=learning_rate)
+        return self._transform(X)
+
+
+    def _fit(self, X, y, sensitive_values, epochs, learning_rate):
+        """
+        Fit the LFR model to the data.
+        Parameters:
+        ----------
+        X : DataFrame
+            Input features to fit.
+        y : Series or None, optional
+        epochs : int, default=100
+            Number of training epochs.
+        learning_rate : float, default=0.001
+            Learning rate for the optimizer.
+        """
         X = self.scaler.fit_transform(X)
         X = torch.FloatTensor(X)
         y = torch.FloatTensor(y).reshape(-1, 1)
-        sensitive_attr = torch.FloatTensor(sensitive_attr)
+        sensitive_attr = torch.FloatTensor(sensitive_values)
 
         # Create optimizer
         optimizer = optim.Adam(
@@ -202,9 +211,9 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
 
             # Compute total loss
             total_loss = (
-                self.alpha_z * fairness_loss
-                + self.alpha_x * reconstruction_loss
-                + self.alpha_y * classification_loss
+                    self.alpha_z * fairness_loss
+                    + self.alpha_x * reconstruction_loss
+                    + self.alpha_y * classification_loss
             )
 
             # Backward pass and optimization
@@ -220,22 +229,20 @@ class LFR(DataFrameAwareEstimator, DataFrameAwarePredictor, DataFrameAwareTransf
                     f"Reconstruction: {reconstruction_loss.item():.4f}, "
                     f"Classification: {classification_loss.item():.4f}"
                 )
-
-    def _predict(self, X):
+    def _transform(self, X):
         """
-        Make predictions on new data
-        """
-        X = self.scaler.transform(X)
-        X = torch.FloatTensor(X)
-        z = self.encoder(X)
-        y_pred = self.classifier(z)
-        return (y_pred.detach().numpy() > 0.5).astype(int)
-
-    def _transform(self, X, y=None):
-        """
-        Transform data into fair representations
+        Transform the input data into fair representations using the trained LFR model.
+        Parameters:
+        ----------
+        X : DataFrame
+            Input features to transform.
+        kwargs : optional
+        Returns
+        -------
+        Transformed X (same type as input) with reduced disparate impact.
         """
         X = self.scaler.transform(X)
         X = torch.FloatTensor(X)
         z = self.encoder(X)
         return z.detach().numpy()
+
