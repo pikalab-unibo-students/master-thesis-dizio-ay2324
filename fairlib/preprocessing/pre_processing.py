@@ -1,7 +1,3 @@
-"""
-In this file is the generic structure that will be extended by the implementations of the preprocessing algorithms, which will have only the fit_transform method.
-"""
-
 class Preprocessor:
     """
     Base class for preprocessing algorithms.
@@ -23,4 +19,3 @@ class Preprocessor:
         Transformed X (same type as input).
         """
         raise NotImplementedError("Subclasses should implement this method.")
-
