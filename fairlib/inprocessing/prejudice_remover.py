@@ -28,7 +28,7 @@ class PrejudiceRemoverLoss:
     ):
         """
         Initialize the PrejudiceRemoverLoss.
-        
+
         Args:
             base_loss_fn: Base loss function (default: BCELoss)
             eta: Fairness regularization parameter (default: 1.0)
@@ -64,78 +64,86 @@ class PrejudiceRemoverLoss:
     ) -> torch.Tensor:
         """
         Calculate the prejudice remover loss.
-        
+
         Args:
             y_true: True labels
             y_pred: Predicted probabilities
-            
+
         Returns:
             Total loss with prejudice regularization
         """
         # Base loss
         base_loss = self.base_loss_fn(y_pred, y_true)
-        
+
         # If no regularization or no sensitive feature, return base loss
         if self.eta == 0.0 or self.sensitive_feature is None:
             return base_loss
-        
+
         # Calculate mutual information regularization term
         # This implements the prejudice regularizer from the paper
         s = self.sensitive_feature
-        
+
         # Calculate P(y=1|s=1) and P(y=1|s=0)
         s_pos_mask = (s == 1).float()
         s_neg_mask = (s == 0).float()
-        
+
         # Avoid division by zero
         s_pos_count = torch.sum(s_pos_mask) + 1e-8
         s_neg_count = torch.sum(s_neg_mask) + 1e-8
-        
+
         # Calculate conditional probabilities
         p_y1_s1 = torch.sum(y_pred * s_pos_mask) / s_pos_count
         p_y1_s0 = torch.sum(y_pred * s_neg_mask) / s_neg_count
-        
+
         # Calculate P(y=0|s=1) and P(y=0|s=0)
         p_y0_s1 = torch.sum((1 - y_pred) * s_pos_mask) / s_pos_count
         p_y0_s0 = torch.sum((1 - y_pred) * s_neg_mask) / s_neg_count
-        
+
         # Calculate P(s=1) and P(s=0)
         p_s1 = s_pos_count / (s_pos_count + s_neg_count)
         p_s0 = s_neg_count / (s_pos_count + s_neg_count)
-        
+
         # Calculate P(y=1) and P(y=0)
         p_y1 = torch.mean(y_pred)
         p_y0 = 1 - p_y1
-        
+
         # Calculate mutual information regularization term
         # MI = sum_{y,s} P(y,s) * log(P(y,s) / (P(y) * P(s)))
         # We use KL divergence as a measure of mutual information
-        
+
         # Calculate joint probabilities
         p_y1_s1_joint = p_y1_s1 * p_s1
         p_y1_s0_joint = p_y1_s0 * p_s0
         p_y0_s1_joint = p_y0_s1 * p_s1
         p_y0_s0_joint = p_y0_s0 * p_s0
-        
+
         # Calculate products of marginals
         p_y1_p_s1 = p_y1 * p_s1
         p_y1_p_s0 = p_y1 * p_s0
         p_y0_p_s1 = p_y0 * p_s1
         p_y0_p_s0 = p_y0 * p_s0
-        
+
         # Calculate KL terms (with small epsilon to avoid log(0))
         epsilon = 1e-8
-        kl_y1_s1 = p_y1_s1_joint * torch.log((p_y1_s1_joint + epsilon) / (p_y1_p_s1 + epsilon))
-        kl_y1_s0 = p_y1_s0_joint * torch.log((p_y1_s0_joint + epsilon) / (p_y1_p_s0 + epsilon))
-        kl_y0_s1 = p_y0_s1_joint * torch.log((p_y0_s1_joint + epsilon) / (p_y0_p_s1 + epsilon))
-        kl_y0_s0 = p_y0_s0_joint * torch.log((p_y0_s0_joint + epsilon) / (p_y0_p_s0 + epsilon))
-        
+        kl_y1_s1 = p_y1_s1_joint * torch.log(
+            (p_y1_s1_joint + epsilon) / (p_y1_p_s1 + epsilon)
+        )
+        kl_y1_s0 = p_y1_s0_joint * torch.log(
+            (p_y1_s0_joint + epsilon) / (p_y1_p_s0 + epsilon)
+        )
+        kl_y0_s1 = p_y0_s1_joint * torch.log(
+            (p_y0_s1_joint + epsilon) / (p_y0_p_s1 + epsilon)
+        )
+        kl_y0_s0 = p_y0_s0_joint * torch.log(
+            (p_y0_s0_joint + epsilon) / (p_y0_p_s0 + epsilon)
+        )
+
         # Sum all KL terms to get mutual information
         mutual_info = kl_y1_s1 + kl_y1_s0 + kl_y0_s1 + kl_y0_s0
-        
+
         # Total loss with prejudice regularization
         total_loss = base_loss + self.eta * mutual_info
-        
+
         return total_loss
 
 
@@ -148,11 +156,12 @@ class PrejudiceRemover(
     """
     Implementation of the Prejudice Remover algorithm.
     Based on the paper: https://www.kamishima.net/archive/2012-p-ecmlpkdd-print.pdf
-    
+
     This algorithm learns a classifier while removing direct and indirect prejudice
     by adding a regularization term that reduces the mutual information between
     the sensitive attribute and the prediction.
     """
+
     def __init__(
         self,
         torchModel: nn.Module,
@@ -163,7 +172,7 @@ class PrejudiceRemover(
     ):
         """
         Initialize the PrejudiceRemover model.
-        
+
         Args:
             torchModel: PyTorch model to train
             optimizer: PyTorch optimizer (default: Adam)
@@ -194,13 +203,13 @@ class PrejudiceRemover(
     ):
         """
         Train the PrejudiceRemover model.
-        
+
         Args:
             x: Input DataFrame with sensitive attributes
             y: Target labels (if not included in x)
             epochs: Number of training epochs
             batch_size: Batch size for training
-            
+
         Returns:
             Trained model instance
         """

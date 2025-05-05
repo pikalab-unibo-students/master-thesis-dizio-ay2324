@@ -7,6 +7,7 @@ __all__ = ["Reweighing", "ReweighingWithMean"]
 
 from .pre_processing import Preprocessor
 
+
 class Reweighing(Preprocessor):
     @staticmethod
     def _reweighing(privileged, unprivileged, favorable, unfavorable, n_total):
@@ -156,4 +157,3 @@ class ReweighingWithMean(Reweighing):
             df.drop(columns=weight_columns, inplace=True)
 
         return df
-

@@ -59,11 +59,12 @@ class TestLFR(unittest.TestCase):
     """
     Test class for the LFR fairness-aware learning model.
     """
+
     EPOCHS = 20
     BATCH_SIZE = 120
     TARGET = "class"
     SENSITIVE = "male"
-    
+
     def setUp(self):
         """
         Set up the test case by loading the dataset and initializing the input features and target labels.
@@ -119,15 +120,14 @@ class TestLFR(unittest.TestCase):
             self.assertLessEqual(
                 abs(spd_transformed[key]),
                 abs(spd_original[key]),
-                f"SPD for {key} should be improved with LFR"
+                f"SPD for {key} should be improved with LFR",
             )
         for key in di_original:
             self.assertLessEqual(
                 abs(di_transformed[key] - 1),
                 abs(di_original[key] - 1),
-                f"DI for {key} should be improved with LFR"
+                f"DI for {key} should be improved with LFR",
             )
-
 
 
 if __name__ == "__main__":

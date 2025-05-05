@@ -8,6 +8,7 @@ from typing import Optional, Any
 from .pre_processing import Preprocessor
 from ..logging import logger
 
+
 class Encoder(nn.Module):
     def __init__(self, input_dim, latent_dim):
         """
@@ -31,6 +32,8 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         return self.encoder(x)
+
+
 class Decoder(nn.Module):
     def __init__(self, latent_dim, output_dim):
         """
@@ -47,6 +50,8 @@ class Decoder(nn.Module):
 
     def forward(self, z):
         return self.decoder(z)
+
+
 class Classifier(nn.Module):
     def __init__(self, latent_dim):
         """
@@ -60,6 +65,7 @@ class Classifier(nn.Module):
     def forward(self, z):
         return self.classifier(z)
 
+
 def compute_fairness_loss(z, sensitive_attr):
     """
     Compute statistical parity loss (Lz)
@@ -71,11 +77,15 @@ def compute_fairness_loss(z, sensitive_attr):
     unprotected_mean = torch.mean(z[unprotected_mask], dim=0)
 
     return torch.sum((protected_mean - unprotected_mean) ** 2)
+
+
 def compute_reconstruction_loss(x, x_reconstructed):
     """
     Compute reconstruction loss (Lx)
     """
     return torch.mean((x - x_reconstructed) ** 2)
+
+
 def compute_classification_loss(y_pred, y_true):
     """
     Compute binary cross-entropy loss (Ly)
@@ -85,16 +95,18 @@ def compute_classification_loss(y_pred, y_true):
 
 class LFR(Preprocessor):
 
-    def __init__(self,
-                 input_dim = None,
-                 latent_dim = None,
-                 output_dim = None,
-                 encoder = None,
-                 decoder = None,
-                 classifier = None,
-                 alpha_z=1.0,
-                 alpha_x=1.0,
-                 alpha_y=1.0):
+    def __init__(
+        self,
+        input_dim=None,
+        latent_dim=None,
+        output_dim=None,
+        encoder=None,
+        decoder=None,
+        classifier=None,
+        alpha_z=1.0,
+        alpha_x=1.0,
+        alpha_y=1.0,
+    ):
         """
         Learning Fair Representations (LFR) model
 
@@ -119,7 +131,9 @@ class LFR(Preprocessor):
         """
         if encoder is None and decoder is None and classifier is None:
             if input_dim is None or latent_dim is None or output_dim is None:
-                raise ValueError("input_dim, latent_dim, and output_dim must be provided")
+                raise ValueError(
+                    "input_dim, latent_dim, and output_dim must be provided"
+                )
             self.encoder = Encoder(input_dim, latent_dim)
             self.decoder = Decoder(latent_dim, output_dim)
             self.classifier = Classifier(latent_dim)
@@ -170,7 +184,6 @@ class LFR(Preprocessor):
         self._fit(X, y, sensitive_attr, epochs=epochs, learning_rate=learning_rate)
         return self._transform(X)
 
-
     def _fit(self, X, y, sensitive_values, epochs, learning_rate):
         """
         Fit the LFR model to the data.
@@ -211,9 +224,9 @@ class LFR(Preprocessor):
 
             # Compute total loss
             total_loss = (
-                    self.alpha_z * fairness_loss
-                    + self.alpha_x * reconstruction_loss
-                    + self.alpha_y * classification_loss
+                self.alpha_z * fairness_loss
+                + self.alpha_x * reconstruction_loss
+                + self.alpha_y * classification_loss
             )
 
             # Backward pass and optimization
@@ -229,6 +242,7 @@ class LFR(Preprocessor):
                     f"Reconstruction: {reconstruction_loss.item():.4f}, "
                     f"Classification: {classification_loss.item():.4f}"
                 )
+
     def _transform(self, X):
         """
         Transform the input data into fair representations using the trained LFR model.
@@ -245,4 +259,3 @@ class LFR(Preprocessor):
         X = torch.FloatTensor(X)
         z = self.encoder(X)
         return z.detach().numpy()
-

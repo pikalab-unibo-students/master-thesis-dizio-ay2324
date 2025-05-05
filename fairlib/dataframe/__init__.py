@@ -161,7 +161,9 @@ class UnpackedDataframe(NamedTuple):
     sensitive_indexes: list[int]
 
 
-def unpack_dataframe(df: DataFrame, return_as_dataframe: bool = False) -> UnpackedDataframe:
+def unpack_dataframe(
+    df: DataFrame, return_as_dataframe: bool = False
+) -> UnpackedDataframe:
     target_names = [name for name in df.columns if name in df.targets]
     sensitive_names = [name for name in df.columns if name in df.sensitive]
     input_names = [name for name in df.columns if name not in target_names]

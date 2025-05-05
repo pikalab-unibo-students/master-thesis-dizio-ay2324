@@ -2,11 +2,18 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-from torch.utils.data import DataLoader
-from typing import Tuple, Optional, Union
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.utils.data import DataLoader, TensorDataset
+from typing import Tuple, Optional, Union, Any
 
-from fairlib import logger
+from fairlib import logger, DataFrame
+
+
+def _convert_to_tensor(x: Any) -> torch.Tensor:
+    if isinstance(x, DataFrame):
+        return torch.tensor(x.to_numpy().astype(float)).float()
+    if not isinstance(x, torch.Tensor):
+        return torch.tensor(x.astype(float), dtype=torch.float32)
+    return x
 
 
 class GradientReversalFunction(torch.autograd.Function):
@@ -144,14 +151,14 @@ class AdversarialDebiasingModel(nn.Module):
     """
 
     def __init__(
-            self,
-            input_dim:  Union[int, None] = None,
-            hidden_dim:  Union[int, None] = None,
-            output_dim:  Union[int, None] = None,
-            sensitive_dim:  Union[int, None] = None,
-            predictor:  Union[Predictor, None] = None,
-            adversary: Union[Adversary, None] = None,
-            lambda_adv: float = 1.0
+        self,
+        input_dim: Union[int, None] = None,
+        hidden_dim: Union[int, None] = None,
+        output_dim: Union[int, None] = None,
+        sensitive_dim: Union[int, None] = None,
+        predictor: Union[Predictor, None] = None,
+        adversary: Union[Adversary, None] = None,
+        lambda_adv: float = 1.0,
     ):
         """
         Args:
@@ -165,8 +172,15 @@ class AdversarialDebiasingModel(nn.Module):
         """
         super(AdversarialDebiasingModel, self).__init__()
         if predictor is None and adversary is None:
-            if input_dim is None or hidden_dim is None or output_dim is None or sensitive_dim is None:
-                raise ValueError("input_dim, hidden_dim, output_dim, and sensitive_dim must be provided")
+            if (
+                input_dim is None
+                or hidden_dim is None
+                or output_dim is None
+                or sensitive_dim is None
+            ):
+                raise ValueError(
+                    "input_dim, hidden_dim, output_dim, and sensitive_dim must be provided"
+                )
             self.predictor = Predictor(input_dim, hidden_dim, output_dim)
             self.adversary = Adversary(hidden_dim, hidden_dim, sensitive_dim)
         elif predictor is None or adversary is None:
@@ -188,25 +202,54 @@ class AdversarialDebiasingModel(nn.Module):
 
     def fit(
         self,
-        train_dataloader: DataLoader,
-        val_dataloader: Optional[DataLoader] = None,
+        X,
+        y: Optional[Any] = None,
         num_epochs: int = 50,
         lr: float = 0.001,
         adv_steps: int = 1,
+        batch_size: int = 32,
     ) -> dict:
         """
         Train the model using adversarial debiasing.
 
         Args:
-            train_dataloader: DataLoader for training data
-            val_dataloader: Optional DataLoader for validation data
+            X: Input features
+            y: Target labels
             num_epochs: Number of training epochs
             lr: Learning rate
             adv_steps: Number of adversary updates per predictor update
-
+            batch_size: Batch size for training
         Returns:
             dict: Training history
         """
+
+        if not isinstance(X, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(X)}")
+        if y is None:
+            x, y, _, _, _, sensitive_indexes = X.unpack()
+        else:
+            x, _, _, _, _, sensitive_indexes = X.unpack()
+        if len(sensitive_indexes) != 1:
+            raise ValueError(
+                f"Adversarial Debiasing expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"
+            )
+        sensitive_attr = x[:, sensitive_indexes[0]]
+
+        # Ensure all inputs are tensors and have the same dtype
+        x = _convert_to_tensor(x)
+        y = _convert_to_tensor(y)
+        sensitive_attr = _convert_to_tensor(sensitive_attr)
+
+        # Prepare dataset
+        if sensitive_attr is not None:
+            dataset = TensorDataset(x, y, sensitive_attr)
+        else:
+            dataset = TensorDataset(x, y)
+
+        dataloader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=True
+        )
+
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.to(device)
 
@@ -216,12 +259,6 @@ class AdversarialDebiasingModel(nn.Module):
         )
         optimizer_adv = optim.AdamW(
             self.adversary.parameters(), lr=lr, weight_decay=0.01
-        )
-        scheduler_pred = ReduceLROnPlateau(
-            optimizer_pred, mode="min", factor=0.1, patience=3
-        )
-        scheduler_adv = ReduceLROnPlateau(
-            optimizer_adv, mode="min", factor=0.1, patience=3
         )
 
         criterion_task = nn.CrossEntropyLoss()
@@ -240,7 +277,7 @@ class AdversarialDebiasingModel(nn.Module):
             total_loss_task, total_loss_adv = 0.0, 0.0
             total_correct, total_samples = 0, 0
 
-            for x_batch, y_batch, a_batch in train_dataloader:
+            for x_batch, y_batch, a_batch in dataloader:
                 x_batch, y_batch, a_batch = (
                     x_batch.to(device),
                     y_batch.to(device),
@@ -293,38 +330,19 @@ class AdversarialDebiasingModel(nn.Module):
                 total_correct += (preds == y_batch).sum().item()
                 total_samples += y_batch.size(0)
 
-            train_loss = total_loss_task / len(train_dataloader)
+            train_loss = total_loss_task / len(dataloader)
             train_acc = total_correct / total_samples
-            adv_loss = total_loss_adv / len(train_dataloader)
+            adv_loss = total_loss_adv / len(dataloader)
 
             history["train_loss"].append(train_loss)
             history["train_acc"].append(train_acc)
             history["adv_loss"].append(adv_loss)
 
-            # Validation step
-            if val_dataloader is not None:
-                val_loss, val_acc = self._validate(
-                    val_dataloader, criterion_task, device
-                )
-                history["val_loss"].append(val_loss)
-                history["val_acc"].append(val_acc)
-
-                # Learning rate scheduling
-                scheduler_pred.step(val_loss)
-                scheduler_adv.step(adv_loss)
-
-                logger.info(
-                    f"Epoch [{epoch + 1}/{num_epochs}] | "
-                    f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-                    f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.4f} | "
-                    f"Adv Loss: {adv_loss:.4f}"
-                )
-            else:
-                logger.info(
-                    f"Epoch [{epoch + 1}/{num_epochs}] | "
-                    f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
-                    f"Adv Loss: {adv_loss:.4f}"
-                )
+            logger.info(
+                f"Epoch [{epoch + 1}/{num_epochs}] | "
+                f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.4f} | "
+                f"Adv Loss: {adv_loss:.4f}"
+            )
 
         return history
 
@@ -340,22 +358,3 @@ class AdversarialDebiasingModel(nn.Module):
             logits = self.predictor(x, return_representation=False)
             preds = torch.argmax(logits, dim=1)
         return preds
-
-    def _validate(
-        self, val_dataloader: DataLoader, criterion: nn.Module, device: torch.device
-    ) -> Tuple[float, float]:
-        """Perform validation step."""
-        self.eval()
-        total_loss, total_correct, total_samples = 0.0, 0, 0
-
-        with torch.no_grad():
-            for x_batch, y_batch, _ in val_dataloader:
-                x_batch, y_batch = x_batch.to(device), y_batch.to(device)
-                logits, _ = self.forward(x_batch, return_representation=False)
-                loss = criterion(logits, y_batch)
-                total_loss += loss.item()
-                preds = torch.argmax(logits, dim=1)
-                total_correct += (preds == y_batch).sum().item()
-                total_samples += y_batch.size(0)
-
-        return total_loss / len(val_dataloader), total_correct / total_samples
