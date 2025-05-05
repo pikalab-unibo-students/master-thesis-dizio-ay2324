@@ -4,7 +4,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 from typing import Tuple, Optional, Union, Any
-
+from .in_processing import Processor
 from fairlib import logger, DataFrame
 
 
@@ -14,8 +14,6 @@ def _convert_to_tensor(x: Any) -> torch.Tensor:
     if not isinstance(x, torch.Tensor):
         return torch.tensor(x.astype(float), dtype=torch.float32)
     return x
-
-
 class GradientReversalFunction(torch.autograd.Function):
     """
     Gradient Reversal Layer for adversarial training.
@@ -46,13 +44,9 @@ class GradientReversalFunction(torch.autograd.Function):
         """
         grad_output = grad_outputs[0]
         return -ctx.lambda_ * grad_output, None
-
-
 def grad_reverse(x: torch.Tensor, lambda_: float = 1.0) -> torch.Tensor:
     """Helper function for gradient reversal."""
     return GradientReversalFunction.apply(x, lambda_)
-
-
 class Predictor(nn.Module):
     """
     Main prediction network that learns to predict target labels
@@ -94,8 +88,6 @@ class Predictor(nn.Module):
         rep = self.dropout(rep)
         logits = self.fc3(rep)
         return (logits, rep) if return_representation else logits
-
-
 class Adversary(nn.Module):
     """
     Adversarial network that tries to predict sensitive attributes
@@ -136,7 +128,7 @@ class Adversary(nn.Module):
         return self.fc3(x)
 
 
-class AdversarialDebiasingModel(nn.Module):
+class AdversarialDebiasingModel(nn.Module, Processor):
     """
     Complete adversarial debiasing model that combines predictor and adversary.
 
@@ -204,10 +196,7 @@ class AdversarialDebiasingModel(nn.Module):
         self,
         X,
         y: Optional[Any] = None,
-        num_epochs: int = 50,
-        lr: float = 0.001,
-        adv_steps: int = 1,
-        batch_size: int = 32,
+        **kwargs,
     ) -> dict:
         """
         Train the model using adversarial debiasing.
@@ -234,6 +223,12 @@ class AdversarialDebiasingModel(nn.Module):
                 f"Adversarial Debiasing expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"
             )
         sensitive_attr = x[:, sensitive_indexes[0]]
+
+        # Extract hyperparameters
+        num_epochs = kwargs.get("num_epochs", 100)
+        lr = kwargs.get("lr", 0.001)
+        adv_steps = kwargs.get("adv_steps", 1)
+        batch_size = kwargs.get("batch_size", 32)
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
@@ -346,12 +341,15 @@ class AdversarialDebiasingModel(nn.Module):
 
         return history
 
-    def predict(self, x: torch.Tensor) -> torch.Tensor:
+    def predict(self, x: DataFrame, **kwargs) -> torch.Tensor:
         """
         Predict the target labels for input tensor x.
         This function sets the model to evaluation mode,
         performs a forward pass, and returns the predicted class indices.
         """
+        if not isinstance(x, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(x)}")
+        x = _convert_to_tensor(x)
         self.eval()
         with torch.no_grad():
             # Call predictor directly to get logits only

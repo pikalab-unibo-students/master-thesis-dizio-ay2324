@@ -4,12 +4,7 @@ import torch.optim as optim
 from typing import Optional, Callable, Union, Any
 from typing_extensions import override
 from fairlib import DataFrame, logger
-from fairlib.processing import (
-    DataFrameAwareProcessorWrapper,
-    DataFrameAwareEstimator,
-    DataFrameAwarePredictor,
-    DataFrameAwareModel,
-)
+from .in_processing import Processor
 
 
 def _convert_to_tensor(x: Any) -> torch.Tensor:
@@ -147,15 +142,9 @@ class PrejudiceRemoverLoss:
         return total_loss
 
 
-class PrejudiceRemover(
-    DataFrameAwareProcessorWrapper,
-    DataFrameAwareEstimator,
-    DataFrameAwarePredictor,
-    DataFrameAwareModel,
-):
+class PrejudiceRemover(Processor):
     """
     Implementation of the Prejudice Remover algorithm.
-    Based on the paper: https://www.kamishima.net/archive/2012-p-ecmlpkdd-print.pdf
 
     This algorithm learns a classifier while removing direct and indirect prejudice
     by adding a regularization term that reduces the mutual information between
@@ -193,13 +182,11 @@ class PrejudiceRemover(
             eta=self.eta,
         )
 
-    @override
     def fit(
         self,
         x: DataFrame,
         y: Optional[Any] = None,
-        epochs: int = 100,
-        batch_size: int = 32,
+        **kwargs
     ):
         """
         Train the PrejudiceRemover model.
@@ -224,6 +211,11 @@ class PrejudiceRemover(
                 f"PrejudiceRemover expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"
             )
         sensitive_attr = x[:, sensitive_indexes[0]]
+
+        # Extract hyperparameters
+        epochs = kwargs.get("epochs", 100)
+        batch_size = kwargs.get("batch_size", 32)
+
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
@@ -274,18 +266,22 @@ class PrejudiceRemover(
 
         return self
 
-    @override
-    def predict(self, x: DataFrame, batch_size: int = 32) -> torch.Tensor:
+    def predict(self, x: DataFrame, **kwargs) -> torch.Tensor:
         """
         Make predictions using the trained model.
 
         Args:
             x (DataFrame): Input features for prediction
             batch_size (int): Batch size for prediction
-
         Returns:
             torch.Tensor: Model predictions
         """
+
+        if not isinstance(x, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(x)}")
+
+        # Extract hyperparameters
+        batch_size = kwargs.get("batch_size", 32)
         # Ensure model is in evaluation mode
         self.model.eval()
         x = _convert_to_tensor(x)
