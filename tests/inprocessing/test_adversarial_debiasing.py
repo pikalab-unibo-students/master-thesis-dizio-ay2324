@@ -112,8 +112,7 @@ def evaluate_model(model, X_test, y_test, fairness_metric, target, sensitive):
         tuple: A tuple containing the accuracy and the fairness metric.
     """
     # Convert input to tensor for prediction
-    X_tensor = torch.tensor(X_test.values).float()
-    predictions = model.predict(X_tensor).detach().numpy()
+    predictions = model.predict(X_test).detach().numpy()
     y_pred = (predictions > 0.5).astype(int).flatten()
     accuracy = accuracy_score(y_test, y_pred)
 

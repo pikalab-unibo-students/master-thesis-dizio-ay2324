@@ -1,12 +1,22 @@
-from typing import Optional, Any
+from typing import Optional, Any, TypeVar, Generic
+from fairlib import DataFrame
+
+T = TypeVar('T')
 
 
-class Preprocessor:
+class Preprocessor(Generic[T]):
     """
     Base class for preprocessing algorithms.
+    
+    All fairness preprocessing algorithms should inherit from this class
+    and implement the fit_transform method.
     """
 
-    def fit_transform(self, X, y: Optional[Any] = None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        """Initialize the preprocessor with optional arguments."""
+        pass
+
+    def fit_transform(self, X: DataFrame, y: Optional[Any] = None, **kwargs) -> T:
         """
         Fit the preprocessor to the data and transform it.
 
@@ -15,10 +25,13 @@ class Preprocessor:
         X : DataFrame
             Input features to fit and transform.
         y : Series or None, optional
-            Target labels (not used in this base class).
+            Target labels (not used in most preprocessing algorithms).
+        **kwargs : dict
+            Additional algorithm-specific parameters.
 
         Returns
         -------
-        Transformed X (same type as input).
+        T
+            Transformed data (typically same type as input).
         """
-        raise NotImplementedError("Subclasses should implement this method.")
+        raise NotImplementedError("Subclasses must implement this method.")

@@ -7,23 +7,28 @@ from sklearn.model_selection import train_test_split
 
 from fairlib.preprocessing import DisparateImpactRemover
 from tests.data_generator import biased_dataset_people_height
+from tests.preprocessing.test_utils import set_seed, train_classifier, evaluate_fairness
 
 
 class TestDisparateImpactRemover(unittest.TestCase):
+    """Test class for the DisparateImpactRemover fairness-aware preprocessing algorithm."""
+
+    TARGET = "class"
+    SENSITIVE = "male"
 
     def setUp(self):
+        """Set up the test case by loading the dataset and setting target/sensitive attributes."""
         # Use the biased_dataset_people_height dataset
-        np.random.seed(42)
-        torch.manual_seed(42)
+        set_seed(42)
         dataset = biased_dataset_people_height(binary=True)
         self.df = fl.DataFrame(dataset)
 
         # Set target and sensitive attributes
-        self.df.targets = "class"
-        self.df.sensitive = "male"
+        self.df.targets = self.TARGET
+        self.df.sensitive = self.SENSITIVE
 
     def test_fit_transform(self):
-        # Test fit_transform with default repair level (1.0)
+        """Test fit_transform with default repair level (1.0)"""
         dir_model = DisparateImpactRemover()
         transformed_df = dir_model.fit_transform(self.df)
 
@@ -43,7 +48,7 @@ class TestDisparateImpactRemover(unittest.TestCase):
         )
 
     def test_no_repair(self):
-        # Test with repair_level=0.0 (no repair)
+        """Test with repair_level=0.0 (no repair)"""
         dir_model = DisparateImpactRemover(repair_level=0.0)
         transformed_df = dir_model.fit_transform(self.df)
 
@@ -57,7 +62,7 @@ class TestDisparateImpactRemover(unittest.TestCase):
         )
 
     def test_partial_repair(self):
-        # Test with repair_level=0.5 (partial repair)
+        """Test with repair_level=0.5 (partial repair)"""
         dir_model = DisparateImpactRemover(repair_level=0.5)
         transformed_df = dir_model.fit_transform(self.df)
 
@@ -82,7 +87,7 @@ class TestDisparateImpactRemover(unittest.TestCase):
                 )
 
     def test_error_handling(self):
-        # Test with non-DataFrame input
+        """Test error handling for invalid inputs"""
         dir_model = DisparateImpactRemover()
         with self.assertRaises(TypeError):
             dir_model.fit_transform(np.array([1, 2, 3]))
@@ -97,6 +102,7 @@ class TestDisparateImpactRemover(unittest.TestCase):
             dir_model.fit_transform(multi_sensitive_df)
 
     def test_transformation_effect(self):
+        """Test the effect of transformation on feature values"""
         # Split the dataset to create a test subset
         X_train, X_test = train_test_split(self.df, test_size=0.3, random_state=42)
 
@@ -131,28 +137,10 @@ class TestDisparateImpactRemover(unittest.TestCase):
         self.assertTrue(all(col in transformed_test.columns for col in feature_columns))
 
     def test_fairness_improvement(self):
-        # Define evaluation functions similar to test_lft.py
-        def evaluate_fairness(X_test, y_pred):
-            X_test = X_test.copy()
-            X_test["class"] = y_pred
-            dataset = fl.DataFrame(X_test)
-            dataset.targets = "class"
-            dataset.sensitive = "male"
-
-            spd = dataset.statistical_parity_difference()
-            di = dataset.disparate_impact()
-            return spd, di
-
-        def train_classifier(X_train, y_train):
-            from sklearn.linear_model import LogisticRegression
-
-            clf = LogisticRegression(random_state=42, max_iter=1000)
-            clf.fit(X_train, y_train)
-            return clf
-
+        """Test if DisparateImpactRemover improves fairness metrics"""
         # Split data
         X = self.df.copy()
-        y = X.pop("class")
+        y = X.pop(self.TARGET)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
@@ -171,9 +159,9 @@ class TestDisparateImpactRemover(unittest.TestCase):
         y_pred_transformed = clf_transformed.predict(X_test_transformed)
 
         # Evaluate fairness metrics
-        spd_original, di_original = evaluate_fairness(X_test.copy(), y_pred_original)
+        spd_original, di_original = evaluate_fairness(X_test.copy(), y_pred_original, self.TARGET, self.SENSITIVE)
         spd_transformed, di_transformed = evaluate_fairness(
-            X_test.copy(), y_pred_transformed
+            X_test.copy(), y_pred_transformed, self.TARGET, self.SENSITIVE
         )
 
         # Check if fairness improved

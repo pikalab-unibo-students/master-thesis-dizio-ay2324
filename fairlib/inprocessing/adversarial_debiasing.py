@@ -192,17 +192,12 @@ class AdversarialDebiasingModel(nn.Module, Processor):
         rep_rev = grad_reverse(rep, self.lambda_adv)
         return self.adversary(rep_rev)
 
-    def fit(
-        self,
-        X,
-        y: Optional[Any] = None,
-        **kwargs,
-    ) -> dict:
+    def fit(self, x: DataFrame, y: Optional[Any] = None, **kwargs):
         """
         Train the model using adversarial debiasing.
 
         Args:
-            X: Input features
+            x: Input features
             y: Target labels
             num_epochs: Number of training epochs
             lr: Learning rate
@@ -212,12 +207,12 @@ class AdversarialDebiasingModel(nn.Module, Processor):
             dict: Training history
         """
 
-        if not isinstance(X, DataFrame):
-            raise TypeError(f"Expected a DataFrame, got {type(X)}")
+        if not isinstance(x, DataFrame):
+            raise TypeError(f"Expected a DataFrame, got {type(x)}")
         if y is None:
-            x, y, _, _, _, sensitive_indexes = X.unpack()
+            x, y, _, _, _, sensitive_indexes = x.unpack()
         else:
-            x, _, _, _, _, sensitive_indexes = X.unpack()
+            x, _, _, _, _, sensitive_indexes = x.unpack()
         if len(sensitive_indexes) != 1:
             raise ValueError(
                 f"Adversarial Debiasing expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"

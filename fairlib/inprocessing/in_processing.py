@@ -3,6 +3,9 @@ from typing import Optional, Any
 
 class Processor:
 
+    def __init__(self, *args, **kwargs):
+        pass
+
     def fit(self, x: DataFrame, y: Optional[Any] = None, **kwargs):
         """
         Fit the processor to the data.

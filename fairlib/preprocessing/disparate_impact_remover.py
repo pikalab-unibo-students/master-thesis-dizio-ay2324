@@ -1,10 +1,11 @@
 import numpy as np
-from typing import Any, Optional
+from typing import Any, Optional, Dict, List, Callable
 from fairlib import DataFrame
 from .pre_processing import Preprocessor
+from .utils import validate_dataframe
 
 
-def _make_cdf(values: np.ndarray):
+def _make_cdf(values: np.ndarray) -> Callable[[float], float]:
     """
     Create an empirical cumulative distribution function (CDF)
     based on sorted values.
@@ -13,12 +14,12 @@ def _make_cdf(values: np.ndarray):
 
     def cdf(val: float) -> float:
         # Proportion of samples <= val
-        return np.searchsorted(sorted_vals, val, side="right") / len(sorted_vals)
+        return float(np.searchsorted(sorted_vals, val, side="right") / len(sorted_vals))
 
     return cdf
 
 
-class DisparateImpactRemover(Preprocessor):
+class DisparateImpactRemover(Preprocessor[DataFrame]):
     """
     Fairness-aware repair algorithm that removes disparate impact
     by transforming feature distributions to a common (median) distribution
@@ -33,16 +34,25 @@ class DisparateImpactRemover(Preprocessor):
     """
 
     def __init__(self, repair_level: float = 1.0):
+        """
+        Initialize the DisparateImpactRemover.
+        
+        Parameters
+        ----------
+        repair_level : float, default=1.0
+            Degree of repair:
+            - 1.0 = full repair (max fairness, min predictability of sensitive attribute)
+            - 0.0 = no repair (original data)
+            Values between 0 and 1 provide a trade-off between fairness and utility.
+        """
         self.repair_level = repair_level
-        self.input_names: Optional[list[str]] = None
-        self.target_names: Optional[list[str]] = None
-        self.sensitive_names: Optional[list[str]] = None
+        self.input_names: Optional[List[str]] = None
+        self.target_names: Optional[List[str]] = None
+        self.sensitive_names: Optional[List[str]] = None
         self.sensitive_values: Optional[np.ndarray] = None
-        self.quantile_maps: dict[int, Any] = {}
+        self.quantile_maps: Dict[int, Any] = {}
 
-    def fit_transform(
-        self, X: DataFrame, y: Optional[Any] = None, **kwargs
-    ) -> DataFrame:
+    def fit_transform(self, X: DataFrame, y: Optional[Any] = None, **kwargs) -> DataFrame:
         """
         Fit the repair model and transform the data in one step.
 
@@ -58,18 +68,15 @@ class DisparateImpactRemover(Preprocessor):
         DataFrame
             Transformed DataFrame with repaired feature values.
         """
-        if not isinstance(X, DataFrame):
-            raise TypeError(f"Expected a fairlib DataFrame, got {type(X)}")
+        # Validate input data
+        validate_dataframe(X, expected_sensitive_count=1)
 
         # Unpack data
         inputs, _, input_names, target_names, sensitive_names, sensitive_indexes = (
             X.unpack()
         )
 
-        if len(sensitive_indexes) != 1:
-            raise ValueError(
-                f"Expected exactly one sensitive column, got {len(sensitive_indexes)}"
-            )
+        # Store metadata for later use
         self.input_names = input_names
         self.target_names = target_names
         self.sensitive_names = sensitive_names
@@ -85,15 +92,30 @@ class DisparateImpactRemover(Preprocessor):
         transformed_df.sensitive = self.sensitive_names
         return transformed_df
 
-    def _fit(
-        self, inputs: np.ndarray, sensitive_idxs: list[int], **kwargs
-    ) -> "DisparateImpactRemover":
+    def _fit(self, inputs: np.ndarray, sensitive_idxs: List[int], **kwargs) -> "DisparateImpactRemover":
         """
         Compute per-group CDFs and median quantile distributions.
+        
+        Parameters
+        ----------
+        inputs : np.ndarray
+            Input feature array
+        sensitive_idxs : List[int]
+            Indices of sensitive attributes in the input array
+        **kwargs : dict
+            Additional parameters (unused)
+            
+        Returns
+        -------
+        DisparateImpactRemover
+            Self, with fitted parameters
         """
         # Extract sensitive values array
         sensitive_col = inputs[:, sensitive_idxs[0]]
         self.sensitive_values = np.unique(sensitive_col.flatten())
+
+        if self.sensitive_values is None:
+            raise ValueError("sensitive_values not set. _fit must be called before using sensitive_values.")
 
         self.quantile_maps.clear()
         n_features = inputs.shape[1]
@@ -125,10 +147,26 @@ class DisparateImpactRemover(Preprocessor):
 
         return self
 
-    def _transform(self, inputs: np.ndarray, sensitive_idxs: list[int]) -> np.ndarray:
+    def _transform(self, inputs: np.ndarray, sensitive_idxs: List[int]) -> np.ndarray:
         """
         Apply the repair transformation to raw input array.
+        
+        Parameters
+        ----------
+        inputs : np.ndarray
+            Input feature array to transform
+        sensitive_idxs : List[int]
+            Indices of sensitive attributes in the input array
+            
+        Returns
+        -------
+        np.ndarray
+            Transformed feature array with repaired values
         """
+
+        if self.sensitive_values is None:
+            raise ValueError("DisparateImpactRemover must be fitted before calling transform.")
+
         sensitive_col = inputs[:, sensitive_idxs[0]]
         X_out = inputs.copy()
         n_features = inputs.shape[1]
