@@ -1,18 +1,20 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
+from pandas import Series
 from torch.utils.data import DataLoader, TensorDataset
 from typing import Tuple, Optional, Union, Any
 from .in_processing import Processor
 from fairlib import logger, DataFrame
 
 
-def _convert_to_tensor(x: Any) -> torch.Tensor:
-    if isinstance(x, DataFrame):
-        return torch.tensor(x.to_numpy().astype(float)).float()
+def _convert_to_tensor(x: Any, dtype=torch.float32) -> torch.Tensor:
+    if isinstance(x, (DataFrame, Series)):
+        return torch.tensor(x.to_numpy(), dtype=dtype)
     if not isinstance(x, torch.Tensor):
-        return torch.tensor(x.astype(float), dtype=torch.float32)
+        return torch.tensor(np.asarray(x), dtype=dtype)
     return x
 class GradientReversalFunction(torch.autograd.Function):
     """
@@ -128,7 +130,7 @@ class Adversary(nn.Module):
         return self.fc3(x)
 
 
-class AdversarialDebiasingModel(nn.Module, Processor):
+class AdversarialDebiasing(nn.Module, Processor):
     """
     Complete adversarial debiasing model that combines predictor and adversary.
 
@@ -162,7 +164,7 @@ class AdversarialDebiasingModel(nn.Module, Processor):
             adversary: Adversarial network
             lambda_adv: Weight of adversarial loss (default=1.0)
         """
-        super(AdversarialDebiasingModel, self).__init__()
+        super(AdversarialDebiasing, self).__init__()
         if predictor is None and adversary is None:
             if (
                 input_dim is None
@@ -192,7 +194,7 @@ class AdversarialDebiasingModel(nn.Module, Processor):
         rep_rev = grad_reverse(rep, self.lambda_adv)
         return self.adversary(rep_rev)
 
-    def fit(self, x: DataFrame, y: Optional[Any] = None, **kwargs):
+    def fit(self, x: DataFrame, y: Optional[Series | np.ndarray] = None, **kwargs):
         """
         Train the model using adversarial debiasing.
 
@@ -227,7 +229,7 @@ class AdversarialDebiasingModel(nn.Module, Processor):
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
-        y = _convert_to_tensor(y)
+        y = _convert_to_tensor(y, dtype=torch.long)
         sensitive_attr = _convert_to_tensor(sensitive_attr)
 
         # Prepare dataset
