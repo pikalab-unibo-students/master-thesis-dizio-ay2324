@@ -48,7 +48,7 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 from sklearn.preprocessing import StandardScaler
 from fairlib.inprocessing.adversarial_debiasing import (
-    Predictor, Adversary, AdversarialDebiasingModel
+    Predictor, Adversary, AdversarialDebiasing
 )
 
 # Prepare your data
@@ -70,7 +70,7 @@ predictor = Predictor(input_dim=X_train.shape[1], hidden_dim=64, output_dim=2)
 adversary = Adversary(input_dim=64, hidden_dim=32, sensitive_dim=1)
 
 # Create and train the adversarial debiasing model
-model = AdversarialDebiasingModel(predictor=predictor, adversary=adversary, lambda_adv=1.0)
+model = AdversarialDebiasing(predictor=predictor, adversary=adversary, lambda_adv=1.0)
 model.fit(train_loader, num_epochs=50, lr=0.001)
 
 # Make predictions
