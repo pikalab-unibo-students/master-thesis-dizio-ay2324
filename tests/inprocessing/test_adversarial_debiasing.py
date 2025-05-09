@@ -3,7 +3,7 @@ import fairlib as fl
 from fairlib.inprocessing.adversarial_debiasing import (
     Predictor,
     Adversary,
-    AdversarialDebiasingModel,
+    AdversarialDebiasing,
 )
 from sklearn.metrics import accuracy_score
 import torch
@@ -181,7 +181,7 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
         )
 
         # Create wrapper for the model and adversary
-        adv_model = AdversarialDebiasingModel(
+        adv_model = AdversarialDebiasing(
             predictor=adv_base_model, adversary=adversary, lambda_adv=lambda_adv
         )
 
@@ -204,7 +204,7 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
         baseline_adversary = Adversary(
             input_dim=hidden_dim, hidden_dim=hidden_dim, sensitive_dim=1
         )
-        baseline_model = AdversarialDebiasingModel(
+        baseline_model = AdversarialDebiasing(
             predictor=baseline_predictor,
             adversary=baseline_adversary,
             lambda_adv=0.0,  # No adversarial debiasing effect

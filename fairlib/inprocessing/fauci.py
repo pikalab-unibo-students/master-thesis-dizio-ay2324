@@ -165,7 +165,7 @@ class Fauci(Processor):
 
         return self
 
-    def predict(self, x: DataFrame, **kwargs):
+    def predict(self, x: DataFrame | torch.Tensor, **kwargs):
         """
         Make predictions using the trained model.
 
@@ -177,7 +177,7 @@ class Fauci(Processor):
             torch.Tensor: Model predictions
         """
 
-        if not isinstance(x, DataFrame):
+        if not isinstance(x, (DataFrame | torch.Tensor)):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
 
         # Extract hyperparameters from kwargs
