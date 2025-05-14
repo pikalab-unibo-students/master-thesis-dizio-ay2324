@@ -84,7 +84,7 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
         # Fit
         self._fit(inputs, sensitive_indexes, **kwargs)
         # Transform
-        transformed = self._transform(inputs, sensitive_indexes)
+        transformed = self.transform(inputs, sensitive_indexes)
 
         # Reconstruct DataFrame preserving metadata
         transformed_df = DataFrame(transformed, columns=self.input_names)
@@ -147,7 +147,7 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
 
         return self
 
-    def _transform(self, inputs: np.ndarray, sensitive_idxs: List[int]) -> np.ndarray:
+    def transform(self, inputs: np.ndarray, sensitive_idxs: List[int]) -> np.ndarray:
         """
         Apply the repair transformation to raw input array.
         

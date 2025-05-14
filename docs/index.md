@@ -15,7 +15,7 @@ Preprocessing techniques modify the training data before model training to reduc
 In-processing techniques modify the learning algorithm to incorporate fairness constraints:
 
 - [Adversarial Debiasing](inprocessing/adversarial_debiasing.md): Uses adversarial learning to remove information about protected attributes from the model's internal representations.
-- [FAUCI (Fairness AUgmented Constrained Inference)](inprocessing/fauci.md): Incorporates fairness metrics directly into the loss function as regularization terms.
+- [FaUCI (Fairness Under Constrained Injection)](inprocessing/fauci.md): Incorporates fairness metrics directly into the loss function as regularization terms.
 - [Prejudice Remover](inprocessing/prejudice_remover.md): Mitigates discrimination by adding a regularization term that penalizes mutual information between predictions and sensitive attributes.
 
 ## How to Use This Documentation

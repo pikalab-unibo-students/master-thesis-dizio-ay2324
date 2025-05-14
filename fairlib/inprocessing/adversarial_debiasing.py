@@ -205,6 +205,7 @@ class AdversarialDebiasing(nn.Module, Processor):
             lr: Learning rate
             adv_steps: Number of adversary updates per predictor update
             batch_size: Batch size for training
+            dtype: Data type for y input tensors (default: float32)
         Returns:
             dict: Training history
         """
@@ -226,10 +227,11 @@ class AdversarialDebiasing(nn.Module, Processor):
         lr = kwargs.get("lr", 0.001)
         adv_steps = kwargs.get("adv_steps", 1)
         batch_size = kwargs.get("batch_size", 32)
+        dtype = kwargs.get("dtype", torch.float32)
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
-        y = _convert_to_tensor(y, dtype=torch.long)
+        y = _convert_to_tensor(y, dtype=dtype)
         sensitive_attr = _convert_to_tensor(sensitive_attr)
 
         # Prepare dataset
