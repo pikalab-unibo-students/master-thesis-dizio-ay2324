@@ -8,6 +8,7 @@ from fairlib.inprocessing.adversarial_debiasing import (
 from sklearn.metrics import accuracy_score
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import random
 import numpy as np
 from tests.data_generator import biased_dataset_people_height
@@ -33,34 +34,44 @@ class CustomPredictor(nn.Module):
     This is needed for compatibility with the AdversarialDebiasingModel.
     """
 
-    def __init__(self, input_shape):
+    def __init__(
+            self,
+            input_dim: int,
+            hidden_dim: int,
+            output_dim: int,
+            dropout_rate: float = 0.3,
+    ):
+        """
+        Args:
+            input_dim: Dimension of input features
+            hidden_dim: Dimension of hidden layers
+            output_dim: Dimension of output (number of classes)
+            dropout_rate: Dropout probability for regularization
+        """
         super(CustomPredictor, self).__init__()
-        self.fc1 = nn.Linear(input_shape, 64)
-        self.relu1 = nn.ReLU()
-        self.fc2 = nn.Linear(64, 32)
-        self.relu2 = nn.ReLU()
-        self.fc3 = nn.Linear(32, 16)
-        self.relu3 = nn.ReLU()
-        self.fc4 = nn.Linear(16, 8)
-        self.relu4 = nn.ReLU()
-        self.fc5 = nn.Linear(8, 1)
-        self.sigmoid = nn.Sigmoid()
+        self.bn1 = nn.BatchNorm1d(input_dim)
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.bn2 = nn.BatchNorm1d(hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.bn3 = nn.BatchNorm1d(hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(self, x, return_representation=False):
-        x = self.relu1(self.fc1(x))
-        x = self.relu2(self.fc2(x))
-        x = self.relu3(self.fc3(x))
-        rep = self.relu4(
-            self.fc4(x)
-        )  # This is the representation we'll use for adversarial training
-        output = self.sigmoid(self.fc5(rep))
-
-        if return_representation:
-            return output, rep
-        return output
+    def forward(
+            self, x: torch.Tensor, return_representation: bool = False
+    ):
+        x = self.bn1(x)
+        x = F.relu(self.fc1(x))
+        x = self.bn2(x)
+        x = self.dropout(x)
+        rep = F.relu(self.fc2(x))
+        rep = self.bn3(rep)
+        rep = self.dropout(rep)
+        logits = self.fc3(rep)
+        return (logits, rep) if return_representation else logits
 
 
-def create_model(input_shape):
+def create_model(input_shape, hidden_dim=8, output_dim=1):
     """
     Create a custom neural network model with the specified input shape.
 
@@ -70,7 +81,7 @@ def create_model(input_shape):
     Returns:
         CustomPredictor: A neural network model compatible with adversarial debiasing.
     """
-    return CustomPredictor(input_shape)
+    return CustomPredictor(input_shape, hidden_dim, output_dim)
 
 
 def get_prepared_data(X, y, target, sensitive):
@@ -169,11 +180,11 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
             self.X, self.y, self.TARGET, self.SENSITIVE
         )
 
-        # Create model with the same architecture as other tests but compatible with adversarial debiasing
-        adv_base_model = create_model(self.num_features)
 
         # The hidden representation dimension is 8 (from the second-to-last layer)
         hidden_dim = 8
+
+        adv_base_model = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
 
         # Create adversary for the hidden representation
         adversary = Adversary(
@@ -199,7 +210,7 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
         )
 
         # Train baseline model (no adversarial debiasing)
-        baseline_predictor = create_model(self.num_features)
+        baseline_predictor = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
         # Create a dummy adversary (won't be used with lambda_adv=0.0)
         baseline_adversary = Adversary(
             input_dim=hidden_dim, hidden_dim=hidden_dim, sensitive_dim=1

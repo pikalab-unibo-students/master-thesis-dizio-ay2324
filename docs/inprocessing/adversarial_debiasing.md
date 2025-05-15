@@ -43,7 +43,6 @@ The FairLib implementation uses PyTorch and includes:
 - `AdversarialDebiasing`: Combines the predictor and adversary with training logic.
 
 
-
 ## Advantages and Limitations
 
 ### Advantages

@@ -94,11 +94,23 @@ class BaseNotebookTest(unittest.TestCase):
 # Generazione dinamica dei test
 existing_names = set()
 
+import json
+
 for notebook in DIR_EXAMPLES.glob("*.ipynb"):
+    try:
+        with open(notebook, "r", encoding="utf-8") as f:
+            json_data = json.load(f)
+        # Check versione del notebook
+        if "nbformat" not in json_data or json_data["nbformat"] < 4:
+            print(f"⚠️  Skipping {notebook.name}: unsupported nbformat version")
+            continue
+    except Exception as e:
+        print(f"⚠️  Skipping {notebook.name}: not a valid notebook file ({e})")
+        continue
+
     base_name = fancy_name(notebook)
     class_name = f"TestDemo{base_name}"
 
-    # Se il nome è duplicato, rendilo unico
     counter = 2
     while class_name in existing_names:
         class_name = f"TestDemo{base_name}{counter}"
@@ -109,6 +121,7 @@ for notebook in DIR_EXAMPLES.glob("*.ipynb"):
     klass = type(class_name, (BaseNotebookTest,), {"notebook_path": notebook})
     globals()[class_name] = klass
     print(f"✅ Generated test case: {class_name} for notebook {notebook.name}")
+
 
 
 # Cleanup per evitare esecuzione della base

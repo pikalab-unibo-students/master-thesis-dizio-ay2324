@@ -88,7 +88,7 @@ class Predictor(nn.Module):
         rep = F.relu(self.fc2(x))
         rep = self.bn3(rep)
         rep = self.dropout(rep)
-        logits = self.fc3(rep)
+        logits = self.fc3(rep).squeeze()
         return (logits, rep) if return_representation else logits
 class Adversary(nn.Module):
     """
@@ -205,7 +205,6 @@ class AdversarialDebiasing(nn.Module, Processor):
             lr: Learning rate
             adv_steps: Number of adversary updates per predictor update
             batch_size: Batch size for training
-            dtype: Data type for y input tensors (default: float32)
         Returns:
             dict: Training history
         """
@@ -227,11 +226,10 @@ class AdversarialDebiasing(nn.Module, Processor):
         lr = kwargs.get("lr", 0.001)
         adv_steps = kwargs.get("adv_steps", 1)
         batch_size = kwargs.get("batch_size", 32)
-        dtype = kwargs.get("dtype", torch.float32)
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
-        y = _convert_to_tensor(y, dtype=dtype)
+        y = _convert_to_tensor(y)
         sensitive_attr = _convert_to_tensor(sensitive_attr)
 
         # Prepare dataset
@@ -255,7 +253,7 @@ class AdversarialDebiasing(nn.Module, Processor):
             self.adversary.parameters(), lr=lr, weight_decay=0.01
         )
 
-        criterion_task = nn.CrossEntropyLoss()
+        criterion_task = nn.BCEWithLogitsLoss()
         criterion_adv = nn.BCEWithLogitsLoss()
 
         history: dict[str, list[float]] = {
@@ -320,7 +318,7 @@ class AdversarialDebiasing(nn.Module, Processor):
 
                 total_loss_task += loss_task.item()
                 total_loss_adv += loss_adv_for_pred.item()
-                preds = torch.argmax(pred_logits, dim=1)
+                preds = (torch.sigmoid(pred_logits) > 0.5).long()
                 total_correct += (preds == y_batch).sum().item()
                 total_samples += y_batch.size(0)
 
@@ -353,5 +351,5 @@ class AdversarialDebiasing(nn.Module, Processor):
         with torch.no_grad():
             # Call predictor directly to get logits only
             logits = self.predictor(x, return_representation=False)
-            preds = torch.argmax(logits, dim=1)
+            preds = (torch.sigmoid(logits) > 0.5).long()
         return preds

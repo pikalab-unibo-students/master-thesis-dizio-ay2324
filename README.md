@@ -30,7 +30,7 @@ The library will provide some fairness metrics to perform various analyses. Plus
 - Reweighing
 
 ### In-Processing Techniques
-- FaUCI - [Example Notebook](examples/demo_fauci.ipynb)
+- FaUCI - [Example Notebook](examples/demo_fauci_TO_DELETE.ipynb)
 - Adversarial Debiasing
 - Prejudice Remover
 
