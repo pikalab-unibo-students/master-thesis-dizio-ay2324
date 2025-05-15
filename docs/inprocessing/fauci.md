@@ -3,10 +3,9 @@
 ## Overview
 
 FaUCI (Fairness Under Constrained Injection) is an in-processing fairness technique that incorporates fairness constraints directly into the model's loss function. It works by adding a fairness regularization term to the standard loss function, allowing the model to optimize for both prediction accuracy and fairness simultaneously. This approach provides a flexible framework for incorporating various fairness metrics as regularization terms.
-
 ## What Problem Does It Solve?
 
-FAUCI addresses the challenge of creating fair machine learning models without sacrificing too much predictive performance. By incorporating fairness metrics directly into the training process, it allows for explicit control over the trade-off between accuracy and fairness. This approach is particularly useful when specific fairness constraints must be satisfied while maintaining model performance.
+FaUCI addresses the challenge of creating fair machine learning models without sacrificing too much predictive performance. By incorporating fairness metrics directly into the training process, it allows for explicit control over the trade-off between accuracy and fairness. This approach is particularly useful when specific fairness constraints must be satisfied while maintaining model performance.
 
 ## Key Concepts
 
@@ -41,44 +40,6 @@ The FairLib implementation includes:
 
 The implementation is flexible and can work with any PyTorch model and various fairness metrics.
 
-## Usage Example
-
-```python
-import torch
-import torch.nn as nn
-from fairlib.inprocessing import Fauci
-from fairlib import DataFrame
-
-# Prepare your data
-df = DataFrame(your_data)
-df.targets = "target_column"
-df.sensitive = "sensitive_column"
-
-# Create a PyTorch model
-model = nn.Sequential(
-    nn.Linear(input_dim, 64),
-    nn.ReLU(),
-    nn.Linear(64, 32),
-    nn.ReLU(),
-    nn.Linear(32, 1),
-    nn.Sigmoid()
-)
-
-# Create FAUCI model with Statistical Parity Difference as regularizer
-fauci_model = Fauci(
-    torchModel=model,
-    optimizer=torch.optim.Adam(model.parameters(), lr=0.001),
-    loss=nn.BCELoss(),
-    fairness_regularization="spd",  # Statistical Parity Difference
-    regularization_weight=0.5      # Equal weight to accuracy and fairness
-)
-
-# Train the model
-fauci_model.fit(df, epochs=100, batch_size=32)
-
-# Make predictions
-predictions = fauci_model.predict(test_features)
-```
 
 ## Advantages and Limitations
 

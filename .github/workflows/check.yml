@@ -12,6 +12,7 @@ on:
       - 'renovate.json'
   pull_request:
   workflow_dispatch:
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -36,7 +37,7 @@ jobs:
         shell: bash
         run: poetry run poe mypy
 
-  test:
+  unit-tests:
     needs: check
     strategy:
       fail-fast: false
@@ -46,13 +47,13 @@ jobs:
           - windows-latest
           - macos-latest
         python-version:
-          - '3.9'
           - '3.10'
           - '3.11'
           - '3.12'
+          - '3.13'
     runs-on: ${{ matrix.os }}
-    name: Test on Python ${{ matrix.python-version }}, on ${{ matrix.os }}
-    timeout-minutes: 45
+    name: Unit Tests on Python ${{ matrix.python-version }}, ${{ matrix.os }}
+    timeout-minutes: 20
     steps:
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -68,13 +69,39 @@ jobs:
       - name: Restore Development Environment
         run: poetry install --all-extras
 
-      - name: Test
+      - name: Run Unit Tests
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
-        run: poetry run poe test
+        run: poetry run pytest tests/ --ignore=tests/test_examples.py
 
-      - name: Test with Coverage
+  notebook-tests:
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    name: Notebook Tests
+    timeout-minutes: 30
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Poetry
+        run: pip install -r requirements.txt
+
+      - name: Restore Development Environment
+        run: poetry install --all-extras
+
+      - name: Run test_examples.py
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+        run: poetry run pytest tests/test_examples.py
+
+      - name: Coverage
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
@@ -85,7 +112,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: coverage-report-${{ matrix.os }}-python-${{ matrix.python-version }}-${{ github.sha }}
+          name: coverage-report-notebooks-${{ github.sha }}
           path: htmlcov
           if-no-files-found: ignore
           overwrite: true
@@ -94,6 +121,6 @@ jobs:
     name: Deploy
     if: github.event_name == 'push' && github.ref_name == 'master'
     needs:
-      - test
+      - notebook-tests
     uses: ./.github/workflows/deploy.yml
     secrets: inherit

@@ -144,7 +144,7 @@ EOO addresses a specific type of fairness concern: ensuring that qualified indiv
 
 ### How It Works
 
-The Equality of Opportunity is calculated as:
+The Equality of Opportunity is calculated as the difference in true positive rates between privileged and unprivileged groups:
 
 ```
 EOO = TPR_privileged - TPR_unprivileged
@@ -153,6 +153,8 @@ EOO = TPR_privileged - TPR_unprivileged
 Where:
 - TPR_privileged = P(Ŷ=1|Y=1, S=privileged) is the true positive rate for the privileged group
 - TPR_unprivileged = P(Ŷ=1|Y=1, S=unprivileged) is the true positive rate for the unprivileged group
+
+This measures whether qualified individuals (Y=1) have equal chances of receiving positive predictions (Ŷ=1) regardless of their protected attribute status.
 
 ### Interpretation and Value Range
 
@@ -166,30 +168,7 @@ Where:
 
 In FairLib, Equality of Opportunity is implemented as both a standalone function and a class that extends the base `Metric` class. The implementation requires predictions in addition to the target and sensitive attribute columns.
 
-### Usage Example
 
-```python
-import pandas as pd
-import numpy as np
-from fairlib.metrics import EqualityOfOpportunity
-
-# Prepare your data
-df = pd.DataFrame({
-    'target': [1, 0, 1, 0, 1, 0, 1, 0],
-    'sensitive_attribute': [0, 0, 0, 0, 1, 1, 1, 1]
-})
-
-# Set target and sensitive columns
-df.targets = ['target']
-df.sensitive = ['sensitive_attribute']
-
-# Model predictions
-predictions = np.array([1, 0, 1, 0, 0, 0, 1, 0])
-
-# Calculate Equality of Opportunity
-eoo = df.equality_of_opportunity(predictions)
-print(eoo)
-```
 
 ## Choosing the Right Metric
 

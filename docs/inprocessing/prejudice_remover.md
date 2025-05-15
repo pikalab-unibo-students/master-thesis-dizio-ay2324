@@ -15,6 +15,23 @@ Prejudice Remover addresses the problem of both direct and indirect discriminati
 - **Eta Parameter**: Controls the strength of the fairness regularization (higher values prioritize fairness over accuracy);
 - **In-processing Approach**: Works by modifying the learning algorithm itself rather than preprocessing the data or post-processing the predictions.
 
+## How It Works
+
+1. **Loss Function Design**:
+   - The algorithm adds a regularization term to the standard loss function;
+   - The regularization term measures the mutual information between predictions and sensitive attributes;
+   - The formula is: `total_loss = base_loss + eta * mutual_information`;
+   - The `eta` parameter controls the importance of fairness vs. accuracy.
+
+2. **Mutual Information Calculation**:
+   - The algorithm calculates joint probabilities between predictions and sensitive attributes;
+   - It computes the Kullback-Leibler (KL) divergence between joint and product of marginal distributions;
+   - This KL divergence serves as a measure of mutual information.
+
+3. **Training Process**:
+   - The model is trained using standard gradient-based optimization;
+   - Gradients flow through both the prediction loss and the mutual information term;
+   - The model learns to make predictions that are both accurate and independent of sensitive attributes.
 
 ## Implementation Details
 
@@ -32,56 +49,6 @@ FairLib implements the Prejudice Remover algorithm using PyTorch, with the follo
    - Handles data preparation, including sensitive attribute extraction;
    - Implements fit and predict methods compatible with the FairLib interface.
 
-## Usage Example
-
-```python
-import torch
-import torch.nn as nn
-from fairlib import DataFrame
-from fairlib.inprocessing import PrejudiceRemover
-
-# Prepare your data
-df = DataFrame({
-    "feature1": [...],
-    "feature2": [...],
-    "target": [...],      # Target variable (0 or 1)
-    "sensitive": [...]   # Sensitive attribute (0 or 1)
-})
-
-# Specify target and sensitive columns
-df.targets = "target"
-df.sensitive = "sensitive"
-
-# Create a PyTorch model
-class SimpleModel(nn.Module):
-    def __init__(self, input_dim):
-        super().__init__()
-        self.linear = nn.Sequential(
-            nn.Linear(input_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, 1),
-            nn.Sigmoid()
-        )
-    
-    def forward(self, x):
-        return self.linear(x)
-
-# Initialize the model
-input_dim = 2  # Number of features
-model = SimpleModel(input_dim)
-
-# Create and train the Prejudice Remover
-prejudice_remover = PrejudiceRemover(
-    torchModel=model,
-    eta=1.0  # Fairness regularization strength
-)
-
-# Train the model
-prejudice_remover.fit(df, epochs=100, batch_size=32)
-
-# Make fair predictions
-predictions = prejudice_remover.predict(df)
-```
 
 ## Advantages and Limitations
 

@@ -165,7 +165,12 @@ class TestPrejudiceRemover(unittest.TestCase):
 
         # Evaluate PrejudiceRemover model
         pr_accuracy, pr_metric = evaluate_model(
-            prejudice_remover, X_train, y_train, fairness_metric, self.TARGET, self.SENSITIVE
+            prejudice_remover,
+            X_train,
+            y_train,
+            fairness_metric,
+            self.TARGET,
+            self.SENSITIVE,
         )
 
         # Prepare data for default model
@@ -202,8 +207,8 @@ class TestPrejudiceRemover(unittest.TestCase):
         """
         Test the PrejudiceRemover model using Statistical Parity Difference (SPD) as the fairness metric.
         """
-        _, pr_spd, _, default_spd = (
-            self.train_and_evaluate(eta=1.0, fairness_metric="spd")
+        _, pr_spd, _, default_spd = self.train_and_evaluate(
+            eta=1.0, fairness_metric="spd"
         )
 
         # Assert fairness improvement
@@ -211,25 +216,25 @@ class TestPrejudiceRemover(unittest.TestCase):
         default_spd_value = abs(default_spd[{self.TARGET: 1, self.SENSITIVE: 1}])
 
         self.assertLessEqual(
-            pr_spd_value, default_spd_value,
-            f"Expected {pr_spd_value} to be less than or equal to {default_spd_value}"
+            pr_spd_value,
+            default_spd_value,
+            f"Expected {pr_spd_value} to be less than or equal to {default_spd_value}",
         )
 
     def testPrejudiceRemoverDI(self):
         """
         Test the PrejudiceRemover model using Disparate Impact (DI) as the fairness metric.
         """
-        _, pr_di, _, default_di = (
-            self.train_and_evaluate(eta=1.0, fairness_metric="di")
-        )
+        _, pr_di, _, default_di = self.train_and_evaluate(eta=1.0, fairness_metric="di")
 
         # Assert fairness improvement
         pr_distance = abs(pr_di[{self.TARGET: 1, self.SENSITIVE: 1}] - 1)
         default_distance = abs(default_di[{self.TARGET: 1, self.SENSITIVE: 1}] - 1)
-        
+
         self.assertLessEqual(
-            pr_distance, default_distance,
-            f"Expected {pr_distance} to be less than or equal to {default_distance}"
+            pr_distance,
+            default_distance,
+            f"Expected {pr_distance} to be less than or equal to {default_distance}",
         )
 
 

@@ -1,8 +1,25 @@
 import numpy as np
-import pandas as pd
+from typing import Any, Optional, Dict, List, Callable
+from fairlib import DataFrame
+from .pre_processing import Preprocessor
+from .utils import validate_dataframe
 
 
-class DisparateImpactRemover:
+def _make_cdf(values: np.ndarray) -> Callable[[float], float]:
+    """
+    Create an empirical cumulative distribution function (CDF)
+    based on sorted values.
+    """
+    sorted_vals = np.sort(values)
+
+    def cdf(val: float) -> float:
+        # Proportion of samples <= val
+        return float(np.searchsorted(sorted_vals, val, side="right") / len(sorted_vals))
+
+    return cdf
+
+
+class DisparateImpactRemover(Preprocessor[DataFrame]):
     """
     Fairness-aware repair algorithm that removes disparate impact
     by transforming feature distributions to a common (median) distribution
@@ -11,146 +28,166 @@ class DisparateImpactRemover:
     Parameters
     ----------
     repair_level : float, default=1.0
-        Degree of repair.
+        Degree of repair:
         - 1.0 = full repair (max fairness, min predictability of sensitive attribute)
         - 0.0 = no repair (original data)
     """
 
-    def __init__(self, repair_level=1.0):
+    def __init__(self, repair_level: float = 1.0):
+        """
+        Initialize the DisparateImpactRemover.
+        
+        Parameters
+        ----------
+        repair_level : float, default=1.0
+            Degree of repair:
+            - 1.0 = full repair (max fairness, min predictability of sensitive attribute)
+            - 0.0 = no repair (original data)
+            Values between 0 and 1 provide a trade-off between fairness and utility.
+        """
         self.repair_level = repair_level
-        self.feature_names = None
-        self.sensitive_values = None
-        self.quantile_maps = {}
+        self.input_names: Optional[List[str]] = None
+        self.target_names: Optional[List[str]] = None
+        self.sensitive_names: Optional[List[str]] = None
+        self.sensitive_values: Optional[np.ndarray] = None
+        self.quantile_maps: Dict[int, Any] = {}
 
-    def fit(self, X, y=None, s=None, **kwargs):
+    def fit_transform(self, X: DataFrame, y: Optional[Any] = None, **kwargs) -> DataFrame:
         """
-        Fit the repair model: compute per-group CDFs and
-        the median quantile distribution for each feature.
+        Fit the repair model and transform the data in one step.
 
         Parameters
         ----------
-        X : pd.DataFrame or np.ndarray
-            Input features (numeric only).
-        s : array-like
-            Sensitive attribute values (e.g., gender, race).
-        """
-        if s is None:
-            raise ValueError("DisparateImpactRemover requires the sensitive attribute 's'")
-
-        s = np.array(s).flatten()
-        self.sensitive_values = np.unique(s)
-
-        if isinstance(X, pd.DataFrame):
-            self.feature_names = X.columns.tolist()
-            X = X.values
-        else:
-            self.feature_names = [f"feature_{i}" for i in range(X.shape[1])]
-
-        self.quantile_maps = {}
-
-        for feat_idx in range(X.shape[1]):
-            # Step 1: Collect values by sensitive group
-            values_by_group = {
-                group: X[s == group, feat_idx]
-                for group in self.sensitive_values
-            }
-
-            # Step 2: Compute empirical quantiles for each group
-            quantiles = {}
-            for group, values in values_by_group.items():
-                sorted_vals = np.sort(values)
-                ranks = np.linspace(0, 1, len(sorted_vals))
-                quantiles[group] = (ranks, sorted_vals)
-
-            # Step 3: Create a shared "median" quantile function across groups
-            # At each rank, the value is the median of the group-specific quantile values
-            median_vals = []
-            rank_common = np.linspace(0, 1, min(len(v) for v in values_by_group.values()))
-            for r in rank_common:
-                group_qvals = [np.quantile(values_by_group[g], r) for g in self.sensitive_values]
-                median_vals.append(np.median(group_qvals))
-            median_vals = np.array(median_vals)
-
-            # Store mapping information for later transformation
-            self.quantile_maps[feat_idx] = {
-                'rank_common': rank_common,
-                'median_vals': median_vals,
-                'group_cdfs': {
-                    g: self._make_cdf(values_by_group[g]) for g in self.sensitive_values
-                }
-            }
-        return self
-
-    def transform(self, X, **kwargs):
-        """
-        Apply the fairness repair transformation to the input data.
-
-        Parameters
-        ----------
-        X : pd.DataFrame or np.ndarray
-            Input features to transform.
-        s : array-like (required in kwargs)
-            Sensitive attribute values for each row.
+        X : DataFrame
+            Input data with numeric features and metadata on target and sensitive columns.
+        y : ignored, use X.targets and X.sensitive
+        kwargs : passed to internal _fit
 
         Returns
         -------
-        Transformed X (same type as input) with reduced disparate impact.
+        DataFrame
+            Transformed DataFrame with repaired feature values.
         """
-        if 's' not in kwargs:
-            raise ValueError("DisparateImpactRemover.transform requires the sensitive attribute 's'")
+        # Validate input data
+        validate_dataframe(X, expected_sensitive_count=1)
 
-        s = np.array(kwargs['s']).flatten()
+        # Unpack data
+        inputs, _, input_names, target_names, sensitive_names, sensitive_indexes = (
+            X.unpack()
+        )
 
-        if isinstance(X, pd.DataFrame):
-            X_values = X.values
-            is_dataframe = True
-        else:
-            X_values = X
-            is_dataframe = False
+        # Store metadata for later use
+        self.input_names = input_names
+        self.target_names = target_names
+        self.sensitive_names = sensitive_names
 
-        X_transformed = X_values.copy()
+        # Fit
+        self._fit(inputs, sensitive_indexes, **kwargs)
+        # Transform
+        transformed = self.transform(inputs, sensitive_indexes)
 
-        for feat_idx in range(X_values.shape[1]):
-            map_info = self.quantile_maps[feat_idx]
-            rank_common = map_info['rank_common']
-            median_vals = map_info['median_vals']
+        # Reconstruct DataFrame preserving metadata
+        transformed_df = DataFrame(transformed, columns=self.input_names)
 
-            for group in self.sensitive_values:
-                mask = (s == group)
-                if not np.any(mask):
+        transformed_df.sensitive = self.sensitive_names
+        return transformed_df
+
+    def _fit(self, inputs: np.ndarray, sensitive_idxs: List[int], **kwargs) -> "DisparateImpactRemover":
+        """
+        Compute per-group CDFs and median quantile distributions.
+        
+        Parameters
+        ----------
+        inputs : np.ndarray
+            Input feature array
+        sensitive_idxs : List[int]
+            Indices of sensitive attributes in the input array
+        **kwargs : dict
+            Additional parameters (unused)
+            
+        Returns
+        -------
+        DisparateImpactRemover
+            Self, with fitted parameters
+        """
+        # Extract sensitive values array
+        sensitive_col = inputs[:, sensitive_idxs[0]]
+        self.sensitive_values = np.unique(sensitive_col.flatten())
+
+        if self.sensitive_values is None:
+            raise ValueError("sensitive_values not set. _fit must be called before using sensitive_values.")
+
+        self.quantile_maps.clear()
+        n_features = inputs.shape[1]
+
+        for feat_idx in range(n_features):
+            # Group raw values
+            groups = {
+                g: inputs[sensitive_col.flatten() == g, feat_idx]
+                for g in self.sensitive_values
+            }
+            # Common rank grid
+            min_n = min(len(v) for v in groups.values())
+            rank_common = np.linspace(0, 1, min_n)
+            # Median values at each rank
+            median_vals = np.array(
+                [
+                    np.median([np.quantile(vals, r) for vals in groups.values()])
+                    for r in rank_common
+                ]
+            )
+            # Store CDFs
+            group_cdfs = {g: _make_cdf(v) for g, v in groups.items()}
+
+            self.quantile_maps[feat_idx] = {
+                "rank_common": rank_common,
+                "median_vals": median_vals,
+                "group_cdfs": group_cdfs,
+            }
+
+        return self
+
+    def transform(self, inputs: np.ndarray, sensitive_idxs: List[int]) -> np.ndarray:
+        """
+        Apply the repair transformation to raw input array.
+        
+        Parameters
+        ----------
+        inputs : np.ndarray
+            Input feature array to transform
+        sensitive_idxs : List[int]
+            Indices of sensitive attributes in the input array
+            
+        Returns
+        -------
+        np.ndarray
+            Transformed feature array with repaired values
+        """
+
+        if self.sensitive_values is None:
+            raise ValueError("DisparateImpactRemover must be fitted before calling transform.")
+
+        sensitive_col = inputs[:, sensitive_idxs[0]]
+        X_out = inputs.copy()
+        n_features = inputs.shape[1]
+
+        for feat_idx in range(n_features):
+            info = self.quantile_maps[feat_idx]
+            r_common = info["rank_common"]
+            m_vals = info["median_vals"]
+
+            for g in self.sensitive_values:
+                mask = sensitive_col.flatten() == g
+                if not mask.any():
                     continue
+                vals = inputs[mask, feat_idx]
+                # ranks per value
+                ranks = np.array([info["group_cdfs"][g](v) for v in vals])
+                # map to median distribution
+                repaired = np.interp(ranks, r_common, m_vals)
+                # blend
+                X_out[mask, feat_idx] = (
+                    1 - self.repair_level
+                ) * vals + self.repair_level * repaired
 
-                group_vals = X_values[mask, feat_idx]
-                cdf_func = map_info['group_cdfs'][group]
-
-                # Step 1: Compute empirical rank (percentile) for each value
-                ranks = np.array([cdf_func(val) for val in group_vals])
-
-                # Step 2: Use rank to find corresponding value in median distribution
-                repaired_vals = np.interp(ranks, rank_common, median_vals)
-
-                # Step 3: Apply partial repair (interpolate between original and repaired)
-                final_vals = (1 - self.repair_level) * group_vals + self.repair_level * repaired_vals
-                X_transformed[mask, feat_idx] = final_vals
-
-        if is_dataframe:
-            return pd.DataFrame(X_transformed, columns=self.feature_names, index=X.index)
-        return X_transformed
-
-    def fit_transform(self, X, y=None, s=None, **kwargs):
-        """
-        Convenience method: fit and transform in one step.
-        """
-        return self.fit(X, y=y, s=s, **kwargs).transform(X, s=s)
-
-    def _make_cdf(self, values):
-        """
-        Create an empirical cumulative distribution function (CDF)
-        based on sorted values.
-        """
-        sorted_vals = np.sort(values)
-
-        def cdf(val):
-            return np.searchsorted(sorted_vals, val, side='right') / len(sorted_vals)
-
-        return cdf
+        return X_out

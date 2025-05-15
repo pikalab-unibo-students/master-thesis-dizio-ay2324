@@ -3,15 +3,8 @@ import torch.nn as nn
 import torch.optim as optim
 from ._torch_metrics import get as get_metric
 from typing import Optional, Callable, Union, Any
-from typing_extensions import override
 from fairlib import DataFrame, logger
-from fairlib.processing import (
-    DataFrameAwareProcessorWrapper,
-    DataFrameAwareEstimator,
-    DataFrameAwarePredictor,
-    DataFrameAwareModel,
-)
-
+from .in_processing import Processor
 
 def _convert_to_tensor(x: Any) -> torch.Tensor:
     if isinstance(x, DataFrame):
@@ -19,16 +12,12 @@ def _convert_to_tensor(x: Any) -> torch.Tensor:
     if not isinstance(x, torch.Tensor):
         return torch.tensor(x.astype(float), dtype=torch.float32)
     return x
-
-
 class BaseLoss:
     def __init__(self, base_loss_fn: Callable):
         self.base_loss_fn = base_loss_fn
 
     def __call__(self, y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
         return self.base_loss_fn(y_pred, y_true)
-
-
 class PenalizedLoss(BaseLoss):
     def __init__(
         self,
@@ -79,12 +68,7 @@ class PenalizedLoss(BaseLoss):
         return total_loss
 
 
-class Fauci(
-    DataFrameAwareProcessorWrapper,
-    DataFrameAwareEstimator,
-    DataFrameAwarePredictor,
-    DataFrameAwareModel,
-):
+class Fauci(Processor):
     def __init__(
         self,
         torchModel: nn.Module,
@@ -110,13 +94,11 @@ class Fauci(
                 weight=regularization_weight,
             )
 
-    @override
     def fit(
         self,
         x: DataFrame,
         y: Optional[Any] = None,
-        epochs: int = 100,
-        batch_size: int = 32,
+        **kwargs
     ):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
@@ -129,6 +111,10 @@ class Fauci(
                 f"FaUCI expects exactly one sensitive column, got {len(sensitive_indexes)}: {x.sensitive}"
             )
         sensitive_attr = x[:, sensitive_indexes[0]]
+
+        # Extract hyperparameters from kwargs
+        epochs = kwargs.get("epochs", 100)
+        batch_size = kwargs.get("batch_size", 32)
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)
@@ -179,8 +165,7 @@ class Fauci(
 
         return self
 
-    @override
-    def predict(self, x: DataFrame, batch_size: int = 32) -> torch.Tensor:
+    def predict(self, x: DataFrame | torch.Tensor, **kwargs):
         """
         Make predictions using the trained model.
 
@@ -191,6 +176,13 @@ class Fauci(
         Returns:
             torch.Tensor: Model predictions
         """
+
+        if not isinstance(x, (DataFrame | torch.Tensor)):
+            raise TypeError(f"Expected a DataFrame, got {type(x)}")
+
+        # Extract hyperparameters from kwargs
+        batch_size = kwargs.get("batch_size", 32)
+
         # Ensure model is in evaluation mode
         self.model.eval()
         x = _convert_to_tensor(x)

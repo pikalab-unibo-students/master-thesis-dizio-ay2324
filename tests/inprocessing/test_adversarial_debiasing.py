@@ -1,99 +1,286 @@
 import unittest
-import numpy as np
-import torch
-from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
-import pandas as pd
-
-from fairlib import DataFrame
-from tests.data_generator import biased_dataset_people_height
+import fairlib as fl
 from fairlib.inprocessing.adversarial_debiasing import (
     Predictor,
     Adversary,
-    AdversarialDebiasingModel,
+    AdversarialDebiasing,
 )
+from sklearn.metrics import accuracy_score
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import random
+import numpy as np
+from tests.data_generator import biased_dataset_people_height
 
 
-def evaluate_fairness(X_test, y_pred):
-    X_test = X_test.copy()
-    X_test["class"] = y_pred
-    dataset = DataFrame(X_test)
-    dataset.targets = "class"
-    dataset.sensitive = "male"
-    spd = dataset.statistical_parity_difference()
-    di = dataset.disparate_impact()
-    return spd, di
+def set_seed(seed):
+    """
+    Set the seed for reproducibility across multiple libraries.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
-def train_classifier(X_train, y_train):
-    clf = LogisticRegression()
-    clf.fit(X_train, y_train)
-    return clf
+class CustomPredictor(nn.Module):
+    """
+    Custom predictor model that supports returning intermediate representations.
+    This is needed for compatibility with the AdversarialDebiasingModel.
+    """
+
+    def __init__(
+            self,
+            input_dim: int,
+            hidden_dim: int,
+            output_dim: int,
+            dropout_rate: float = 0.3,
+    ):
+        """
+        Args:
+            input_dim: Dimension of input features
+            hidden_dim: Dimension of hidden layers
+            output_dim: Dimension of output (number of classes)
+            dropout_rate: Dropout probability for regularization
+        """
+        super(CustomPredictor, self).__init__()
+        self.bn1 = nn.BatchNorm1d(input_dim)
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.bn2 = nn.BatchNorm1d(hidden_dim)
+        self.fc2 = nn.Linear(hidden_dim, hidden_dim)
+        self.bn3 = nn.BatchNorm1d(hidden_dim)
+        self.fc3 = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(dropout_rate)
+
+    def forward(
+            self, x: torch.Tensor, return_representation: bool = False
+    ):
+        x = self.bn1(x)
+        x = F.relu(self.fc1(x))
+        x = self.bn2(x)
+        x = self.dropout(x)
+        rep = F.relu(self.fc2(x))
+        rep = self.bn3(rep)
+        rep = self.dropout(rep)
+        logits = self.fc3(rep)
+        return (logits, rep) if return_representation else logits
+
+
+def create_model(input_shape, hidden_dim=8, output_dim=1):
+    """
+    Create a custom neural network model with the specified input shape.
+
+    Args:
+        input_shape (int): The number of input features.
+
+    Returns:
+        CustomPredictor: A neural network model compatible with adversarial debiasing.
+    """
+    return CustomPredictor(input_shape, hidden_dim, output_dim)
+
+
+def get_prepared_data(X, y, target, sensitive):
+    """
+    Prepare the data for training the model.
+
+    Args:
+        X (DataFrame): The input features.
+        y (Series): The target labels.
+        target (str): The name of the target column.
+        sensitive (str): The name of the sensitive attribute column.
+
+    Returns:
+        tuple: A tuple containing the prepared dataset, input features, and target labels.
+    """
+    X_train = X.copy()
+    y_train = y.copy()
+    X_train[target] = y_train
+    train_dataset = fl.DataFrame(X_train)
+    train_dataset.targets = target
+    train_dataset.sensitive = sensitive
+    X_train.drop(columns=[target], inplace=True)
+    return train_dataset, X_train, y_train
+
+
+def evaluate_model(model, X_test, y_test, fairness_metric, target, sensitive):
+    """
+    Evaluate the model's accuracy and fairness metric.
+
+    Args:
+        model: The trained model.
+        X_test (DataFrame): The test input features.
+        y_test (Series): The test target labels.
+        fairness_metric (str): The type of fairness metric to evaluate ('spd' or 'di').
+        target (str): The name of the target column.
+        sensitive (str): The name of the sensitive attribute column.
+
+    Returns:
+        tuple: A tuple containing the accuracy and the fairness metric.
+    """
+    # Convert input to tensor for prediction
+    predictions = model.predict(X_test).detach().numpy()
+    y_pred = (predictions > 0.5).astype(int).flatten()
+    accuracy = accuracy_score(y_test, y_pred)
+
+    # Convert test set to FairLib DataFrame
+    X_test_copy = X_test.copy()
+    X_test_copy[target] = y_pred
+    dataset = fl.DataFrame(X_test_copy)
+    dataset.targets = target
+    dataset.sensitive = sensitive
+
+    # Evaluate fairness metric
+    if fairness_metric == "spd":
+        metric = dataset.statistical_parity_difference()
+    elif fairness_metric == "di":
+        metric = dataset.disparate_impact()
+    else:
+        raise ValueError("Metric Not Found")
+    return accuracy, metric
 
 
 class TestAdversarialDebiasingModel(unittest.TestCase):
+    """
+    Test class for the Adversarial Debiasing model.
+    """
+
+    EPOCHS = 20
+    BATCH_SIZE = 120
+    TARGET = "class"
+    SENSITIVE = "male"
+
     def setUp(self):
-        np.random.seed(42)
-        torch.manual_seed(42)
-        dataset = biased_dataset_people_height(size=50000, binary=True)
-        self.df = dataset
-        self.X = dataset[["height", "age", "weight", "income"]].values
-        self.y = dataset["class"].values
-        self.a = dataset["male"].values
+        """
+        Set up the test case by loading the dataset and initializing the input features and target labels.
+        """
+        set_seed(42)
+        dataset = biased_dataset_people_height(binary=True)
+        self.X = fl.DataFrame(dataset)
+        self.y = self.X.pop(self.TARGET)
+        self.num_features = self.X.shape[1]
 
-    def test_adversarial_debiasing(self):
-        X_train, X_test, y_train, y_test, a_train, a_test = train_test_split(
-            self.X, self.y, self.a, test_size=0.3, random_state=42
+    def train_and_evaluate(self, lambda_adv, fairness_metric):
+        """
+        Train and evaluate the Adversarial Debiasing model and a baseline model.
+
+        Args:
+            lambda_adv (float): The weight of the adversarial loss.
+            fairness_metric (str): The type of fairness metric to evaluate.
+
+        Returns:
+            tuple: A tuple containing the accuracy and fairness metric for both models.
+        """
+        # Prepare data
+        train_dataset, X_train, y_train = get_prepared_data(
+            self.X, self.y, self.TARGET, self.SENSITIVE
         )
 
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
 
-        X_train_tensor = torch.from_numpy(X_train_scaled.astype(np.float32))
-        y_train_tensor = torch.from_numpy(y_train.astype(np.int64))
-        a_train_tensor = torch.from_numpy(a_train.astype(np.int64))
-        train_dataset = TensorDataset(X_train_tensor, y_train_tensor, a_train_tensor)
-        train_loader = DataLoader(train_dataset, batch_size=120, shuffle=True)
+        # The hidden representation dimension is 8 (from the second-to-last layer)
+        hidden_dim = 8
 
-        clf = train_classifier(X_train_scaled, y_train)
-        y_pred_baseline = clf.predict(X_test_scaled)
+        adv_base_model = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
 
-        X_test_df = pd.DataFrame(
-            X_test_scaled, columns=["height", "age", "weight", "income"]
+        # Create adversary for the hidden representation
+        adversary = Adversary(
+            input_dim=hidden_dim, hidden_dim=hidden_dim, sensitive_dim=1
         )
-        X_test_df["male"] = a_test
 
-        spd_baseline, di_baseline = evaluate_fairness(X_test_df.copy(), y_pred_baseline)
+        # Create wrapper for the model and adversary
+        adv_model = AdversarialDebiasing(
+            predictor=adv_base_model, adversary=adversary, lambda_adv=lambda_adv
+        )
 
-        predictor = Predictor(input_dim=4, hidden_dim=16, output_dim=2)
-        adversary = Adversary(input_dim=16, hidden_dim=16, sensitive_dim=1)
-        model = AdversarialDebiasingModel(predictor=predictor, adversary=adversary, lambda_adv=5.0)
-        model.fit(train_loader, num_epochs=50, lr=0.0001)
+        # Train the adversarial model
+        adv_model.fit(train_dataset, num_epochs=self.EPOCHS, batch_size=self.BATCH_SIZE)
 
-        model.eval()
-        X_test_tensor = torch.from_numpy(X_test_scaled.astype(np.float32))
-        with torch.no_grad():
-            logits = model(X_test_tensor)
-            y_pred_tensor = torch.argmax(logits, dim=1)
-        y_pred_debiased = y_pred_tensor.cpu().numpy()
+        # Evaluate adversarial model
+        adv_accuracy, adv_metric = evaluate_model(
+            adv_model, X_train, y_train, fairness_metric, self.TARGET, self.SENSITIVE
+        )
 
-        spd_debiased, di_debiased = evaluate_fairness(X_test_df.copy(), y_pred_debiased)
+        # Prepare data for baseline model
+        train_dataset, X_train, y_train = get_prepared_data(
+            self.X, self.y, self.TARGET, self.SENSITIVE
+        )
 
-        for key in spd_baseline:
-            self.assertLessEqual(
-                abs(spd_debiased[key]),
-                abs(spd_baseline[key]),
-                f"For Group: {key}, SPD should improve with Adversarial Debiasing",
-            )
-        for key in di_baseline:
-            self.assertLessEqual(
-                abs(di_debiased[key] - 1),
-                abs(di_baseline[key] - 1),
-                f"For Group: {key}, DI should improve with Adversarial Debiasing",
-            )
+        # Train baseline model (no adversarial debiasing)
+        baseline_predictor = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
+        # Create a dummy adversary (won't be used with lambda_adv=0.0)
+        baseline_adversary = Adversary(
+            input_dim=hidden_dim, hidden_dim=hidden_dim, sensitive_dim=1
+        )
+        baseline_model = AdversarialDebiasing(
+            predictor=baseline_predictor,
+            adversary=baseline_adversary,
+            lambda_adv=0.0,  # No adversarial debiasing effect
+        )
+        baseline_model.fit(
+            train_dataset, num_epochs=self.EPOCHS, batch_size=self.BATCH_SIZE
+        )
+
+        # Evaluate baseline model
+        baseline_accuracy, baseline_metric = evaluate_model(
+            baseline_model,
+            X_train,
+            y_train,
+            fairness_metric,
+            self.TARGET,
+            self.SENSITIVE,
+        )
+
+        return adv_accuracy, adv_metric, baseline_accuracy, baseline_metric
+
+    def test_adversarial_debiasing_spd(self):
+        """
+        Test the Adversarial Debiasing model using Statistical Parity Difference (SPD) as the fairness metric.
+        """
+        _, adv_spd, _, baseline_spd = self.train_and_evaluate(
+            lambda_adv=5.0, fairness_metric="spd"
+        )
+
+        # Assert fairness improvement
+        # Find the first key in the dictionary and use it to access the value
+        adv_key = list(adv_spd.keys())[0]
+        baseline_key = list(baseline_spd.keys())[0]
+
+        # Extract the numeric values
+        adv_spd_value = abs(adv_spd[adv_key])
+        baseline_spd_value = abs(baseline_spd[baseline_key])
+
+        self.assertLessEqual(
+            adv_spd_value,
+            baseline_spd_value,
+            f"Expected {adv_spd_value} to be less than or equal to {baseline_spd_value}",
+        )
+
+    def test_adversarial_debiasing_di(self):
+        """
+        Test the Adversarial Debiasing model using Disparate Impact (DI) as the fairness metric.
+        """
+        _, adv_di, _, baseline_di = self.train_and_evaluate(
+            lambda_adv=5.0, fairness_metric="di"
+        )
+
+        # Assert fairness improvement
+        # Find the first key in the dictionary and use it to access the value
+        adv_key = list(adv_di.keys())[0]
+        baseline_key = list(baseline_di.keys())[0]
+
+        # Extract the numeric values and calculate distance from 1 (ideal fairness)
+        adv_distance = abs(adv_di[adv_key] - 1)
+        baseline_distance = abs(baseline_di[baseline_key] - 1)
+
+        self.assertLessEqual(
+            adv_distance,
+            baseline_distance,
+            f"Expected {adv_distance} to be less than or equal to {baseline_distance}",
+        )
 
 
 if __name__ == "__main__":

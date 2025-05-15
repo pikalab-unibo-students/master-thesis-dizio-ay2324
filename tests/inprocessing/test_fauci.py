@@ -207,7 +207,6 @@ class TestFauci(unittest.TestCase):
             self.train_and_evaluate(regularizer="sp", fairness_metric="spd")
         )
 
-
         # Assert fairness improvement
         fauci_spd_value = abs(fauci_spd[{self.TARGET: 1, self.SENSITIVE: 1}])
         default_spd_value = abs(default_spd[{self.TARGET: 1, self.SENSITIVE: 1}])
