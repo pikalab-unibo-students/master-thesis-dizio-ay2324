@@ -101,7 +101,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         run: poetry run pytest tests/test_examples.py
 
-      - name: Coverage (optional, if needed here too)
+      - name: Coverage
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
