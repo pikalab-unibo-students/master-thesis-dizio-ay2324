@@ -69,7 +69,7 @@ jobs:
       - name: Restore Development Environment
         run: poetry install --all-extras
 
-      - name: Run Unit Tests (excluding test_examples.py)
+      - name: Run Unit Tests
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
@@ -78,7 +78,7 @@ jobs:
   notebook-tests:
     needs: unit-tests
     runs-on: ubuntu-latest
-    name: Notebook Tests (test_examples.py)
+    name: Notebook Tests
     timeout-minutes: 30
     steps:
       - name: Setup Python
