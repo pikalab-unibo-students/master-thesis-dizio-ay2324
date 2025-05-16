@@ -20,19 +20,18 @@ The library will provide some fairness metrics to perform various analyses. Plus
 
 ### Fairness Metrics
 - Statistical Parity Difference - [Example Notebook](examples/demo_statistical_parity_difference.ipynb)
-- Disparate Impact
+- Disparate Impact - [Example Notebook](examples/demo_disparate_impact.ipynb)
 - Equal Opportunity Difference - [Example Notebook](examples/demo_equality_of_opportunity.ipynb)
-- Average Absolute Odds Difference
 
 ### Pre-Processing Techniques
-- Disparate Impact Remover
+- Disparate Impact Remover - [Example Notebook](examples/demo_disparate_impact_remover.ipynb)
 - LFR (Learning Fair Representations) - [Example Notebook](examples/demo_lfr.ipynb)
-- Reweighing
+- Reweighing - [Example Notebook](examples/demo_reweighing.ipynb)
 
 ### In-Processing Techniques
 - FaUCI - [Example Notebook](examples/demo_fauci_TO_DELETE.ipynb)
-- Adversarial Debiasing
-- Prejudice Remover
+- Adversarial Debiasing - [Example Notebook](examples/demo_adversarial_debiasing.ipynb)
+- Prejudice Remover - [Example Notebook](examples/demo_prejudice_remover.ipynb)
 
 ## Project Structure
 
