@@ -40,6 +40,40 @@ The FairLib implementation includes:
 
 The implementation is flexible and can work with any PyTorch model and various fairness metrics.
 
+## Example Usage
+
+```python
+import fairlib as fl
+from fairlib.inprocessing.fauci import Fauci
+from torch import nn
+
+# FairLib DataFrame with one protected attribute
+df = fl.DataFrame(...)
+df.targets = "label"
+df.sensitive = "gender"
+
+# Create a base PyTorch model
+base_model = nn.Sequential(
+    nn.Linear(df.shape[1], 32),
+    nn.ReLU(),
+    nn.Linear(32, 1),
+    nn.Sigmoid()
+)
+
+# Wrap with Fauci
+model = Fauci(
+    model=base_model,
+    fairness_metric="statistical_parity_difference",
+    weight=0.5  # Balance between accuracy and fairness
+)
+
+# Train the model
+model.fit(df, num_epochs=20, batch_size=64)
+
+# Make predictions
+y_pred = model.predict(df)
+```
+
 
 ## Advantages and Limitations
 

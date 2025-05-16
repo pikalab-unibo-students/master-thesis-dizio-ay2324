@@ -42,21 +42,29 @@ The FairLib implementation uses PyTorch and includes:
 - `Adversary`: The adversarial network that tries to predict sensitive attributes;
 - `AdversarialDebiasing`: Combines the predictor and adversary with training logic.
 
+## Example Usage
 
-## Advantages and Limitations
+```python
+import fairlib as fl
+from fairlib.inprocessing.adversarial_debiasing import AdversarialDebiasing
 
-### Advantages
-- Directly optimizes for both prediction accuracy and fairness during training;
-- Can achieve better fairness-accuracy trade-offs than preprocessing methods;
-- Does not require sensitive attributes during inference;
-- Allows fine-grained control over the fairness-accuracy trade-off through the `lambda_adv` parameter.
+# FairLib DataFrame with one protected attribute
+df = fl.DataFrame(...)
+df.targets = "label"
+df.sensitive = "gender"
 
-### Limitations
-- Requires careful tuning of hyperparameters, especially the adversarial weight;
-- Training can be unstable due to the adversarial component;
-- Computationally more expensive than simpler approaches;
-- May not completely eliminate all forms of bias;
-- Performance depends on the quality of the adversarial network.
+model = AdversarialDebiasing(
+    input_dim=df.shape[1],
+    hidden_dim=32,
+    output_dim=1,
+    sensitive_dim=1,
+    lambda_adv=1.0,
+)
+
+model.fit(df, num_epochs=20, batch_size=64)
+
+y_pred = model.predict(df)  # tensor with 0/1 predictions
+```
 
 ## References
 
