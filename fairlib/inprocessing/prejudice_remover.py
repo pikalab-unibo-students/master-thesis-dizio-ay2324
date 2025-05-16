@@ -182,12 +182,7 @@ class PrejudiceRemover(Processor):
             eta=self.eta,
         )
 
-    def fit(
-        self,
-        x: DataFrame,
-        y: Optional[Any] = None,
-        **kwargs
-    ):
+    def fit(self, x: DataFrame, y: Optional[Any] = None, **kwargs):
         """
         Train the PrejudiceRemover model.
 
@@ -215,7 +210,6 @@ class PrejudiceRemover(Processor):
         # Extract hyperparameters
         epochs = kwargs.get("epochs", 100)
         batch_size = kwargs.get("batch_size", 32)
-
 
         # Ensure all inputs are tensors and have the same dtype
         x = _convert_to_tensor(x)

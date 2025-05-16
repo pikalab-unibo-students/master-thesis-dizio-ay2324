@@ -45,18 +45,14 @@ class TestLFR(unittest.TestCase):
         # Verify the transformed DataFrame has the expected shape
         self.assertEqual(transformed_df.shape[0], self.df.shape[0])
         self.assertEqual(transformed_df.shape[1], latent_dim)  # latent_dim
-        
+
         # Verify column names follow the expected pattern
-        expected_cols = [f'z{i}' for i in range(latent_dim)]
+        expected_cols = [f"z{i}" for i in range(latent_dim)]
         self.assertListEqual(list(transformed_df.columns), expected_cols)
 
     def test_error_handling(self):
         """Test error handling for invalid inputs"""
-        lfr_model = LFR(
-            input_dim=5,
-            latent_dim=8,
-            output_dim=5
-        )
+        lfr_model = LFR(input_dim=5, latent_dim=8, output_dim=5)
         with self.assertRaises(TypeError):
             lfr_model.fit_transform(np.array([1, 2, 3]))
 
@@ -122,7 +118,7 @@ class TestLFR(unittest.TestCase):
         orig_dataset.sensitive = self.SENSITIVE
         spd_original = orig_dataset.statistical_parity_difference()
         di_original = orig_dataset.disparate_impact()
-        
+
         # For transformed data
         X_test_orig_copy = X_test_orig.copy()
         X_test_orig_copy[self.TARGET] = y_pred_transformed

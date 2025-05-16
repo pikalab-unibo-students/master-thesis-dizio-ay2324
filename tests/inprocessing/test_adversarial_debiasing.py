@@ -35,11 +35,11 @@ class CustomPredictor(nn.Module):
     """
 
     def __init__(
-            self,
-            input_dim: int,
-            hidden_dim: int,
-            output_dim: int,
-            dropout_rate: float = 0.3,
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        output_dim: int,
+        dropout_rate: float = 0.3,
     ):
         """
         Args:
@@ -57,9 +57,7 @@ class CustomPredictor(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, output_dim)
         self.dropout = nn.Dropout(dropout_rate)
 
-    def forward(
-            self, x: torch.Tensor, return_representation: bool = False
-    ):
+    def forward(self, x: torch.Tensor, return_representation: bool = False):
         x = self.bn1(x)
         x = F.relu(self.fc1(x))
         x = self.bn2(x)
@@ -180,11 +178,12 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
             self.X, self.y, self.TARGET, self.SENSITIVE
         )
 
-
         # The hidden representation dimension is 8 (from the second-to-last layer)
         hidden_dim = 8
 
-        adv_base_model = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
+        adv_base_model = create_model(
+            self.num_features, hidden_dim=hidden_dim, output_dim=1
+        )
 
         # Create adversary for the hidden representation
         adversary = Adversary(
@@ -210,7 +209,9 @@ class TestAdversarialDebiasingModel(unittest.TestCase):
         )
 
         # Train baseline model (no adversarial debiasing)
-        baseline_predictor = create_model(self.num_features, hidden_dim=hidden_dim, output_dim=1)
+        baseline_predictor = create_model(
+            self.num_features, hidden_dim=hidden_dim, output_dim=1
+        )
         # Create a dummy adversary (won't be used with lambda_adv=0.0)
         baseline_adversary = Adversary(
             input_dim=hidden_dim, hidden_dim=hidden_dim, sensitive_dim=1

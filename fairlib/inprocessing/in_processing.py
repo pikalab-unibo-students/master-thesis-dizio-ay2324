@@ -1,6 +1,7 @@
 from fairlib import DataFrame
 from typing import Optional, Any
 
+
 class Processor:
 
     def __init__(self, *args, **kwargs):

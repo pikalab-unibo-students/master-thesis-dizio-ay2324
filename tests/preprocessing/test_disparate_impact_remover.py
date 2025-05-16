@@ -159,7 +159,9 @@ class TestDisparateImpactRemover(unittest.TestCase):
         y_pred_transformed = clf_transformed.predict(X_test_transformed)
 
         # Evaluate fairness metrics
-        spd_original, di_original = evaluate_fairness(X_test.copy(), y_pred_original, self.TARGET, self.SENSITIVE)
+        spd_original, di_original = evaluate_fairness(
+            X_test.copy(), y_pred_original, self.TARGET, self.SENSITIVE
+        )
         spd_transformed, di_transformed = evaluate_fairness(
             X_test.copy(), y_pred_transformed, self.TARGET, self.SENSITIVE
         )

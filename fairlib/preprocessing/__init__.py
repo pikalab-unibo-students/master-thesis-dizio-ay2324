@@ -11,5 +11,5 @@ from .utils import (
     validate_dataframe,
     validate_target_count,
     get_privileged_unprivileged_masks,
-    get_favorable_unfavorable_masks
+    get_favorable_unfavorable_masks,
 )

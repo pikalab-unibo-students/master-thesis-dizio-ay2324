@@ -6,18 +6,23 @@ from typing import Optional, Callable, Union, Any
 from fairlib import DataFrame, logger
 from .in_processing import Processor
 
+
 def _convert_to_tensor(x: Any) -> torch.Tensor:
     if isinstance(x, DataFrame):
         return torch.tensor(x.to_numpy().astype(float)).float()
     if not isinstance(x, torch.Tensor):
         return torch.tensor(x.astype(float), dtype=torch.float32)
     return x
+
+
 class BaseLoss:
     def __init__(self, base_loss_fn: Callable):
         self.base_loss_fn = base_loss_fn
 
     def __call__(self, y_true: torch.Tensor, y_pred: torch.Tensor) -> torch.Tensor:
         return self.base_loss_fn(y_pred, y_true)
+
+
 class PenalizedLoss(BaseLoss):
     def __init__(
         self,
@@ -94,12 +99,7 @@ class Fauci(Processor):
                 weight=regularization_weight,
             )
 
-    def fit(
-        self,
-        x: DataFrame,
-        y: Optional[Any] = None,
-        **kwargs
-    ):
+    def fit(self, x: DataFrame, y: Optional[Any] = None, **kwargs):
         if not isinstance(x, DataFrame):
             raise TypeError(f"Expected a DataFrame, got {type(x)}")
         if y is None:

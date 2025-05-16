@@ -62,7 +62,10 @@ class NotebookRunner:
     @property
     def all_errors(self):
         return [
-            error for _, outputs in self.errors_by_cell.items() for _, error in outputs.items() for error in error
+            error
+            for _, outputs in self.errors_by_cell.items()
+            for _, error in outputs.items()
+            for error in error
         ]
 
 
@@ -121,7 +124,6 @@ for notebook in DIR_EXAMPLES.glob("*.ipynb"):
     klass = type(class_name, (BaseNotebookTest,), {"notebook_path": notebook})
     globals()[class_name] = klass
     print(f"✅ Generated test case: {class_name} for notebook {notebook.name}")
-
 
 
 # Cleanup per evitare esecuzione della base

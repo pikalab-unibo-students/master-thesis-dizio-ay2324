@@ -36,7 +36,7 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
     def __init__(self, repair_level: float = 1.0):
         """
         Initialize the DisparateImpactRemover.
-        
+
         Parameters
         ----------
         repair_level : float, default=1.0
@@ -52,7 +52,9 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
         self.sensitive_values: Optional[np.ndarray] = None
         self.quantile_maps: Dict[int, Any] = {}
 
-    def fit_transform(self, X: DataFrame, y: Optional[Any] = None, **kwargs) -> DataFrame:
+    def fit_transform(
+        self, X: DataFrame, y: Optional[Any] = None, **kwargs
+    ) -> DataFrame:
         """
         Fit the repair model and transform the data in one step.
 
@@ -92,10 +94,12 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
         transformed_df.sensitive = self.sensitive_names
         return transformed_df
 
-    def _fit(self, inputs: np.ndarray, sensitive_idxs: List[int], **kwargs) -> "DisparateImpactRemover":
+    def _fit(
+        self, inputs: np.ndarray, sensitive_idxs: List[int], **kwargs
+    ) -> "DisparateImpactRemover":
         """
         Compute per-group CDFs and median quantile distributions.
-        
+
         Parameters
         ----------
         inputs : np.ndarray
@@ -104,7 +108,7 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
             Indices of sensitive attributes in the input array
         **kwargs : dict
             Additional parameters (unused)
-            
+
         Returns
         -------
         DisparateImpactRemover
@@ -115,7 +119,9 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
         self.sensitive_values = np.unique(sensitive_col.flatten())
 
         if self.sensitive_values is None:
-            raise ValueError("sensitive_values not set. _fit must be called before using sensitive_values.")
+            raise ValueError(
+                "sensitive_values not set. _fit must be called before using sensitive_values."
+            )
 
         self.quantile_maps.clear()
         n_features = inputs.shape[1]
@@ -150,14 +156,14 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
     def transform(self, inputs: np.ndarray, sensitive_idxs: List[int]) -> np.ndarray:
         """
         Apply the repair transformation to raw input array.
-        
+
         Parameters
         ----------
         inputs : np.ndarray
             Input feature array to transform
         sensitive_idxs : List[int]
             Indices of sensitive attributes in the input array
-            
+
         Returns
         -------
         np.ndarray
@@ -165,7 +171,9 @@ class DisparateImpactRemover(Preprocessor[DataFrame]):
         """
 
         if self.sensitive_values is None:
-            raise ValueError("DisparateImpactRemover must be fitted before calling transform.")
+            raise ValueError(
+                "DisparateImpactRemover must be fitted before calling transform."
+            )
 
         sensitive_col = inputs[:, sensitive_idxs[0]]
         X_out = inputs.copy()

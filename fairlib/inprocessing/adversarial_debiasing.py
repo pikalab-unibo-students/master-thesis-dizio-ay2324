@@ -16,6 +16,8 @@ def _convert_to_tensor(x: Any, dtype=torch.float32) -> torch.Tensor:
     if not isinstance(x, torch.Tensor):
         return torch.tensor(np.asarray(x), dtype=dtype)
     return x
+
+
 class GradientReversalFunction(torch.autograd.Function):
     """
     Gradient Reversal Layer for adversarial training.
@@ -46,9 +48,13 @@ class GradientReversalFunction(torch.autograd.Function):
         """
         grad_output = grad_outputs[0]
         return -ctx.lambda_ * grad_output, None
+
+
 def grad_reverse(x: torch.Tensor, lambda_: float = 1.0) -> torch.Tensor:
     """Helper function for gradient reversal."""
     return GradientReversalFunction.apply(x, lambda_)
+
+
 class Predictor(nn.Module):
     """
     Main prediction network that learns to predict target labels
@@ -90,6 +96,8 @@ class Predictor(nn.Module):
         rep = self.dropout(rep)
         logits = self.fc3(rep).squeeze()
         return (logits, rep) if return_representation else logits
+
+
 class Adversary(nn.Module):
     """
     Adversarial network that tries to predict sensitive attributes
@@ -238,9 +246,7 @@ class AdversarialDebiasing(nn.Module, Processor):
         else:
             dataset = TensorDataset(x, y)
 
-        dataloader = DataLoader(
-            dataset, batch_size=batch_size, shuffle=True
-        )
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.to(device)

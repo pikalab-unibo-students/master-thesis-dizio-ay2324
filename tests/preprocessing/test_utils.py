@@ -82,8 +82,12 @@ def evaluate_model(model, X_test, y_test, fairness_metric, target_col, sensitive
         tuple: Accuracy and fairness metric
     """
     # Handle different model types (neural network vs sklearn)
-    if hasattr(model, 'predict') and callable(getattr(model, 'predict')):
-        if hasattr(model.predict, '__self__') and hasattr(model.predict.__self__, '__class__') and 'torch' in model.predict.__self__.__class__.__module__:
+    if hasattr(model, "predict") and callable(getattr(model, "predict")):
+        if (
+            hasattr(model.predict, "__self__")
+            and hasattr(model.predict.__self__, "__class__")
+            and "torch" in model.predict.__self__.__class__.__module__
+        ):
             # PyTorch model
             predictions = model.predict(X_test).detach().numpy()
             y_pred = (predictions > 0.5).astype(int)
@@ -92,7 +96,7 @@ def evaluate_model(model, X_test, y_test, fairness_metric, target_col, sensitive
             y_pred = model.predict(X_test)
     else:
         raise ValueError("Model must have a predict method")
-        
+
     accuracy = accuracy_score(y_test, y_pred)
 
     # Convert test set to FairLib DataFrame
@@ -109,7 +113,7 @@ def evaluate_model(model, X_test, y_test, fairness_metric, target_col, sensitive
         metric = dataset.disparate_impact()
     else:
         raise ValueError(f"Unknown fairness metric: {fairness_metric}")
-    
+
     return accuracy, metric
 
 

@@ -1,13 +1,13 @@
 from typing import Optional, Any, TypeVar, Generic
 from fairlib import DataFrame
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Preprocessor(Generic[T]):
     """
     Base class for preprocessing algorithms.
-    
+
     All fairness preprocessing algorithms should inherit from this class
     and implement the fit_transform method.
     """

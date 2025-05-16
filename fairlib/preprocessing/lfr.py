@@ -101,10 +101,7 @@ class Classifier(nn.Module):
         """
         super(Classifier, self).__init__()
         self.classifier = nn.Sequential(
-            nn.Linear(latent_dim, 32),
-            nn.ReLU(),
-            nn.Linear(32, 1),
-            nn.Sigmoid()
+            nn.Linear(latent_dim, 32), nn.ReLU(), nn.Linear(32, 1), nn.Sigmoid()
         )
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:
@@ -124,7 +121,9 @@ class Classifier(nn.Module):
         return self.classifier(z)
 
 
-def compute_fairness_loss(z: torch.Tensor, sensitive_attr: torch.Tensor) -> torch.Tensor:
+def compute_fairness_loss(
+    z: torch.Tensor, sensitive_attr: torch.Tensor
+) -> torch.Tensor:
     """
     Compute statistical parity loss (Lz) to measure fairness.
 
@@ -164,7 +163,9 @@ def compute_fairness_loss(z: torch.Tensor, sensitive_attr: torch.Tensor) -> torc
     return torch.sum((protected_mean - unprotected_mean) ** 2)
 
 
-def compute_reconstruction_loss(x: torch.Tensor, x_reconstructed: torch.Tensor) -> torch.Tensor:
+def compute_reconstruction_loss(
+    x: torch.Tensor, x_reconstructed: torch.Tensor
+) -> torch.Tensor:
     """
     Compute reconstruction loss (Lx) to measure information preservation.
 
@@ -195,7 +196,9 @@ def compute_reconstruction_loss(x: torch.Tensor, x_reconstructed: torch.Tensor) 
     return torch.mean((x - x_reconstructed) ** 2)
 
 
-def compute_classification_loss(y_pred: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
+def compute_classification_loss(
+    y_pred: torch.Tensor, y_true: torch.Tensor
+) -> torch.Tensor:
     """
     Compute binary cross-entropy loss (Ly) for classification accuracy.
 
@@ -241,14 +244,20 @@ class LFR(Preprocessor[DataFrame]):
     3. Classification loss (Ly): Maintains predictive power for the target variable
     """
 
-    def __init__(self, input_dim: Optional[int] = None,
-                 latent_dim: Optional[int] = None,
-                 output_dim: Optional[int] = None,
-                 encoder: Optional[Encoder] = None,
-                 decoder: Optional[Decoder] = None,
-                 classifier: Optional[Classifier] = None,
-                 alpha_z: float = 1.0,
-                 alpha_x: float = 1.0, alpha_y: float = 1.0, *args, **kwargs):
+    def __init__(
+        self,
+        input_dim: Optional[int] = None,
+        latent_dim: Optional[int] = None,
+        output_dim: Optional[int] = None,
+        encoder: Optional[Encoder] = None,
+        decoder: Optional[Decoder] = None,
+        classifier: Optional[Classifier] = None,
+        alpha_z: float = 1.0,
+        alpha_x: float = 1.0,
+        alpha_y: float = 1.0,
+        *args,
+        **kwargs,
+    ):
         """
         Initialize the Learning Fair Representations (LFR) model.
 
@@ -284,7 +293,9 @@ class LFR(Preprocessor[DataFrame]):
             self.decoder = Decoder(latent_dim, output_dim)
             self.classifier = Classifier(latent_dim)
         elif encoder is None or decoder is None or classifier is None:
-            raise ValueError("All three networks (encoder, decoder, classifier) must be provided or none")
+            raise ValueError(
+                "All three networks (encoder, decoder, classifier) must be provided or none"
+            )
         else:
             self.encoder = encoder
             self.decoder = decoder
@@ -297,7 +308,7 @@ class LFR(Preprocessor[DataFrame]):
         # Initialize scaler
         self.scaler = StandardScaler()
 
-    def fit(self, X: DataFrame, y: Optional[np.ndarray] = None, **kwargs) -> 'LFR':
+    def fit(self, X: DataFrame, y: Optional[np.ndarray] = None, **kwargs) -> "LFR":
         """
         Fit the LFR model to the data.
 
@@ -347,11 +358,19 @@ class LFR(Preprocessor[DataFrame]):
         sensitive_values = features[:, sensitive_indexes[0]]
 
         # Fit the model using the extracted data
-        self._fit(features, targets, sensitive_values, epochs=epochs, learning_rate=learning_rate)
+        self._fit(
+            features,
+            targets,
+            sensitive_values,
+            epochs=epochs,
+            learning_rate=learning_rate,
+        )
 
         return self
 
-    def fit_transform(self, X: DataFrame, y: Optional[np.ndarray] = None, **kwargs) -> DataFrame:
+    def fit_transform(
+        self, X: DataFrame, y: Optional[np.ndarray] = None, **kwargs
+    ) -> DataFrame:
         """
         Fit the LFR model to the data and transform it into fair representations.
 
@@ -388,8 +407,14 @@ class LFR(Preprocessor[DataFrame]):
         # Then transform the data
         return self.transform(X)
 
-    def _fit(self, X: np.ndarray, y: np.ndarray, sensitive_values: np.ndarray,
-             epochs: int, learning_rate: float) -> None:
+    def _fit(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        sensitive_values: np.ndarray,
+        epochs: int,
+        learning_rate: float,
+    ) -> None:
         """
         Fit the LFR model to the data.
 
@@ -423,10 +448,10 @@ class LFR(Preprocessor[DataFrame]):
 
         # Create optimizer for all network parameters
         optimizer = optim.Adam(
-            list(self.encoder.parameters()) +
-            list(self.decoder.parameters()) +
-            list(self.classifier.parameters()),
-            lr=learning_rate
+            list(self.encoder.parameters())
+            + list(self.decoder.parameters())
+            + list(self.classifier.parameters()),
+            lr=learning_rate,
         )
 
         # Training loop
@@ -487,7 +512,7 @@ class LFR(Preprocessor[DataFrame]):
 
         # Create column names for the latent dimensions
         latent_dim = fair_representations.shape[1]
-        latent_cols = [f'z{i}' for i in range(latent_dim)]
+        latent_cols = [f"z{i}" for i in range(latent_dim)]
 
         # Create a new DataFrame with the transformed data
         result = DataFrame(fair_representations, columns=latent_cols)
@@ -590,7 +615,9 @@ class LFR(Preprocessor[DataFrame]):
 
             # Calculate losses
             fairness_loss = compute_fairness_loss(z, sensitive_tensor).item()
-            reconstruction_loss = compute_reconstruction_loss(X_tensor, x_reconstructed).item()
+            reconstruction_loss = compute_reconstruction_loss(
+                X_tensor, x_reconstructed
+            ).item()
 
             # Calculate accuracy
             predictions = (y_pred > 0.5).float()
@@ -599,9 +626,9 @@ class LFR(Preprocessor[DataFrame]):
 
         # Return metrics as a dictionary
         return {
-            'accuracy': accuracy,
-            'fairness_loss': fairness_loss,
-            'reconstruction_loss': reconstruction_loss
+            "accuracy": accuracy,
+            "fairness_loss": fairness_loss,
+            "reconstruction_loss": reconstruction_loss,
         }
 
     def _transform(self, X: np.ndarray) -> np.ndarray:
@@ -658,24 +685,29 @@ class LFR(Preprocessor[DataFrame]):
 
         # Prepare model components for saving
         model_data = {
-            'encoder_state_dict': self.encoder.state_dict(),
-            'decoder_state_dict': self.decoder.state_dict(),
-            'classifier_state_dict': self.classifier.state_dict(),
-            'scaler': self.scaler,
-            'alpha_z': self.alpha_z,
-            'alpha_x': self.alpha_x,
-            'alpha_y': self.alpha_y
+            "encoder_state_dict": self.encoder.state_dict(),
+            "decoder_state_dict": self.decoder.state_dict(),
+            "classifier_state_dict": self.classifier.state_dict(),
+            "scaler": self.scaler,
+            "alpha_z": self.alpha_z,
+            "alpha_x": self.alpha_x,
+            "alpha_y": self.alpha_y,
         }
 
         # Save to disk
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             pickle.dump(model_data, f)
 
         logger.info(f"Model saved to {path}")
 
     @classmethod
-    def load(cls, path: str, input_dim: Optional[int] = None,
-             latent_dim: Optional[int] = None, output_dim: Optional[int] = None) -> 'LFR':
+    def load(
+        cls,
+        path: str,
+        input_dim: Optional[int] = None,
+        latent_dim: Optional[int] = None,
+        output_dim: Optional[int] = None,
+    ) -> "LFR":
         """
         Load a trained LFR model from disk.
 
@@ -706,22 +738,22 @@ class LFR(Preprocessor[DataFrame]):
             raise FileNotFoundError(f"Model file not found: {path}")
 
         # Load model data
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             model_data = pickle.load(f)
 
         # Create empty model
         model = cls(input_dim=input_dim, latent_dim=latent_dim, output_dim=output_dim)
 
         # Load state dictionaries
-        model.encoder.load_state_dict(model_data['encoder_state_dict'])
-        model.decoder.load_state_dict(model_data['decoder_state_dict'])
-        model.classifier.load_state_dict(model_data['classifier_state_dict'])
+        model.encoder.load_state_dict(model_data["encoder_state_dict"])
+        model.decoder.load_state_dict(model_data["decoder_state_dict"])
+        model.classifier.load_state_dict(model_data["classifier_state_dict"])
 
         # Load other components
-        model.scaler = model_data['scaler']
-        model.alpha_z = model_data['alpha_z']
-        model.alpha_x = model_data['alpha_x']
-        model.alpha_y = model_data['alpha_y']
+        model.scaler = model_data["scaler"]
+        model.alpha_z = model_data["alpha_z"]
+        model.alpha_x = model_data["alpha_x"]
+        model.alpha_y = model_data["alpha_y"]
 
         # Set model to evaluation mode
         model.encoder.eval()

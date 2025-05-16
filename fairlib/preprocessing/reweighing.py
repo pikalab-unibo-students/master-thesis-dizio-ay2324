@@ -6,20 +6,31 @@ from typing import Any, Optional, Tuple
 __all__ = ["Reweighing", "ReweighingWithMean"]
 
 from .pre_processing import Preprocessor
-from .utils import validate_dataframe, validate_target_count, get_privileged_unprivileged_masks, get_favorable_unfavorable_masks
+from .utils import (
+    validate_dataframe,
+    validate_target_count,
+    get_privileged_unprivileged_masks,
+    get_favorable_unfavorable_masks,
+)
 
 
 class Reweighing(Preprocessor[DataFrame]):
     @staticmethod
-    def _ratio(n_outcome: float, n_group: float, n_total: float, n_joint: float) -> float:
+    def _ratio(
+        n_outcome: float, n_group: float, n_total: float, n_joint: float
+    ) -> float:
         if n_joint == 0:
             return 0.0
         return (n_outcome * n_group) / (n_total * n_joint)
 
     @staticmethod
-    def _reweighing(privileged: pd.Series, unprivileged: pd.Series,
-                    favorable: pd.Series, unfavorable: pd.Series,
-                    n_total: int) -> Tuple[float, float, float, float]:
+    def _reweighing(
+        privileged: pd.Series,
+        unprivileged: pd.Series,
+        favorable: pd.Series,
+        unfavorable: pd.Series,
+        n_total: int,
+    ) -> Tuple[float, float, float, float]:
         n_favorable = np.sum(favorable)
         n_unfavorable = np.sum(unfavorable)
 
@@ -31,13 +42,18 @@ class Reweighing(Preprocessor[DataFrame]):
         n_unprivileged_favorable = np.sum(unprivileged & favorable)
         n_unprivileged_unfavorable = np.sum(unprivileged & unfavorable)
 
-        weight_privileged_favorable = Reweighing._ratio(n_favorable, n_privileged, n_total, n_privileged_favorable)
-        weight_privileged_unfavorable = Reweighing._ratio(n_unfavorable, n_privileged, n_total,
-                                                          n_privileged_unfavorable)
-        weight_unprivileged_favorable = Reweighing._ratio(n_favorable, n_unprivileged, n_total,
-                                                          n_unprivileged_favorable)
-        weight_unprivileged_unfavorable = Reweighing._ratio(n_unfavorable, n_unprivileged, n_total,
-                                                            n_unprivileged_unfavorable)
+        weight_privileged_favorable = Reweighing._ratio(
+            n_favorable, n_privileged, n_total, n_privileged_favorable
+        )
+        weight_privileged_unfavorable = Reweighing._ratio(
+            n_unfavorable, n_privileged, n_total, n_privileged_unfavorable
+        )
+        weight_unprivileged_favorable = Reweighing._ratio(
+            n_favorable, n_unprivileged, n_total, n_unprivileged_favorable
+        )
+        weight_unprivileged_unfavorable = Reweighing._ratio(
+            n_unfavorable, n_unprivileged, n_total, n_unprivileged_unfavorable
+        )
 
         return (
             weight_privileged_favorable,
@@ -46,10 +62,12 @@ class Reweighing(Preprocessor[DataFrame]):
             weight_unprivileged_unfavorable,
         )
 
-    def fit_transform(self, X: DataFrame, y: Optional[Any] = None, **kwargs) -> DataFrame:
+    def fit_transform(
+        self, X: DataFrame, y: Optional[Any] = None, **kwargs
+    ) -> DataFrame:
         """
         Fit the reweighing model and transform the data in one step.
-        
+
         Parameters
         ----------
         X : DataFrame
@@ -57,7 +75,7 @@ class Reweighing(Preprocessor[DataFrame]):
         y : ignored, use X.targets and X.sensitive
         favorable_label : int, optional
             The label of the favorable outcome, by default 1
-            
+
         Returns
         -------
         DataFrame
@@ -66,10 +84,12 @@ class Reweighing(Preprocessor[DataFrame]):
         favorable_label = kwargs.get("favorable_label", 1)
         return self._transform(X, y, favorable_label)
 
-    def _transform(self, df: DataFrame, y: Optional[Any], favorable_label: int) -> DataFrame:
+    def _transform(
+        self, df: DataFrame, y: Optional[Any], favorable_label: int
+    ) -> DataFrame:
         """
         Apply reweighing transformation to the data.
-        
+
         Parameters
         ----------
         df : DataFrame
@@ -78,7 +98,7 @@ class Reweighing(Preprocessor[DataFrame]):
             Ignored, target is taken from df
         favorable_label : int
             The label value considered favorable
-            
+
         Returns
         -------
         DataFrame
@@ -90,9 +110,11 @@ class Reweighing(Preprocessor[DataFrame]):
 
         # Get the target column (first one)
         target_column = df.targets.pop()
-        
+
         # Create masks for favorable/unfavorable outcomes
-        favorable, unfavorable = get_favorable_unfavorable_masks(df, target_column, favorable_label)
+        favorable, unfavorable = get_favorable_unfavorable_masks(
+            df, target_column, favorable_label
+        )
 
         n_total = len(df)
         df["weights"] = 1.0
@@ -120,17 +142,22 @@ class Reweighing(Preprocessor[DataFrame]):
 class ReweighingWithMean(Reweighing):
     """
     Enhanced Reweighing that calculates weights for each sensitive attribute separately.
-    
+
     This variant computes weights for each sensitive attribute independently and then
     takes the mean of all weights as the final instance weight. This can be useful when
     dealing with multiple sensitive attributes.
     """
-    
-    def _transform(self, df: DataFrame, y: Optional[Any], favorable_label: int, 
-                   remove_weight_columns: bool = True) -> DataFrame:
+
+    def _transform(
+        self,
+        df: DataFrame,
+        y: Optional[Any],
+        favorable_label: int,
+        remove_weight_columns: bool = True,
+    ) -> DataFrame:
         """
         Apply reweighing transformation with per-attribute weights.
-        
+
         Parameters
         ----------
         df : DataFrame
@@ -141,7 +168,7 @@ class ReweighingWithMean(Reweighing):
             The label value considered favorable
         remove_weight_columns : bool, default=True
             Whether to remove intermediate weight columns after computing the mean
-            
+
         Returns
         -------
         DataFrame
@@ -153,9 +180,11 @@ class ReweighingWithMean(Reweighing):
 
         # Get the target column (first one)
         target_column = df.targets.pop()
-        
+
         # Create masks for favorable/unfavorable outcomes
-        favorable, unfavorable = get_favorable_unfavorable_masks(df, target_column, favorable_label)
+        favorable, unfavorable = get_favorable_unfavorable_masks(
+            df, target_column, favorable_label
+        )
 
         n_total = len(df)
         df["weights"] = 1.0
@@ -179,10 +208,18 @@ class ReweighingWithMean(Reweighing):
             df[weight_col_name] = 1.0
 
             # Apply weights for this sensitive attribute
-            df.loc[privileged & favorable, weight_col_name] = weight_privileged_favorable
-            df.loc[privileged & unfavorable, weight_col_name] = weight_privileged_unfavorable
-            df.loc[unprivileged & favorable, weight_col_name] = weight_unprivileged_favorable
-            df.loc[unprivileged & unfavorable, weight_col_name] = weight_unprivileged_unfavorable
+            df.loc[privileged & favorable, weight_col_name] = (
+                weight_privileged_favorable
+            )
+            df.loc[privileged & unfavorable, weight_col_name] = (
+                weight_privileged_unfavorable
+            )
+            df.loc[unprivileged & favorable, weight_col_name] = (
+                weight_unprivileged_favorable
+            )
+            df.loc[unprivileged & unfavorable, weight_col_name] = (
+                weight_unprivileged_unfavorable
+            )
 
             weight_columns.append(weight_col_name)
 
