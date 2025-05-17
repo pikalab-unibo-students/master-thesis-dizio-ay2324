@@ -1,3 +1,33 @@
+## [2.7.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.0...2.7.1) (2025-05-17)
+
+### Dependency updates
+
+* **deps:** update dependency matplotlib to ~=3.10.3 ([#113](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/113)) ([66430bc](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/66430bc6f3f30273d7af74f962b7d265766942a6))
+* **deps:** update dependency notebook to v7.4.2 ([#110](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/110)) ([dc0908f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/dc0908f48dec16e387e002248a2056db0deb7b26))
+* **deps:** update dependency poetry to v2.1.3 ([#108](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/108)) ([72a43d0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/72a43d01a37006656e30df0deb1f75177ea36bb7))
+* **deps:** update dependency poetry to v2.1.3 ([#109](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/109)) ([71ed29d](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/71ed29de5e03f77d009d4cd7243fa7499668c2ec))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.128 ([#111](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/111)) ([c509bed](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c509bede48ecf0fdccad6334cf8e3edb22f7892d))
+
+### Bug Fixes
+
+* poetry lock ([9e28f4c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9e28f4c67979665451e896e08194cf3cbc8341e2))
+* update numpy ([c9b04a1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c9b04a18709d20bf5e3a66c343b3f2ac680fea16))
+* update scipy ([d318d2f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/d318d2f4a6be12bf8817c184997b04b7944193b4))
+
+### Documentation
+
+* update readme ([57f1c6f](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/57f1c6f70b4863ff5569ed9d646db69c43c42875))
+
+### General maintenance
+
+* reformat code ([9e6645a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9e6645a6193d4f98e907be193d289c22000edc7e))
+* update python version in poetry dependeciens ([1c0449d](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/1c0449dea63d32d00a48a0546439b382c01cdf79))
+* update some docs and updare torch version ([f2e3e08](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f2e3e08d6d5de60e468aca2fcd2127ed767b5060))
+
+### Refactoring
+
+* library api ([#112](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/112)) ([edac50d](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/edac50d85e62ab87942f104a4d6f1beb38a929eb))
+
 ## [2.7.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.6.1...2.7.0) (2025-04-30)
 
 ### Features
