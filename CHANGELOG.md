@@ -1,3 +1,9 @@
+## [2.7.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.1...2.7.2) (2025-05-18)
+
+### Bug Fixes
+
+* **deps:** update dependency numpy to v2.2.6 ([#117](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/117)) ([aa307a2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/aa307a2e41f9131e287e932137e789485ba01842))
+
 ## [2.7.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.0...2.7.1) (2025-05-17)
 
 ### Dependency updates
