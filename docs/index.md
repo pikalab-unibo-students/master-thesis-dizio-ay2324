@@ -18,18 +18,6 @@ In-processing techniques modify the learning algorithm to incorporate fairness c
 - [FaUCI (Fairness Under Constrained Injection)](inprocessing/fauci.md): Incorporates fairness metrics directly into the loss function as regularization terms.
 - [Prejudice Remover](inprocessing/prejudice_remover.md): Mitigates discrimination by adding a regularization term that penalizes mutual information between predictions and sensitive attributes.
 
-## How to Use This Documentation
-
-Each algorithm documentation includes:
-
-1. **Overview**: A high-level explanation of what the algorithm does
-2. **What Problem Does It Solve**: The specific fairness issues addressed
-3. **Key Concepts**: Important ideas and terminology
-4. **How It Works**: Step-by-step explanation of the algorithm
-5. **Implementation Details**: Specifics about the FairLib implementation
-6. **Usage Example**: Code examples showing how to use the algorithm
-7. **Advantages and Limitations**: Pros and cons of the approach
-8. **References**: Academic papers and other resources
 
 ## Fairness Metrics
 
