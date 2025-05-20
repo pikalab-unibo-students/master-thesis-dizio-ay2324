@@ -1,3 +1,20 @@
+## [2.7.3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.2...2.7.3) (2025-05-20)
+
+### Dependency updates
+
+* **deps:** update dependency matplotlib to v3.10.3 ([#116](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/116)) ([92a14a8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/92a14a8a2eaefbfcd0a7c8466ea2f57b598f1e77))
+* **deps:** update dependency numpy to ~=2.2.6 ([#13](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/13)) ([a0b7fd9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a0b7fd9d847d0676846aee8315a137f05f3b86f9))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.129 ([#118](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/118)) ([43b59db](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/43b59dbf1115558d665f0ae8432e88f5292b20ef))
+* **deps:** update dependency typing_extensions to ~=4.13.2 ([#115](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/115)) ([df869a5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/df869a538028adf7738102166300d3c1152faf54))
+
+### Documentation
+
+* update index ([0e9ad1e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/0e9ad1ed99d5edb2ce281f090d36956cbfac21db))
+
+### Build and continuous integration
+
+* **deps:** update dependency python to 3.13 ([#20](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/20)) ([24512d0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/24512d0e734aaaf2aa40be1c67323fa91d184f2e))
+
 ## [2.7.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.1...2.7.2) (2025-05-18)
 
 ### Bug Fixes
