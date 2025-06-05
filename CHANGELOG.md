@@ -1,3 +1,22 @@
+## [2.7.4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.3...2.7.4) (2025-06-05)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.8.1 ([#119](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/119)) ([7fd0614](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/7fd06147919cb266c567c79cbcc5b678967c9d3c))
+* **deps:** update dependency coverage to v7.8.2 ([#122](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/122)) ([e978bdd](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e978bdd8085cd3fdef9289fc763d30ab90de821a))
+* **deps:** update dependency mypy to v1.16.0 ([#126](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/126)) ([13bdaa9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/13bdaa9a1fd6c4bff6f10da2cef1ff2f2bccf132))
+* **deps:** update dependency notebook to v7.4.3 ([#123](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/123)) ([beae5e8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/beae5e8ab9ebe9f3c6f340721d0e3f1ab4044af6))
+* **deps:** update dependency pytest to v8.4.0 ([#127](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/127)) ([8fec627](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8fec6278a55bf6b408635528d43fc582c4e8a233))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.131 ([#121](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/121)) ([550835e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/550835e8b2892d8f869e5ddb03ad63b6a3f24c5d))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.132 ([#124](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/124)) ([6e7e2cb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/6e7e2cb631ea0980c067a878132518beb1b177e5))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.133 ([#125](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/125)) ([61714a8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/61714a8397169ad6b9b3373b21fe09f74dfce636))
+* **deps:** update dependency typing_extensions to ~=4.14.0 ([#128](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/128)) ([41164c7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/41164c7c5bb25165dacc27c7ca32d5969b43d073))
+* **deps:** update node.js to 22.16 ([#120](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/120)) ([c53599d](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c53599d156fc32aac6eeec2676f18affe86a0717))
+
+### Bug Fixes
+
+* **deps:** update dependency torch to v2.7.1 [security] ([#129](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/129)) ([bb21528](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/bb215288d08ce3b8579ff0f5835f3665006144ce))
+
 ## [2.7.3](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.2...2.7.3) (2025-05-20)
 
 ### Dependency updates
