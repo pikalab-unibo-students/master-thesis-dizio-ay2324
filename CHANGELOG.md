@@ -1,3 +1,13 @@
+## [2.7.5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.4...2.7.5) (2025-06-06)
+
+### Dependency updates
+
+* **deps:** update dependency pandas to ~=2.3.0 ([#130](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/130)) ([c14bf9c](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c14bf9c5e438ea55c4bb9a5a066fb55fa1f6894c))
+
+### Bug Fixes
+
+* **deps:** update dependency pandas to v2.3.0 ([#131](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/131)) ([c26c93e](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/c26c93ed47cff59eedf00869044b7ec457f365a5))
+
 ## [2.7.4](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.3...2.7.4) (2025-06-05)
 
 ### Dependency updates
