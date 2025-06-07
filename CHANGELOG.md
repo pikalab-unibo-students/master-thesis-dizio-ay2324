@@ -1,3 +1,9 @@
+## [2.7.6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.5...2.7.6) (2025-06-07)
+
+### Bug Fixes
+
+* **deps:** update dependency scikit-learn to v1.7.0 ([#133](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/133)) ([92c96c2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/92c96c2f8652f3dc48a3bdd14578691d1f5c94c7))
+
 ## [2.7.5](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.4...2.7.5) (2025-06-06)
 
 ### Dependency updates
