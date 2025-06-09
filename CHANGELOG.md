@@ -1,3 +1,14 @@
+## [2.7.7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.6...2.7.7) (2025-06-09)
+
+### Dependency updates
+
+* **deps:** update dependency poethepoet to ^0.35.0 ([#136](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/136)) ([13a2a39](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/13a2a39bd3e7a2e3942b0cf1ef3a8a93001740f3))
+* **deps:** update dependency scikit-learn to ~=1.7.0 ([#132](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/132)) ([a0f11ed](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/a0f11ed51e7377816fb250de929c1b63247af8bb))
+
+### Bug Fixes
+
+* **deps:** update dependency numpy to v2.3.0 ([#135](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/135)) ([7520e16](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/7520e16b9a7e6537e7e16f11ac4b2dba9b9cd86a))
+
 ## [2.7.6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.5...2.7.6) (2025-06-07)
 
 ### Bug Fixes
