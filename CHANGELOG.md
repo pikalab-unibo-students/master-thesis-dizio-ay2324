@@ -1,3 +1,13 @@
+## [2.7.8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.7...2.7.8) (2025-06-12)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.9.0 ([#137](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/137)) ([e7e32d6](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e7e32d66faf666ea0b226b0ee7bb724e6169c4ed))
+
+### Bug Fixes
+
+* **deps:** update dependency pytest-cov to v6.2.0 ([#138](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/138)) ([fd48580](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/fd485806b205febc05eecc7262cf995cdbed838b))
+
 ## [2.7.7](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.6...2.7.7) (2025-06-09)
 
 ### Dependency updates
