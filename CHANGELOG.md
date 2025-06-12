@@ -1,3 +1,9 @@
+## [2.7.9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.8...2.7.9) (2025-06-12)
+
+### Bug Fixes
+
+* **deps:** update dependency pytest-cov to v6.2.1 ([#139](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/139)) ([8b4d8ef](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/8b4d8ef6416965da60576272bf8b4c54e9d29cfc))
+
 ## [2.7.8](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.7...2.7.8) (2025-06-12)
 
 ### Dependency updates
