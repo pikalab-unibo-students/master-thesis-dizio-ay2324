@@ -1,16 +1,16 @@
 [tool.poetry]
-name = "fairlib"
+name = "fair-lib"
 packages = [
     { include = "fairlib" },
 ]
 version = "2.7.9"
-description = "A library that enables the use of tools suitable for improving equity in machine learning processes"
-authors = ["Giovanni Ciatto <giovanni.ciatto@unibo.it>", "Valerio Di Zio <valerio.dizio@studio.unibo.it"]
+description = "A library for detecting and mitigating bias in machine learning models, with a focus on interoperability with scikit-learn, Pandas, and PyTorch."
+authors = ["Valerio Di Zio <valerio.dizio@studio.unibo.it>", "Giovanni Ciatto <giovanni.ciatto@unibo.it>"]
 license = "Apache 2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python =  "^3.10.0"
+python =  ">=3.10.0 <4.0.0"
 scikit-learn = "^1.5.0"
 pandas = "^2.2.2"
 torch = { version = "^2.4.1", optional = true }
