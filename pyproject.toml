@@ -3,7 +3,7 @@ name = "aequitas-fairlib"
 packages = [
     { include = "fairlib" },
 ]
-version = "2.7.10"
+version = "2.8.0"
 description = "A library for detecting and mitigating bias in machine learning models, with a focus on interoperability with scikit-learn, Pandas, and PyTorch."
 authors = ["Valerio Di Zio <valerio.dizio@studio.unibo.it>", "Giovanni Ciatto <giovanni.ciatto@unibo.it>"]
 license = "Apache 2.0"

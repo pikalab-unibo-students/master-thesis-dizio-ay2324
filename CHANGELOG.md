@@ -1,3 +1,9 @@
+## [2.8.0](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.10...2.8.0) (2025-06-17)
+
+### Features
+
+* change name to "aequitas-fairlib" ([015fccb](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/015fccb665bae18d94c75bd64494765c8ecb999e))
+
 ## [2.7.10](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.9...2.7.10) (2025-06-17)
 
 ### Dependency updates
