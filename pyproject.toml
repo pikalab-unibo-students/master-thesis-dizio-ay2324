@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "fair-lib"
+name = "aequitas-fairlib"
 packages = [
     { include = "fairlib" },
 ]
