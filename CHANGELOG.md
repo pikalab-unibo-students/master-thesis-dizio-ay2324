@@ -1,3 +1,22 @@
+## [2.7.10](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.9...2.7.10) (2025-06-17)
+
+### Dependency updates
+
+* **deps:** update dependency coverage to v7.9.1 ([#140](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/140)) ([070913a](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/070913a809222c7dbef2cc25d42538f518085aad))
+* **deps:** update dependency mypy to v1.16.1 ([#141](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/141)) ([f6a6bfa](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/f6a6bfa2d1877b51de8e99df7b06032b3934f961))
+
+### Bug Fixes
+
+* release on pypi insteaf of test-pypi ([2ad2096](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/2ad2096cfaa226ae7da2c17858c2355358fa2ebd))
+
+### General maintenance
+
+* remove useless requirements, only keep poetry ([e78a314](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/e78a3145b7ab87f192c2132c4d0e060e19560dec))
+
+### Refactoring
+
+* change project name to fair-lib to avoid clashes with homonymous pypi library, adjust python version compatibility range ([fec586b](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/fec586b7c366e22c214921fc4173cc40dae2f30c))
+
 ## [2.7.9](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.7.8...2.7.9) (2025-06-12)
 
 ### Bug Fixes
