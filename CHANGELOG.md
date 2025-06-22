@@ -1,3 +1,9 @@
+## [2.8.2](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.8.1...2.8.2) (2025-06-22)
+
+### Bug Fixes
+
+* **deps:** update dependency scipy to v1.16.0 ([#144](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/issues/144)) ([9c4b534](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/commit/9c4b53443acfb28273d97c3f6a3aff674552edda))
+
 ## [2.8.1](https://github.com/pikalab-unibo-students/master-thesis-dizio-ay2324/compare/2.8.0...2.8.1) (2025-06-21)
 
 ### Dependency updates
