@@ -9,9 +9,8 @@
 </p>
 
 
-# FairLib - Python Library for Fairness Metrics and Processing
-
-This library provides a set of tools for measuring and improving fairness in machine learning models, covering a variety of fairness metrics, pre-processing, in-processing, and post-processing techniques.
+# FairLib: A Toolkit for Bias Analysis and Mitigation in AI Systems
+This library provides a set of tools for measuring and improving fairness in machine learning models, covering a variety of fairness metrics, pre-processing and in-processing techniques.
 
 [Complete Workflow Example Notebook](examples/demo_core_lib.ipynb)
 
@@ -29,9 +28,9 @@ The library will provide some fairness metrics to perform various analyses. Plus
 - Reweighing - [Example Notebook](examples/demo_reweighing.ipynb)
 
 ### In-Processing Techniques
-- FaUCI - [Example Notebook](examples/demo_fauci_TO_DELETE.ipynb)
+- FaUCI - [Example Notebook](examples/demo_fauci.ipynb)
 - Adversarial Debiasing - [Example Notebook](examples/demo_adversarial_debiasing.ipynb)
-- Prejudice Remover - [Example Notebook](examples/demo_prejudice_remover.ipynb)
+- Prejudice Remover - coming soon...
 
 ## Project Structure
 
