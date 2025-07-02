@@ -143,13 +143,20 @@ def save_plots(results):
 # ----------------------------------------------------------------------------
 
 class SimpleNet(nn.Module):
-    def __init__(self, input_dim: int, hidden_dim: int = 32):
+    def __init__(self, input_dim: int):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1),
-        )
+        nn.Linear(input_dim, 64),
+        nn.ReLU(),
+        nn.Linear(64, 32),
+        nn.ReLU(),
+        nn.Linear(32, 16),
+        nn.ReLU(),
+        nn.Linear(16, 8),
+        nn.ReLU(),
+        nn.Linear(8, 1),
+        nn.Sigmoid(),
+    )
 
     def forward(self, x):
         return self.net(x).squeeze()
@@ -195,7 +202,7 @@ def main():
     # --------------------------- Fauci -----------------------------
     simple_net = SimpleNet(input_dim=X_train.shape[1])
     ds_fauci_train = DataFrame(X_train.copy()); ds_fauci_train.sensitive = "sex"
-    fauci = Fauci(torchModel=simple_net, loss=nn.BCEWithLogitsLoss(), fairness_regularization="spd", regularization_weight=REGULARIZATION_WEIGHT)
+    fauci = Fauci(torchModel=simple_net, loss=nn.BCELoss(), fairness_regularization="spd", regularization_weight=REGULARIZATION_WEIGHT)
     fauci.fit(ds_fauci_train, y_train.values, epochs=EPOCHS, batch_size=BATCH_SIZE)
     ds_fauci_test = DataFrame(X_test.copy()); ds_fauci_test.sensitive = "sex"
     fauci_logits = fauci.predict(ds_fauci_test)
@@ -207,7 +214,7 @@ def main():
     # --------------------- Prejudice Remover -----------------------
     simple_net = SimpleNet(input_dim=X_train.shape[1])
     ds_pr_train = DataFrame(X_train.copy()); ds_pr_train.sensitive = "sex"
-    pr_model = PrejudiceRemover(torchModel=simple_net, loss=nn.BCEWithLogitsLoss(), eta=ETA)
+    pr_model = PrejudiceRemover(torchModel=simple_net, loss=nn.BCELoss(), eta=ETA)
     pr_model.fit(ds_pr_train, y_train.values, epochs=EPOCHS, batch_size=BATCH_SIZE)
     ds_pr_test = DataFrame(X_test.copy()); ds_pr_test.sensitive = "sex"
     pr_probs = pr_model.predict(ds_pr_test)

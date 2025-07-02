@@ -30,7 +30,7 @@ The library will provide some fairness metrics to perform various analyses. Plus
 ### In-Processing Techniques
 - FaUCI - [Example Notebook](examples/demo_fauci.ipynb)
 - Adversarial Debiasing - [Example Notebook](examples/demo_adversarial_debiasing.ipynb)
-- Prejudice Remover - coming soon...
+- Prejudice Remover - [Example Notebook](examples/demo_prejudice_remover.ipynb)
 
 ## Project Structure
 
