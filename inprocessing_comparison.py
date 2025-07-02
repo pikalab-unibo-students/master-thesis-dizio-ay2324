@@ -1,4 +1,3 @@
-
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -23,12 +22,11 @@ from fairlib.inprocessing import AdversarialDebiasing, Fauci, PrejudiceRemover
 # ----------------------------------------------------------------------------
 # Parametri globali
 # ----------------------------------------------------------------------------
-EPOCHS = 200
+EPOCHS = 75
 BATCH_SIZE = 64
 LAMBDA_ADV = 1.5
-REGULARIZATION_WEIGHT = 0.7
-ETA = 1.5
-LEARNING_RATE = 1e-3
+REGULARIZATION_WEIGHT = 0.6
+ETA = 0.6
 
 # ----------------------------------------------------------------------------
 # Funzioni di supporto
@@ -41,7 +39,7 @@ def prepare_adult_dataset() -> DataFrame:
     adult_df.drop(columns=["fnlwgt"], inplace=True)
 
     adult = DataFrame(adult_df)
-    adult.targets, adult.sensitive = "income", ["sex"]
+    adult.targets, adult.sensitive = "income", ["sex"]  # sempre lista
 
     for col in adult.columns:
         if adult[col].dtype == "object" or adult[col].dtype.name == "category":
@@ -52,25 +50,25 @@ def prepare_adult_dataset() -> DataFrame:
 def evaluate_fairness(X_test, y_pred, positive_target=1, favored_class=0):
     """
     Evaluate the fairness metrics (SPD and DI) of the predictions.
-    The positive_class and unfavored_class parameters allow you to specify
-    which target is considered positive and which is considered unfavored.
+    The positive_target and favored_class parameters allow you to specify
+    which target is considered positive and which is considered favored.
     """
     X_test = X_test.copy()
     X_test["income"] = y_pred
     dataset = DataFrame(X_test)
     dataset.targets = "income"
-    dataset.sensitive = "sex"
+    dataset.sensitive = ["sex"]  # omogeneo
 
-    spd = dataset.statistical_parity_difference()[{'income': positive_target, 'sex': favored_class}]
-    di = dataset.disparate_impact()[{'income': positive_target, 'sex': favored_class}]
+    spd = dataset.statistical_parity_difference()[{"income": positive_target, "sex": favored_class}]
+    di = dataset.disparate_impact()[{"income": positive_target, "sex": favored_class}]
     return spd, di
 
 
 def train_baseline_classifier(X: DataFrame, y: pd.Series):
     """Train a baseline neural network classifier using SimpleNet"""
     model = SimpleNet(input_dim=X.shape[1])
-    criterion = nn.BCEWithLogitsLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+    criterion = nn.BCELoss()
+    optimizer = torch.optim.Adam(model.parameters())
 
     # Convert data to tensors
     X_tensor = torch.FloatTensor(X.values)
@@ -87,7 +85,6 @@ def train_baseline_classifier(X: DataFrame, y: pd.Series):
 
     model.eval()
     return model
-
 
 # ----------------------------------------------------------------------------
 # Funzioni di plotting
@@ -133,7 +130,7 @@ def save_plots(results):
     di_vals = [r["di"] for r in results]
     di_abs = [abs(d - 1) if (d is not None and np.isfinite(d)) else np.nan for d in di_vals]
 
-    _save_barplot(accuracy, algos, "Accuracy – In‑processing Algorithms", "Accuracy", "inprocessing_accuracy_comparison.png", ylim=(0.70, 0.85))
+    _save_barplot(accuracy, algos, "Accuracy – In-processing Algorithms", "Accuracy", "inprocessing_accuracy_comparison.png", ylim=(0.70, 0.85))
     _save_barplot(spd_abs, algos, "|Statistical Parity Difference| – Lower is Better", "|SPD|", "inprocessing_spd_comparison.png")
     _save_barplot(di_abs, algos, "|Disparate Impact − 1| – Lower is Better", "|DI−1|", "inprocessing_di_comparison.png")
 
@@ -146,17 +143,17 @@ class SimpleNet(nn.Module):
     def __init__(self, input_dim: int):
         super().__init__()
         self.net = nn.Sequential(
-        nn.Linear(input_dim, 64),
-        nn.ReLU(),
-        nn.Linear(64, 32),
-        nn.ReLU(),
-        nn.Linear(32, 16),
-        nn.ReLU(),
-        nn.Linear(16, 8),
-        nn.ReLU(),
-        nn.Linear(8, 1),
-        nn.Sigmoid(),
-    )
+            nn.Linear(input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 8),
+            nn.ReLU(),
+            nn.Linear(8, 1),
+            nn.Sigmoid(),
+        )
 
     def forward(self, x):
         return self.net(x).squeeze()
@@ -178,22 +175,22 @@ def main():
     # --------------------------- Baseline ---------------------------
     base_clf = train_baseline_classifier(X_train, y_train)
 
-    # Make predictions with the neural network
+    # Make predictions with the neural network (niente secondo sigmoid)
     with torch.no_grad():
         X_test_tensor = torch.FloatTensor(X_test.values)
-        base_logits = base_clf(X_test_tensor)
-        base_pred = (torch.sigmoid(base_logits) > 0.5).int().numpy()
+        base_probs = base_clf(X_test_tensor)
+        base_pred = (base_probs > 0.5).int().numpy()
 
     base_acc = accuracy_score(y_test, base_pred)
     base_spd, base_di = evaluate_fairness(X_test, base_pred)
     results.append({"algorithm": "Baseline", "accuracy": base_acc, "spd": base_spd, "di": base_di})
 
     # ------------------ Adversarial Debiasing ----------------------
-    ds_adv_train = DataFrame(X_train.copy()); ds_adv_train.sensitive = "sex"
+    ds_adv_train = DataFrame(X_train.copy()); ds_adv_train.sensitive = ["sex"]
     adv_model = AdversarialDebiasing(input_dim=X_train.shape[1], hidden_dim=32, output_dim=1, sensitive_dim=1, lambda_adv=LAMBDA_ADV)
-    adv_model.fit(ds_adv_train, y_train.values, num_epochs=EPOCHS, lr=LEARNING_RATE, batch_size=BATCH_SIZE)
+    adv_model.fit(ds_adv_train, y_train.values, num_epochs=EPOCHS, batch_size=BATCH_SIZE)
 
-    ds_adv_test = DataFrame(X_test.copy()); ds_adv_test.sensitive = "sex"
+    ds_adv_test = DataFrame(X_test.copy()); ds_adv_test.sensitive = ["sex"]
     adv_pred = adv_model.predict(ds_adv_test).cpu().numpy().astype(int).flatten()
     adv_acc = accuracy_score(y_test, adv_pred)
     adv_spd, adv_di = evaluate_fairness(X_test, adv_pred)
@@ -201,37 +198,34 @@ def main():
 
     # --------------------------- Fauci -----------------------------
     simple_net = SimpleNet(input_dim=X_train.shape[1])
-    ds_fauci_train = DataFrame(X_train.copy()); ds_fauci_train.sensitive = "sex"
+    ds_fauci_train = DataFrame(X_train.copy()); ds_fauci_train.sensitive = ["sex"]
     fauci = Fauci(torchModel=simple_net, loss=nn.BCELoss(), fairness_regularization="spd", regularization_weight=REGULARIZATION_WEIGHT)
     fauci.fit(ds_fauci_train, y_train.values, epochs=EPOCHS, batch_size=BATCH_SIZE)
-    ds_fauci_test = DataFrame(X_test.copy()); ds_fauci_test.sensitive = "sex"
-    fauci_logits = fauci.predict(ds_fauci_test)
-    fauci_pred = (torch.sigmoid(fauci_logits) > 0.5).int().cpu().numpy()
+    ds_fauci_test = DataFrame(X_test.copy()); ds_fauci_test.sensitive = ["sex"]
+    fauci_probs = fauci.predict(ds_fauci_test)
+    fauci_pred = (fauci_probs > 0.5).int().cpu().numpy()
     fauci_acc = accuracy_score(y_test, fauci_pred)
     fauci_spd, fauci_di = evaluate_fairness(X_test, fauci_pred)
     results.append({"algorithm": "Fauci", "accuracy": fauci_acc, "spd": fauci_spd, "di": fauci_di})
 
     # --------------------- Prejudice Remover -----------------------
     simple_net = SimpleNet(input_dim=X_train.shape[1])
-    ds_pr_train = DataFrame(X_train.copy()); ds_pr_train.sensitive = "sex"
+    ds_pr_train = DataFrame(X_train.copy()); ds_pr_train.sensitive = ["sex"]
     pr_model = PrejudiceRemover(torchModel=simple_net, loss=nn.BCELoss(), eta=ETA)
     pr_model.fit(ds_pr_train, y_train.values, epochs=EPOCHS, batch_size=BATCH_SIZE)
-    ds_pr_test = DataFrame(X_test.copy()); ds_pr_test.sensitive = "sex"
+    ds_pr_test = DataFrame(X_test.copy()); ds_pr_test.sensitive = ["sex"]
     pr_probs = pr_model.predict(ds_pr_test)
-    pr_pred = (torch.sigmoid(pr_probs) > 0.5).int().cpu().numpy()
+    pr_pred = (pr_probs > 0.5).int().cpu().numpy()
     pr_acc = accuracy_score(y_test, pr_pred)
     pr_spd, pr_di = evaluate_fairness(X_test, pr_pred)
     results.append({"algorithm": "PrejudiceRemover", "accuracy": pr_acc, "spd": pr_spd, "di": pr_di})
 
-    print(results)
     # -------------------- Stampa e grafici -------------------------
-    # print("\n----- RISULTATI -----")
-    # for r in results:
-    #     di_display = "NaN" if r["di"] is None or (isinstance(r["di"], float) and np.isnan(r["di"])) else f"{r['di']:.4f}"
-    #     print(f"{r['algorithm']:<22} Acc: {r['accuracy']:.4f}  SPD: {r['spd']:.4f}  DI: {di_display}")
-    #
-    # save_plots(results)
-    # return results
+    print("\n----- RISULTATI -----")
+    for r in results:
+        print(f"{r['algorithm']:<22} Acc: {r['accuracy']:.4f}  SPD: {r['spd']:.4f}  DI: {r['di']}")
+
+    save_plots(results)
 
 
 if __name__ == "__main__":
