@@ -22,7 +22,7 @@ from fairlib.inprocessing import AdversarialDebiasing, Fauci, PrejudiceRemover
 # ----------------------------------------------------------------------------
 # Parametri globali
 # ----------------------------------------------------------------------------
-EPOCHS = 75
+EPOCHS = 50
 BATCH_SIZE = 64
 LAMBDA_ADV = 1.5
 REGULARIZATION_WEIGHT = 0.6
@@ -143,13 +143,7 @@ class SimpleNet(nn.Module):
     def __init__(self, input_dim: int):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(input_dim, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32),
-            nn.ReLU(),
-            nn.Linear(32, 16),
-            nn.ReLU(),
-            nn.Linear(16, 8),
+            nn.Linear(input_dim, 8),
             nn.ReLU(),
             nn.Linear(8, 1),
             nn.Sigmoid(),
@@ -223,7 +217,7 @@ def main():
     # -------------------- Stampa e grafici -------------------------
     print("\n----- RISULTATI -----")
     for r in results:
-        print(f"{r['algorithm']:<22} Acc: {r['accuracy']:.4f}  SPD: {r['spd']:.4f}  DI: {r['di']}")
+        print(f"{r['algorithm']} Acc: {r['accuracy']}  SPD: {r['spd']}  DI: {r['di']}")
 
     save_plots(results)
 
